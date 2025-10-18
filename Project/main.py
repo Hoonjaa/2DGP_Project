@@ -1,10 +1,14 @@
 from pico2d import *
 from player import Player
+from test_background import Background
 
 def reset_world():
     global world
 
     world = []
+
+    background = Background()
+    world.append(background)
 
     player = Player()
     world.append(player)
