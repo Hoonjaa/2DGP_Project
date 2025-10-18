@@ -8,20 +8,23 @@ player_sprite = ( #0: IDLE, 1: WALK, 2: DASH, 3: JUMP
 )
 
 class Idle:
-    def __init__(self):
-        pass
+    def __init__(self, player):
+        self.player = player
 
     def enter(self):
-        pass
+        self.player.dir = 0
 
     def exit(self):
         pass
 
     def do(self):
-        pass
+        self.player.frame = (self.player.frame + 1) % len(self.player.action)
 
     def draw(self):
-        pass
+        if self.player.face_dir == 1:
+            self.player.image.clip_draw(*self.player.action[self.player.frame], self.player.x, self.player.y, 100, 100)
+        if self.player.face_dir == -1:
+            self.player.image.clip_composite_draw(*self.player.action[self.player.frame], 0, '', self.player.x, self.player.y, 100, 100)
 
 class Player:
     def __init__(self):
@@ -32,6 +35,8 @@ class Player:
         self.action = player_sprite[0]
         self.frame = 0
         self.image = load_image('Sprite/Player.png')
+
+        self.IDLE = Idle(self)
 
     def update(self):
         self.frame = (self.frame + 1) % len(self.action)
