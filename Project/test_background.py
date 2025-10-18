@@ -8,4 +8,4 @@ class Background:
         pass
 
     def draw(self):
-        self.image.draw(640,720)
+        self.image.draw(640,360, 1280, 720)
