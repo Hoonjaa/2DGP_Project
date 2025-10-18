@@ -10,13 +10,15 @@ player_sprite = ( #0: IDLE, 1: WALK, 2: DASH, 3: JUMP
 class Player:
     def __init__(self):
         self.x, self.y = 640, 90
+        self.face_dir = 1
+        self.dir = 0
+
         self.action = player_sprite[0]
         self.frame = 0
         self.image = load_image('Sprite/Player.png')
 
     def update(self):
         self.frame = (self.frame + 1) % len(self.action)
-
 
     def draw(self):
         self.image.clip_draw(*self.action[self.frame], self.x, self.y, 100, 100)
