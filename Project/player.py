@@ -1,5 +1,7 @@
 from pico2d import load_image
 
+from state_machine import StateMachine
+
 player_sprite = ( #0: IDLE, 1: WALK, 2: DASH, 3: JUMP
     ((7, 1835, 49, 46), (65, 1835, 49, 46), (123, 1835, 49, 47), (181, 1835, 49, 48), (239, 1835, 49, 48), (297, 1835, 49, 48), (355, 1835, 49, 48)),
     ((7, 1777, 54, 41), (70, 1777, 53, 40), (132, 1777, 53, 41), (194, 1777, 53, 41), (256, 1777, 52, 40), (317, 1776, 52, 43)),
@@ -37,9 +39,10 @@ class Player:
         self.image = load_image('Sprite/Player.png')
 
         self.IDLE = Idle(self)
+        self.state_machine = StateMachine(self.IDLE)
 
     def update(self):
-        self.frame = (self.frame + 1) % len(self.action)
+        self.state_machine.update()
 
     def draw(self):
-        self.image.clip_draw(*self.action[self.frame], self.x, self.y, 100, 100)
+        self.state_machine.draw()
