@@ -7,6 +7,22 @@ player_sprite = ( #0: IDLE, 1: WALK, 2: DASH, 3: JUMP
     ((7, 1655, 43, 47), (59, 1655, 43, 47), (111, 1655, 43, 47)),
 )
 
+class Idle:
+    def __init__(self):
+        pass
+
+    def enter(self):
+        pass
+
+    def exit(self):
+        pass
+
+    def do(self):
+        pass
+
+    def draw(self):
+        pass
+
 class Player:
     def __init__(self):
         self.x, self.y = 640, 90
