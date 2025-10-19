@@ -5,16 +5,16 @@ from state_machine import StateMachine
 
 # 이벤트 체크 함수
 def a_down(e):
-    return e[0] == 'INPUT' and e[1] == SDL_KEYDOWN and e[1] == 97
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == 97
 
 def a_up(e):
-    return e[0] == 'INPUT' and e[1] == SDL_KEYUP and e[1] == 97
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == 97
 
 def d_down(e):
-    return e[0] == 'INPUT' and e[1] == SDL_KEYDOWN and e[1] == 100
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == 100
 
 def d_up(e):
-    return e[0] == 'INPUT' and e[1] == SDL_KEYUP and e[1] == 100
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == 100
 
 
 class Run:
@@ -22,10 +22,15 @@ class Run:
         self.player = player
         self.action = ((7, 1777, 54, 41), (70, 1777, 53, 40), (132, 1777, 53, 41), (194, 1777, 53, 41), (256, 1777, 52, 40), (317, 1776, 52, 43))
 
-    def enter(self):
-        self.player.dir = 1
+    def enter(self, e):
+        if a_down(e) or d_up(e):
+            self.player.dir = -1
+            self.player.face_dir = -1
+        elif d_down(e) or a_up(e):
+            self.player.dir = 1
+            self.player.face_dir = 1
 
-    def exit(self):
+    def exit(self, e):
         pass
 
     def do(self):
@@ -40,7 +45,7 @@ class Run:
         if self.player.face_dir == 1:
             self.player.image.clip_draw(*self.action[self.player.frame], self.player.x, self.player.y, 100, 100)
         if self.player.face_dir == -1:
-            self.player.image.clip_composite_draw(*self.action[self.player.frame], 0, '', self.player.x, self.player.y, 100, 100)
+            self.player.image.clip_composite_draw(*self.action[self.player.frame], 0, 'h', self.player.x, self.player.y, 100, 100)
 
 
 class Idle:
@@ -48,10 +53,10 @@ class Idle:
         self.player = player
         self.action = ((7, 1835, 49, 46), (65, 1835, 49, 46), (123, 1835, 49, 47), (181, 1835, 49, 48), (239, 1835, 49, 48), (297, 1835, 49, 48), (355, 1835, 49, 48))
 
-    def enter(self):
+    def enter(self, e):
         self.player.dir = 0
 
-    def exit(self):
+    def exit(self, e):
         pass
 
     def do(self):
@@ -61,7 +66,7 @@ class Idle:
         if self.player.face_dir == 1:
             self.player.image.clip_draw(*self.action[self.player.frame], self.player.x, self.player.y, 100, 100)
         if self.player.face_dir == -1:
-            self.player.image.clip_composite_draw(*self.action[self.player.frame], 0, '', self.player.x, self.player.y, 100, 100)
+            self.player.image.clip_composite_draw(*self.action[self.player.frame], 0, 'h', self.player.x, self.player.y, 100, 100)
 
 
 class Player:
@@ -76,15 +81,19 @@ class Player:
         self.IDLE = Idle(self)
         self.RUN = Run(self)
         self.state_machine = StateMachine(
-            self.RUN,
+            self.IDLE,
             {
                 self.IDLE : {a_down : self.RUN, d_down : self.RUN, a_up : self.RUN, d_up : self.RUN},
-                self.RUN : {a_down : self.RUN, d_down : self.RUN, a_up : self.RUN, d_up : self.RUN}
+                self.RUN : {a_down : self.IDLE, d_down : self.IDLE, a_up : self.IDLE, d_up : self.IDLE}
             }
         )
 
     def update(self):
         self.state_machine.update()
+
+    def handle_event(self, event):
+        # 들어온 외부 키 입력을 상태머신에게 전달하기 위해 튜플화 시킨후 전달
+        self.state_machine.handle_event(('INPUT', event))
 
     def draw(self):
         self.state_machine.draw()

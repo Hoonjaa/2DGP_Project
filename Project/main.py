@@ -4,15 +4,19 @@ from test_background import Background
 
 def handle_events():
     global running
+
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
             running = False
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             running = False
+        else:
+            player.handle_event(event)
 
 def reset_world():
     global world
+    global player
 
     world = []
 
