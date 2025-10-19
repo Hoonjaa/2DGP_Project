@@ -19,10 +19,15 @@ def d_up(e):
 def space_down(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_SPACE
 
+def land(e):
+    return e[0] == 'LAND'
+
 class Jump:
     def __init__(self, player):
         self.player = player
         self.action = ((7, 1655, 43, 47), (59, 1655, 43, 47), (111, 1655, 43, 47))
+        self.dropSpeed = 3.0
+        self.ground_y = player.y
 
     def enter(self, e):
         if a_down(e) or d_up(e):
@@ -46,6 +51,13 @@ class Jump:
             self.player.x = 0
         elif self.player.x > 1280:
             self.player.x = 1280
+
+        self.player.y += self.dropSpeed * 5
+        self.dropSpeed -= 0.1
+        if self.player.y < self.ground_y:
+            self.player.y = self.ground_y
+            self.dropSpeed = 3.0
+            self.player.state_machine.handle_event(('LAND', None))
 
     def draw(self):
         if self.player.face_dir == 1:
@@ -123,7 +135,7 @@ class Player:
             {
                 self.IDLE : {a_down : self.RUN, d_down : self.RUN, a_up : self.RUN, d_up : self.RUN, space_down : self.JUMP},
                 self.RUN : {a_down : self.IDLE, d_down : self.IDLE, a_up : self.IDLE, d_up : self.IDLE, space_down : self.JUMP},
-                self.JUMP : {a_down : self.JUMP, d_down : self.JUMP, a_up : self.JUMP, d_up : self.JUMP},
+                self.JUMP : {a_down : self.JUMP, d_down : self.JUMP, a_up : self.JUMP, d_up : self.JUMP, land : self.IDLE},
             }
         )
 
