@@ -1,5 +1,5 @@
 from pico2d import load_image
-from sdl2 import SDL_KEYDOWN, SDL_KEYUP
+from sdl2 import SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE
 
 from state_machine import StateMachine
 
@@ -16,6 +16,8 @@ def d_down(e):
 def d_up(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == 100
 
+def space_down(e):
+    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_SPACE
 
 class Jump:
     def __init__(self, player):
@@ -105,8 +107,9 @@ class Player:
         self.state_machine = StateMachine(
             self.IDLE,
             {
-                self.IDLE : {a_down : self.RUN, d_down : self.RUN, a_up : self.RUN, d_up : self.RUN},
-                self.RUN : {a_down : self.IDLE, d_down : self.IDLE, a_up : self.IDLE, d_up : self.IDLE}
+                self.IDLE : {a_down : self.RUN, d_down : self.RUN, a_up : self.RUN, d_up : self.RUN, space_down : self.JUMP},
+                self.RUN : {a_down : self.IDLE, d_down : self.IDLE, a_up : self.IDLE, d_up : self.IDLE, space_down : self.JUMP},
+                self.JUMP : {},
             }
         )
 
