@@ -25,13 +25,27 @@ class Jump:
         self.action = ((7, 1655, 43, 47), (59, 1655, 43, 47), (111, 1655, 43, 47))
 
     def enter(self, e):
-        pass
+        if a_down(e) or d_up(e):
+            if self.player.dir == 1 : self.player.dir = 0
+            else : self.player.dir = -1
+            if self.player.dir == 0 : self.player.face_dir = 1
+            else : self.player.face_dir = -1
+        elif d_down(e) or a_up(e):
+            if self.player.dir == -1 : self.player.dir = 0
+            else : self.player.dir = 1
+            if self.player.dir == 0 : self.player.face_dir = -1
+            else : self.player.face_dir = 1
 
     def exit(self, e):
         pass
 
     def do(self):
         self.player.frame = (self.player.frame + 1) % len(self.action)
+        self.player.x += self.player.dir * 5
+        if self.player.x < 0:
+            self.player.x = 0
+        elif self.player.x > 1280:
+            self.player.x = 1280
 
     def draw(self):
         if self.player.face_dir == 1:
@@ -109,7 +123,7 @@ class Player:
             {
                 self.IDLE : {a_down : self.RUN, d_down : self.RUN, a_up : self.RUN, d_up : self.RUN, space_down : self.JUMP},
                 self.RUN : {a_down : self.IDLE, d_down : self.IDLE, a_up : self.IDLE, d_up : self.IDLE, space_down : self.JUMP},
-                self.JUMP : {},
+                self.JUMP : {a_down : self.JUMP, d_down : self.JUMP, a_up : self.JUMP, d_up : self.JUMP},
             }
         )
 
