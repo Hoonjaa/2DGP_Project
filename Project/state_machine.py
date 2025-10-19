@@ -1,6 +1,7 @@
 class StateMachine:
-    def __init__(self, initial_state):
+    def __init__(self, initial_state, state_table):
         self.current_state = initial_state #시작 상태 설정
+        self.rules = state_table #상태 전이 규칙 설정
         self.current_state.enter() #시작 상태로 진입
 
     def update(self):

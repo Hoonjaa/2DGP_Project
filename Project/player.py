@@ -1,6 +1,21 @@
 from pico2d import load_image
+from sdl2 import SDL_KEYDOWN, SDL_KEYUP
 
 from state_machine import StateMachine
+
+# 이벤트 체크 함수
+def a_down(e):
+    return e[0] == 'INPUT' and e[1] == SDL_KEYDOWN and e[1] == 97
+
+def a_up(e):
+    return e[0] == 'INPUT' and e[1] == SDL_KEYUP and e[1] == 97
+
+def d_down(e):
+    return e[0] == 'INPUT' and e[1] == SDL_KEYDOWN and e[1] == 100
+
+def d_up(e):
+    return e[0] == 'INPUT' and e[1] == SDL_KEYUP and e[1] == 100
+
 
 class Run:
     def __init__(self, player):
@@ -15,7 +30,7 @@ class Run:
 
     def do(self):
         self.player.frame = (self.player.frame + 1) % len(self.action)
-        self.player.x += self.player.dir * 10
+        self.player.x += self.player.dir * 5
         if self.player.x < 0:
             self.player.x = 0
         elif self.player.x > 1280:
@@ -60,7 +75,13 @@ class Player:
 
         self.IDLE = Idle(self)
         self.RUN = Run(self)
-        self.state_machine = StateMachine(self.RUN)
+        self.state_machine = StateMachine(
+            self.RUN,
+            {
+                self.IDLE : {a_down : self.RUN, d_down : self.RUN, a_up : self.RUN, d_up : self.RUN},
+                self.RUN : {a_down : self.RUN, d_down : self.RUN, a_up : self.RUN, d_up : self.RUN}
+            }
+        )
 
     def update(self):
         self.state_machine.update()
