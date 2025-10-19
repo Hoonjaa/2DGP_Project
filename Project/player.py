@@ -22,6 +22,9 @@ def space_down(e):
 def land(e):
     return e[0] == 'LAND'
 
+def move_land(e):
+    return e[0] == 'MOVE_LAND'
+
 class Jump:
     def __init__(self, player):
         self.player = player
@@ -57,7 +60,8 @@ class Jump:
         if self.player.y < self.ground_y:
             self.player.y = self.ground_y
             self.dropSpeed = 3.0
-            self.player.state_machine.handle_event(('LAND', None))
+            if self.player.dir == 0 : self.player.state_machine.handle_event(('LAND', None))
+            else : self.player.state_machine.handle_event(('MOVE_LAND', None))
 
     def draw(self):
         if self.player.face_dir == 1:
@@ -135,7 +139,7 @@ class Player:
             {
                 self.IDLE : {a_down : self.RUN, d_down : self.RUN, a_up : self.RUN, d_up : self.RUN, space_down : self.JUMP},
                 self.RUN : {a_down : self.IDLE, d_down : self.IDLE, a_up : self.IDLE, d_up : self.IDLE, space_down : self.JUMP},
-                self.JUMP : {a_down : self.JUMP, d_down : self.JUMP, a_up : self.JUMP, d_up : self.JUMP, land : self.IDLE},
+                self.JUMP : {a_down : self.JUMP, d_down : self.JUMP, a_up : self.JUMP, d_up : self.JUMP, land : self.IDLE, move_land : self.RUN},
             }
         )
 
