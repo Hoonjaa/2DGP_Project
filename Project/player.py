@@ -17,6 +17,27 @@ def d_up(e):
     return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == 100
 
 
+class Jump:
+    def __init__(self, player):
+        self.player = player
+        self.action = ((7, 1655, 43, 47), (59, 1655, 43, 47), (111, 1655, 43, 47))
+
+    def enter(self, e):
+        pass
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        self.player.frame = (self.player.frame + 1) % len(self.action)
+
+    def draw(self):
+        if self.player.face_dir == 1:
+            self.player.image.clip_draw(*self.action[self.player.frame], self.player.x, self.player.y, 100, 100)
+        if self.player.face_dir == -1:
+            self.player.image.clip_composite_draw(*self.action[self.player.frame], 0, 'h', self.player.x, self.player.y, 100, 100)
+
+
 class Run:
     def __init__(self, player):
         self.player = player
@@ -80,6 +101,7 @@ class Player:
 
         self.IDLE = Idle(self)
         self.RUN = Run(self)
+        self.JUMP = Jump(self)
         self.state_machine = StateMachine(
             self.IDLE,
             {
