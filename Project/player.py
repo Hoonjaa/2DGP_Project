@@ -1,29 +1,21 @@
 from pico2d import load_image
-from sdl2 import SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE
+from sdl2 import SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_a, SDLK_d
 
 from state_machine import StateMachine
 
 # 이벤트 체크 함수
-def a_down(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == 97
+def key_event(e, ev_type, key):
+    return e[0] == 'INPUT' and e[1].type == ev_type and e[1].key == key
 
-def a_up(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == 97
+def a_down(e): return key_event(e, SDL_KEYDOWN, SDLK_a)
+def a_up(e):   return key_event(e, SDL_KEYUP,   SDLK_a)
+def d_down(e): return key_event(e, SDL_KEYDOWN, SDLK_d)
+def d_up(e):   return key_event(e, SDL_KEYUP,   SDLK_d)
+def space_down(e): return key_event(e, SDL_KEYDOWN, SDLK_SPACE)
 
-def d_down(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == 100
+def land(e): return e[0] == 'LAND'
+def move_land(e): return e[0] == 'MOVE_LAND'
 
-def d_up(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYUP and e[1].key == 100
-
-def space_down(e):
-    return e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN and e[1].key == SDLK_SPACE
-
-def land(e):
-    return e[0] == 'LAND'
-
-def move_land(e):
-    return e[0] == 'MOVE_LAND'
 
 class Jump:
     def __init__(self, player):
@@ -48,12 +40,8 @@ class Jump:
         pass
 
     def do(self):
-        self.player.frame = (self.player.frame + 1) % len(self.action)
-        self.player.x += self.player.dir * 5
-        if self.player.x < 0:
-            self.player.x = 0
-        elif self.player.x > 1280:
-            self.player.x = 1280
+        self.player.next_frame(self.action)
+        self.player.move_x()
 
         self.player.y += self.dropSpeed * 5
         self.dropSpeed -= 0.1
@@ -64,11 +52,7 @@ class Jump:
             else : self.player.state_machine.handle_event(('MOVE_LAND', None))
 
     def draw(self):
-        if self.player.face_dir == 1:
-            self.player.image.clip_draw(*self.action[self.player.frame], self.player.x, self.player.y, 100, 100)
-        if self.player.face_dir == -1:
-            self.player.image.clip_composite_draw(*self.action[self.player.frame], 0, 'h', self.player.x, self.player.y, 100, 100)
-
+        self.player.draw_current(self.action)
 
 class Run:
     def __init__(self, player):
@@ -87,18 +71,11 @@ class Run:
         pass
 
     def do(self):
-        self.player.frame = (self.player.frame + 1) % len(self.action)
-        self.player.x += self.player.dir * 5
-        if self.player.x < 0:
-            self.player.x = 0
-        elif self.player.x > 1280:
-            self.player.x = 1280
+        self.player.next_frame(self.action)
+        self.player.move_x()
 
     def draw(self):
-        if self.player.face_dir == 1:
-            self.player.image.clip_draw(*self.action[self.player.frame], self.player.x, self.player.y, 100, 100)
-        if self.player.face_dir == -1:
-            self.player.image.clip_composite_draw(*self.action[self.player.frame], 0, 'h', self.player.x, self.player.y, 100, 100)
+        self.player.draw_current(self.action)
 
 
 class Idle:
@@ -113,14 +90,10 @@ class Idle:
         pass
 
     def do(self):
-        self.player.frame = (self.player.frame + 1) % len(self.action)
+        self.player.next_frame(self.action)
 
     def draw(self):
-        if self.player.face_dir == 1:
-            self.player.image.clip_draw(*self.action[self.player.frame], self.player.x, self.player.y, 100, 100)
-        if self.player.face_dir == -1:
-            self.player.image.clip_composite_draw(*self.action[self.player.frame], 0, 'h', self.player.x, self.player.y, 100, 100)
-
+        self.player.draw_current(self.action)
 
 class Player:
     def __init__(self):
@@ -142,6 +115,19 @@ class Player:
                 self.JUMP : {a_down : self.JUMP, d_down : self.JUMP, a_up : self.JUMP, d_up : self.JUMP, land : self.IDLE, move_land : self.RUN},
             }
         )
+
+    def next_frame(self, action):
+        self.frame = (self.frame + 1) % len(action)
+
+    def move_x(self):
+        self.x = max(0, min(1280, self.x + self.dir * 5))
+
+    def draw_current(self, action):
+        rect = action[self.frame]
+        if self.face_dir == 1:
+            self.image.clip_draw(*rect, self.x, self.y, 100, 100)
+        else:
+            self.image.clip_composite_draw(*rect, 0, 'h', self.x, self.y, 100, 100)
 
     def update(self):
         self.state_machine.update()
