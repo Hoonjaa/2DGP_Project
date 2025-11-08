@@ -1,4 +1,6 @@
 from pico2d import load_image, get_time
+import game_world
+from slash_effect import SlashEffect
 from sdl2 import SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_a, SDLK_d, SDLK_LSHIFT, SDLK_j, SDLK_k, SDLK_l
 
 from state_machine import StateMachine
@@ -85,7 +87,7 @@ class Slash:
         self.player.frame = 0
 
     def exit(self, e):
-        pass
+        self.player.add_slash_effect()
 
     def do(self):
         if self.player.frame == len(self.action) - 1:
@@ -319,3 +321,7 @@ class Player:
 
     def draw(self):
         self.state_machine.draw()
+
+    def add_slash_effect(self):
+        slash = SlashEffect(self.x, self.y, self.face_dir * 30)
+        game_world.add_object(slash, 2)

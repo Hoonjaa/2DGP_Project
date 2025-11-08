@@ -1,4 +1,5 @@
 from pico2d import *
+import game_world
 from player import Player
 from test_background import Background
 
@@ -15,25 +16,20 @@ def handle_events():
             player.handle_event(event)
 
 def reset_world():
-    global world
     global player
 
-    world = []
-
     background = Background()
-    world.append(background)
+    game_world.add_object(background,0)
 
     player = Player()
-    world.append(player)
+    game_world.add_object(player,1)
 
 def update_world():
-    for obj in world:
-        obj.update()
+    game_world.update()
 
 def render_world():
     clear_canvas()
-    for obj in world:
-        obj.draw()
+    game_world.render()
     update_canvas()
 
 
