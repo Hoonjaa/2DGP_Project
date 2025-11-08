@@ -1,5 +1,5 @@
 from pico2d import load_image, get_time
-from sdl2 import SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_a, SDLK_d, SDLK_LSHIFT, SDLK_j
+from sdl2 import SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_a, SDLK_d, SDLK_LSHIFT, SDLK_j, SDLK_k
 
 from state_machine import StateMachine
 
@@ -14,6 +14,7 @@ def d_up(e):   return key_event(e, SDL_KEYUP,   SDLK_d)
 def space_down(e): return key_event(e, SDL_KEYDOWN, SDLK_SPACE)
 def shift_down(e): return key_event(e, SDL_KEYDOWN, SDLK_LSHIFT)
 def j_down(e): return key_event(e, SDL_KEYDOWN, SDLK_j)
+def k_down(e): return key_event(e, SDL_KEYDOWN, SDLK_k)
 
 def land(e): return e[0] == 'LAND'
 def move_land(e): return e[0] == 'MOVE_LAND'
@@ -23,9 +24,35 @@ def jump_dash_finish(e): return e[0] == 'JUMP_DASH_FINISH'
 def attack_finish(e): return e[0] == 'ATTACK_FINISH'
 def move_attack_finish(e): return e[0] == 'MOVE_ATTACK_FINISH'
 def jump_attack_finish(e): return e[0] == 'JUMP_ATTACK_FINISH'
+def slash_finish(e): return e[0] == 'SLASH_FINISH'
+def move_slash_finish(e): return e[0] == 'MOVE_SLASH_FINISH'
+def jump_slash_finish(e): return e[0] == 'JUMP_SLASH_FINISH'
 
 
+class Slash:
+    def __init__(self, player):
+        self.player = player
+        self.action = ((7,369,49,43),(65,370,48,42),(122,366,59,46),(190,372,47,40),(246,377,44,35))
 
+    def enter(self, e):
+        self.player.frame = 0
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        if self.player.frame == len(self.action) - 1:
+            if self.player.y > self.player.ground_y:
+                event = 'JUMP_SLASH_FINISH'
+                self.player.dropSpeed = 0.0
+            else:
+                move_pressed = self.player.left_pressed or self.player.right_pressed
+                event = 'MOVE_SLASH_FINISH' if move_pressed else 'SLASH_FINISH'
+            self.player.state_machine.handle_event((event, None))
+        self.player.next_frame(self.action)
+
+    def draw(self):
+        self.player.draw_current(self.action)
 
 
 class Attack:
@@ -195,14 +222,16 @@ class Player:
         self.JUMP = Jump(self)
         self.DASH = Dash(self)
         self.ATTACK = Attack(self)
+        self.SLASH = Slash(self)
         self.state_machine = StateMachine(
             self.IDLE,
             {
-                self.IDLE : {a_down : self.RUN, d_down : self.RUN, a_up : self.RUN, d_up : self.RUN, space_down : self.JUMP, shift_down : self.DASH, j_down : self.ATTACK},
-                self.RUN : {a_down : self.IDLE, d_down : self.IDLE, a_up : self.IDLE, d_up : self.IDLE, space_down : self.JUMP, shift_down : self.DASH, j_down : self.ATTACK},
-                self.JUMP : {a_down : self.JUMP, d_down : self.JUMP, a_up : self.JUMP, d_up : self.JUMP, land : self.IDLE, move_land : self.RUN, shift_down : self.DASH, j_down : self.ATTACK},
+                self.IDLE : {a_down : self.RUN, d_down : self.RUN, a_up : self.RUN, d_up : self.RUN, space_down : self.JUMP, shift_down : self.DASH, j_down : self.ATTACK, k_down : self.SLASH},
+                self.RUN : {a_down : self.IDLE, d_down : self.IDLE, a_up : self.IDLE, d_up : self.IDLE, space_down : self.JUMP, shift_down : self.DASH, j_down : self.ATTACK, k_down : self.SLASH},
+                self.JUMP : {a_down : self.JUMP, d_down : self.JUMP, a_up : self.JUMP, d_up : self.JUMP, land : self.IDLE, move_land : self.RUN, shift_down : self.DASH, j_down : self.ATTACK, k_down : self.SLASH},
                 self.DASH : {dash_finish : self.IDLE, move_dash_finish : self.RUN, jump_dash_finish : self.JUMP},
                 self.ATTACK : {attack_finish : self.IDLE, move_attack_finish : self.RUN, jump_attack_finish : self.JUMP},
+                self.SLASH : {slash_finish : self.IDLE, move_slash_finish : self.RUN, jump_slash_finish : self.JUMP},
             }
         )
 
