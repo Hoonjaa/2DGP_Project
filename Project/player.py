@@ -1,5 +1,5 @@
 from pico2d import load_image, get_time
-from sdl2 import SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_a, SDLK_d, SDLK_LSHIFT, SDLK_j, SDLK_k
+from sdl2 import SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_a, SDLK_d, SDLK_LSHIFT, SDLK_j, SDLK_k, SDLK_l
 
 from state_machine import StateMachine
 
@@ -15,6 +15,7 @@ def space_down(e): return key_event(e, SDL_KEYDOWN, SDLK_SPACE)
 def shift_down(e): return key_event(e, SDL_KEYDOWN, SDLK_LSHIFT)
 def j_down(e): return key_event(e, SDL_KEYDOWN, SDLK_j)
 def k_down(e): return key_event(e, SDL_KEYDOWN, SDLK_k)
+def l_down(e): return key_event(e, SDL_KEYDOWN, SDLK_l)
 
 def land(e): return e[0] == 'LAND'
 def move_land(e): return e[0] == 'MOVE_LAND'
@@ -27,6 +28,52 @@ def jump_attack_finish(e): return e[0] == 'JUMP_ATTACK_FINISH'
 def slash_finish(e): return e[0] == 'SLASH_FINISH'
 def move_slash_finish(e): return e[0] == 'MOVE_SLASH_FINISH'
 def jump_slash_finish(e): return e[0] == 'JUMP_SLASH_FINISH'
+def ultimate_finish(e): return e[0] == 'ULTIMATE_FINISH'
+def move_ultimate_finish(e): return e[0] == 'MOVE_ULTIMATE_FINISH'
+
+
+class Ultimate:
+    def __init__(self, player):
+        self.player = player
+        self.action = ((7,306,160,43),(176,308,158,41),(343,276,164,73),(516,271,170,78),(695,292,184,57),
+                       (888,271,194,78),(1091,281,188,68),(7,200,190,67),(206,197,192,70),(407,197,154,70),
+                       (570,197,164,70),(743,196,164,71),(916,210,184,57),(1109,189,194,78),(7,117,188,68),
+                       (204,118,190,67),(403,115,192,70),(604,115,196,70),(809,112,164,73),(982,107,170,78),
+                       (1161,142,160,43),(7,60,160,43),(176,60,160,43),(343,60,160,43))
+        self.large_x_frames = {4,5,6,7,8,12,13,14,15,16,17}
+        self.large_y_frames = set(range(2, 20))
+        self.base_x_size = 380
+        self.large_x_size = 455
+        self.base_y_size = 90
+        self.large_y_size = 167
+
+    def enter(self, e):
+        self.player.dir = 0
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        if self.player.frame == len(self.action) - 1:
+            move_pressed = self.player.left_pressed or self.player.right_pressed
+            event = 'MOVE_ULTIMATE_FINISH' if move_pressed else 'ULTIMATE_FINISH'
+            self.player.state_machine.handle_event((event, None))
+
+        self.player.next_frame(self.action)
+
+    def draw(self):
+        frame = self.player.frame
+        x_size = self.large_x_size if frame in self.large_x_frames else self.base_x_size
+        y_size = self.large_y_size if frame in self.large_y_frames else self.base_y_size
+        # 큰 프레임에서 발(바닥) 고정: 중심이 올라가는 만큼 내려줌
+        y_render = self.player.y + 20 if frame in self.large_y_frames else self.player.y
+        x_render = self.player.x + 120 if self.player.face_dir == 1 else self.player.x - 120
+
+        rect = self.action[frame]
+        if self.player.face_dir == 1:
+            self.player.image.clip_draw(*rect, x_render, y_render, x_size, y_size)
+        else:
+            self.player.image.clip_composite_draw(*rect, 0, 'h', x_render, y_render, x_size, y_size)
 
 
 class Slash:
@@ -223,15 +270,17 @@ class Player:
         self.DASH = Dash(self)
         self.ATTACK = Attack(self)
         self.SLASH = Slash(self)
+        self.ULTIMATE = Ultimate(self)
         self.state_machine = StateMachine(
             self.IDLE,
             {
-                self.IDLE : {a_down : self.RUN, d_down : self.RUN, a_up : self.RUN, d_up : self.RUN, space_down : self.JUMP, shift_down : self.DASH, j_down : self.ATTACK, k_down : self.SLASH},
-                self.RUN : {a_down : self.IDLE, d_down : self.IDLE, a_up : self.IDLE, d_up : self.IDLE, space_down : self.JUMP, shift_down : self.DASH, j_down : self.ATTACK, k_down : self.SLASH},
+                self.IDLE : {a_down : self.RUN, d_down : self.RUN, a_up : self.RUN, d_up : self.RUN, space_down : self.JUMP, shift_down : self.DASH, j_down : self.ATTACK, k_down : self.SLASH, l_down : self.ULTIMATE},
+                self.RUN : {a_down : self.IDLE, d_down : self.IDLE, a_up : self.IDLE, d_up : self.IDLE, space_down : self.JUMP, shift_down : self.DASH, j_down : self.ATTACK, k_down : self.SLASH, l_down : self.ULTIMATE},
                 self.JUMP : {a_down : self.JUMP, d_down : self.JUMP, a_up : self.JUMP, d_up : self.JUMP, land : self.IDLE, move_land : self.RUN, shift_down : self.DASH, j_down : self.ATTACK, k_down : self.SLASH},
                 self.DASH : {dash_finish : self.IDLE, move_dash_finish : self.RUN, jump_dash_finish : self.JUMP},
                 self.ATTACK : {attack_finish : self.IDLE, move_attack_finish : self.RUN, jump_attack_finish : self.JUMP},
                 self.SLASH : {slash_finish : self.IDLE, move_slash_finish : self.RUN, jump_slash_finish : self.JUMP},
+                self.ULTIMATE : {ultimate_finish : self.IDLE, move_ultimate_finish : self.RUN},
             }
         )
 
