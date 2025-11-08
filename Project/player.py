@@ -36,7 +36,8 @@ class Dash:
 
     def do(self):
         if self.player.frame == len(self.action) - 1:
-            event = 'MOVE_DASH_FINISH' if self.player.dir != 0 else 'DASH_FINISH'
+            move_pressed = self.player.left_pressed or self.player.right_pressed
+            event = 'MOVE_DASH_FINISH' if move_pressed else 'DASH_FINISH'
             self.player.state_machine.handle_event((event, None))
         self.player.next_frame(self.action)
         self.player.x = max(0, min(1280, self.player.x + self.dash_dir * 20))
@@ -54,16 +55,11 @@ class Jump:
         self.ground_y = player.y
 
     def enter(self, e):
-        if a_down(e) or d_up(e):
-            if self.player.dir == 1 : self.player.dir = 0
-            else : self.player.dir = -1
-            if self.player.dir == 0 : self.player.face_dir = 1
-            else : self.player.face_dir = -1
-        elif d_down(e) or a_up(e):
-            if self.player.dir == -1 : self.player.dir = 0
-            else : self.player.dir = 1
-            if self.player.dir == 0 : self.player.face_dir = -1
-            else : self.player.face_dir = 1
+        left = self.player.left_pressed
+        right = self.player.right_pressed
+        self.player.dir = (1 if right else 0) + (-1 if left else 0)
+        if self.player.dir != 0:
+            self.player.face_dir = 1 if self.player.dir > 0 else -1
 
     def exit(self, e):
         pass
@@ -89,12 +85,11 @@ class Run:
         self.action = ((7, 1777, 54, 41), (70, 1777, 53, 40), (132, 1777, 53, 41), (194, 1777, 53, 41), (256, 1777, 52, 40), (317, 1776, 52, 43))
 
     def enter(self, e):
-        if a_down(e) or d_up(e):
-            self.player.dir = -1
-            self.player.face_dir = -1
-        elif d_down(e) or a_up(e):
-            self.player.dir = 1
-            self.player.face_dir = 1
+        left = self.player.left_pressed
+        right = self.player.right_pressed
+        self.player.dir = (1 if right else 0) + (-1 if left else 0)
+        if self.player.dir != 0:
+            self.player.face_dir = 1 if self.player.dir > 0 else -1
 
     def exit(self, e):
         pass
@@ -132,6 +127,8 @@ class Player:
         # 방향 변수
         self.face_dir = 1
         self.dir = 0
+        self.left_pressed = False
+        self.right_pressed = False
 
         # 애니메이션 변수
         self.frame = 0
@@ -169,6 +166,19 @@ class Player:
         self.state_machine.update()
 
     def handle_event(self, event):
+        # 전역 키 눌림 상태 갱신
+        if event.type == SDL_KEYDOWN:
+            if event.key == SDLK_a:
+                self.left_pressed = True
+            elif event.key == SDLK_d:
+                self.right_pressed = True
+        elif event.type == SDL_KEYUP:
+            if event.key == SDLK_a:
+                self.left_pressed = False
+            elif event.key == SDLK_d:
+                self.right_pressed = False
+        # 눌림 상태로 항상 최신 dir 계산
+        self.dir = (1 if self.right_pressed else 0) + (-1 if self.left_pressed else 0)
         # 들어온 외부 키 입력을 상태머신에게 전달하기 위해 튜플화 시킨후 전달
         self.state_machine.handle_event(('INPUT', event))
 
