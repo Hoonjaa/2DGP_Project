@@ -1,5 +1,5 @@
 from pico2d import load_image, get_time
-from sdl2 import SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_a, SDLK_d, SDLK_LSHIFT
+from sdl2 import SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_a, SDLK_d, SDLK_LSHIFT, SDLK_j
 
 from state_machine import StateMachine
 
@@ -13,12 +13,61 @@ def d_down(e): return key_event(e, SDL_KEYDOWN, SDLK_d)
 def d_up(e):   return key_event(e, SDL_KEYUP,   SDLK_d)
 def space_down(e): return key_event(e, SDL_KEYDOWN, SDLK_SPACE)
 def shift_down(e): return key_event(e, SDL_KEYDOWN, SDLK_LSHIFT)
+def j_down(e): return key_event(e, SDL_KEYDOWN, SDLK_j)
 
 def land(e): return e[0] == 'LAND'
 def move_land(e): return e[0] == 'MOVE_LAND'
 def dash_finish(e): return e[0] == 'DASH_FINISH'
 def move_dash_finish(e): return e[0] == 'MOVE_DASH_FINISH'
 def jump_dash_finish(e): return e[0] == 'JUMP_DASH_FINISH'
+def attack_finish(e): return e[0] == 'ATTACK_FINISH'
+def move_attack_finish(e): return e[0] == 'MOVE_ATTACK_FINISH'
+def jump_attack_finish(e): return e[0] == 'JUMP_ATTACK_FINISH'
+
+
+
+
+
+class Attack:
+    def __init__(self, player):
+        self.player = player
+        self.action = ((7,1395,47,43),(63,1397,47,41),(119,1368,74,70),(202,1368,76,70),(287,1368,77,71),
+                       (373,1381,97,57),(479,1360,101,78),(589,1370,95,68),(693,1371,90,67),(792,1368,97,70),
+                       (898,1368,97,70),(1004,1365,79,73),(1092,1360,90,78),(1191,1381,92,57),(1292,1395,49,43),(1350,1396,48,42))
+        self.large_frames = set(range(2, 14))
+        self.base_size = 100
+        self.large_size = 170
+
+    def enter(self, e):
+        self.player.frame = 0
+
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        if self.player.frame == len(self.action) - 1:
+            if self.player.y > self.player.ground_y:
+                event = 'JUMP_ATTACK_FINISH'
+                self.player.dropSpeed = 0.0
+            else:
+                move_pressed = self.player.left_pressed or self.player.right_pressed
+                event = 'MOVE_ATTACK_FINISH' if move_pressed else 'ATTACK_FINISH'
+            self.player.state_machine.handle_event((event, None))
+
+        self.player.next_frame(self.action)
+
+    def draw(self):
+        frame = self.player.frame
+        size = self.large_size if frame in self.large_frames else self.base_size
+        # 큰 프레임에서 발(바닥) 고정: 중심이 올라가는 만큼 내려줌
+        y_render = self.player.y + 20 if frame in self.large_frames else self.player.y
+
+        rect = self.action[frame]
+        if self.player.face_dir == 1:
+            self.player.image.clip_draw(*rect, self.player.x, y_render, size, size)
+        else:
+            self.player.image.clip_composite_draw(*rect, 0, 'h', self.player.x, y_render, size, size)
 
 
 class Dash:
@@ -145,13 +194,15 @@ class Player:
         self.RUN = Run(self)
         self.JUMP = Jump(self)
         self.DASH = Dash(self)
+        self.ATTACK = Attack(self)
         self.state_machine = StateMachine(
             self.IDLE,
             {
-                self.IDLE : {a_down : self.RUN, d_down : self.RUN, a_up : self.RUN, d_up : self.RUN, space_down : self.JUMP, shift_down : self.DASH},
-                self.RUN : {a_down : self.IDLE, d_down : self.IDLE, a_up : self.IDLE, d_up : self.IDLE, space_down : self.JUMP, shift_down : self.DASH},
-                self.JUMP : {a_down : self.JUMP, d_down : self.JUMP, a_up : self.JUMP, d_up : self.JUMP, land : self.IDLE, move_land : self.RUN, shift_down : self.DASH},
+                self.IDLE : {a_down : self.RUN, d_down : self.RUN, a_up : self.RUN, d_up : self.RUN, space_down : self.JUMP, shift_down : self.DASH, j_down : self.ATTACK},
+                self.RUN : {a_down : self.IDLE, d_down : self.IDLE, a_up : self.IDLE, d_up : self.IDLE, space_down : self.JUMP, shift_down : self.DASH, j_down : self.ATTACK},
+                self.JUMP : {a_down : self.JUMP, d_down : self.JUMP, a_up : self.JUMP, d_up : self.JUMP, land : self.IDLE, move_land : self.RUN, shift_down : self.DASH, j_down : self.ATTACK},
                 self.DASH : {dash_finish : self.IDLE, move_dash_finish : self.RUN, jump_dash_finish : self.JUMP},
+                self.ATTACK : {attack_finish : self.IDLE, move_attack_finish : self.RUN, jump_attack_finish : self.JUMP},
             }
         )
 
