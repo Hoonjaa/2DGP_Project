@@ -1,5 +1,5 @@
-from pico2d import load_image
-from sdl2 import SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_a, SDLK_d
+from pico2d import load_image, get_time
+from sdl2 import SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_a, SDLK_d, SDLK_LSHIFT
 
 from state_machine import StateMachine
 
@@ -12,9 +12,38 @@ def a_up(e):   return key_event(e, SDL_KEYUP,   SDLK_a)
 def d_down(e): return key_event(e, SDL_KEYDOWN, SDLK_d)
 def d_up(e):   return key_event(e, SDL_KEYUP,   SDLK_d)
 def space_down(e): return key_event(e, SDL_KEYDOWN, SDLK_SPACE)
+def shift_down(e): return key_event(e, SDL_KEYDOWN, SDLK_LSHIFT)
 
 def land(e): return e[0] == 'LAND'
 def move_land(e): return e[0] == 'MOVE_LAND'
+def dash_finish(e): return e[0] == 'DASH_FINISH'
+def move_dash_finish(e): return e[0] == 'MOVE_DASH_FINISH'
+
+
+class Dash:
+    def __init__(self, player):
+        self.player = player
+        self.action = ((54,1722,54,35),(70,1720,74,37),(153,1722,63,35),(225,1722,57,35),(291,1722,56,35),(356,1722,55,35),(420,1722,54,35))
+
+    def enter(self, e):
+        self.player.frame = 0
+        self.dash_dir = self.player.face_dir
+        #추후에 플레이어 무적 상태 추가
+        pass
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        if self.player.frame == len(self.action) - 1:
+            event = 'MOVE_DASH_FINISH' if self.player.dir != 0 else 'DASH_FINISH'
+            self.player.state_machine.handle_event((event, None))
+        self.player.next_frame(self.action)
+        self.player.x = max(0, min(1280, self.player.x + self.dash_dir * 20))
+
+
+    def draw(self):
+        self.player.draw_current(self.action)
 
 
 class Jump:
@@ -98,21 +127,28 @@ class Idle:
 class Player:
     def __init__(self):
         self.x, self.y = 640, 90
+
+
+        # 방향 변수
         self.face_dir = 1
         self.dir = 0
 
+        # 애니메이션 변수
         self.frame = 0
         self.image = load_image('Sprite/Player.png')
 
+        # 상태머신
         self.IDLE = Idle(self)
         self.RUN = Run(self)
         self.JUMP = Jump(self)
+        self.DASH = Dash(self)
         self.state_machine = StateMachine(
             self.IDLE,
             {
-                self.IDLE : {a_down : self.RUN, d_down : self.RUN, a_up : self.RUN, d_up : self.RUN, space_down : self.JUMP},
-                self.RUN : {a_down : self.IDLE, d_down : self.IDLE, a_up : self.IDLE, d_up : self.IDLE, space_down : self.JUMP},
+                self.IDLE : {a_down : self.RUN, d_down : self.RUN, a_up : self.RUN, d_up : self.RUN, space_down : self.JUMP, shift_down : self.DASH},
+                self.RUN : {a_down : self.IDLE, d_down : self.IDLE, a_up : self.IDLE, d_up : self.IDLE, space_down : self.JUMP, shift_down : self.DASH},
                 self.JUMP : {a_down : self.JUMP, d_down : self.JUMP, a_up : self.JUMP, d_up : self.JUMP, land : self.IDLE, move_land : self.RUN},
+                self.DASH : {dash_finish : self.IDLE, move_dash_finish : self.RUN},
             }
         )
 
