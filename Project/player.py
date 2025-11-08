@@ -18,6 +18,7 @@ def land(e): return e[0] == 'LAND'
 def move_land(e): return e[0] == 'MOVE_LAND'
 def dash_finish(e): return e[0] == 'DASH_FINISH'
 def move_dash_finish(e): return e[0] == 'MOVE_DASH_FINISH'
+def jump_dash_finish(e): return e[0] == 'JUMP_DASH_FINISH'
 
 
 class Dash:
@@ -36,8 +37,12 @@ class Dash:
 
     def do(self):
         if self.player.frame == len(self.action) - 1:
-            move_pressed = self.player.left_pressed or self.player.right_pressed
-            event = 'MOVE_DASH_FINISH' if move_pressed else 'DASH_FINISH'
+            if self.player.y > self.player.ground_y:
+                event = 'JUMP_DASH_FINISH'
+                self.player.dropSpeed = 0.0
+            else:
+                move_pressed = self.player.left_pressed or self.player.right_pressed
+                event = 'MOVE_DASH_FINISH' if move_pressed else 'DASH_FINISH'
             self.player.state_machine.handle_event((event, None))
         self.player.next_frame(self.action)
         self.player.x = max(0, min(1280, self.player.x + self.dash_dir * 20))
@@ -51,8 +56,6 @@ class Jump:
     def __init__(self, player):
         self.player = player
         self.action = ((7, 1655, 43, 47), (59, 1655, 43, 47), (111, 1655, 43, 47))
-        self.dropSpeed = 3.0
-        self.ground_y = player.y
 
     def enter(self, e):
         left = self.player.left_pressed
@@ -68,11 +71,11 @@ class Jump:
         self.player.next_frame(self.action)
         self.player.move_x()
 
-        self.player.y += self.dropSpeed * 5
-        self.dropSpeed -= 0.1
-        if self.player.y < self.ground_y:
-            self.player.y = self.ground_y
-            self.dropSpeed = 3.0
+        self.player.y += self.player.dropSpeed * 5
+        self.player.dropSpeed -= 0.1
+        if self.player.y < self.player.ground_y:
+            self.player.y = self.player.ground_y
+            self.player.dropSpeed = 3.0
             if self.player.dir == 0 : self.player.state_machine.handle_event(('LAND', None))
             else : self.player.state_machine.handle_event(('MOVE_LAND', None))
 
@@ -123,6 +126,9 @@ class Player:
     def __init__(self):
         self.x, self.y = 640, 90
 
+        # 점프 관련 변수
+        self.ground_y = self.y
+        self.dropSpeed = 3.0
 
         # 방향 변수
         self.face_dir = 1
@@ -144,8 +150,8 @@ class Player:
             {
                 self.IDLE : {a_down : self.RUN, d_down : self.RUN, a_up : self.RUN, d_up : self.RUN, space_down : self.JUMP, shift_down : self.DASH},
                 self.RUN : {a_down : self.IDLE, d_down : self.IDLE, a_up : self.IDLE, d_up : self.IDLE, space_down : self.JUMP, shift_down : self.DASH},
-                self.JUMP : {a_down : self.JUMP, d_down : self.JUMP, a_up : self.JUMP, d_up : self.JUMP, land : self.IDLE, move_land : self.RUN},
-                self.DASH : {dash_finish : self.IDLE, move_dash_finish : self.RUN},
+                self.JUMP : {a_down : self.JUMP, d_down : self.JUMP, a_up : self.JUMP, d_up : self.JUMP, land : self.IDLE, move_land : self.RUN, shift_down : self.DASH},
+                self.DASH : {dash_finish : self.IDLE, move_dash_finish : self.RUN, jump_dash_finish : self.JUMP},
             }
         )
 
