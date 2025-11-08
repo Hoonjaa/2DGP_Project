@@ -52,6 +52,8 @@ GRAVITY_PPS2 = GRAVITY_MPS2 * PIXEL_PER_METER
 # 애니메이션 속도 계산
 TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+# 플레이어 크기 배율
+PLAYER_SIZE_RATE = (200 / 96)
 
 
 class Ultimate:
@@ -62,12 +64,6 @@ class Ultimate:
                        (570,197,164,70),(743,196,164,71),(916,210,184,57),(1109,189,194,78),(7,117,188,68),
                        (204,118,190,67),(403,115,192,70),(604,115,196,70),(809,112,164,73),(982,107,170,78),
                        (1161,142,160,43),(7,60,160,43),(176,60,160,43),(343,60,160,43))
-        self.large_x_frames = {4,5,6,7,8,12,13,14,15,16,17}
-        self.large_y_frames = set(range(2, 20))
-        self.base_x_size = 380
-        self.large_x_size = 455
-        self.base_y_size = 90
-        self.large_y_size = 167
 
     def enter(self, e):
         self.player.frame = 0
@@ -86,17 +82,15 @@ class Ultimate:
 
     def draw(self):
         frame = self.player.frame
-        x_size = self.large_x_size if frame in self.large_x_frames else self.base_x_size
-        y_size = self.large_y_size if frame in self.large_y_frames else self.base_y_size
-        # 큰 프레임에서 발(바닥) 고정: 중심이 올라가는 만큼 내려줌
-        y_render = self.player.y + 20 if frame in self.large_y_frames else self.player.y
-        x_render = self.player.x + 120 if self.player.face_dir == 1 else self.player.x - 120
+        size_x, size_y = self.action[self.player.frame][2] * PLAYER_SIZE_RATE, self.action[self.player.frame][3] * PLAYER_SIZE_RATE
+        x_render = self.player.x + (self.action[self.player.frame][2] - 48) / 2 * PLAYER_SIZE_RATE * self.player.face_dir
+        y_render = self.player.y + (self.action[self.player.frame][3] - 48) / 2 * PLAYER_SIZE_RATE
 
         rect = self.action[frame]
         if self.player.face_dir == 1:
-            self.player.image.clip_draw(*rect, x_render, y_render, x_size, y_size)
+            self.player.image.clip_draw(*rect, x_render, y_render, size_x, size_y)
         else:
-            self.player.image.clip_composite_draw(*rect, 0, 'h', x_render, y_render, x_size, y_size)
+            self.player.image.clip_composite_draw(*rect, 0, 'h', x_render, y_render, size_x, size_y)
 
 
 class Slash:
@@ -132,9 +126,6 @@ class Attack:
         self.action = ((7,1395,47,43),(63,1397,47,41),(119,1368,74,70),(202,1368,76,70),(287,1368,77,71),
                        (373,1381,97,57),(479,1360,101,78),(589,1370,95,68),(693,1371,90,67),(792,1368,97,70),
                        (898,1368,97,70),(1004,1365,79,73),(1092,1360,90,78),(1191,1381,92,57),(1292,1395,49,43),(1350,1396,48,42))
-        self.large_frames = set(range(2, 14))
-        self.base_size = 100
-        self.large_size = 170
 
     def enter(self, e):
         self.player.frame = 0
@@ -157,15 +148,15 @@ class Attack:
 
     def draw(self):
         frame = self.player.frame
-        size = self.large_size if frame in self.large_frames else self.base_size
+        size_x, size_y = self.action[self.player.frame][2] * PLAYER_SIZE_RATE, self.action[self.player.frame][3] * PLAYER_SIZE_RATE
         # 큰 프레임에서 발(바닥) 고정: 중심이 올라가는 만큼 내려줌
-        y_render = self.player.y + 20 if frame in self.large_frames else self.player.y
+        y_render = self.player.y + (self.action[self.player.frame][3] - 48) / 2 * PLAYER_SIZE_RATE
 
         rect = self.action[frame]
         if self.player.face_dir == 1:
-            self.player.image.clip_draw(*rect, self.player.x, y_render, size, size)
+            self.player.image.clip_draw(*rect, self.player.x, y_render, size_x, size_y)
         else:
-            self.player.image.clip_composite_draw(*rect, 0, 'h', self.player.x, y_render, size, size)
+            self.player.image.clip_composite_draw(*rect, 0, 'h', self.player.x, y_render, size_x, size_y)
 
 
 class Dash:
@@ -338,9 +329,9 @@ class Player:
         idx = self.frame % len(action)
         rect = action[idx]
         if self.face_dir == 1:
-            self.image.clip_draw(*rect, self.x, self.y, 100, 100)
+            self.image.clip_draw(*rect, self.x, self.y, action[self.frame][2] * PLAYER_SIZE_RATE, action[self.frame][3] * PLAYER_SIZE_RATE)
         else:
-            self.image.clip_composite_draw(*rect, 0, 'h', self.x, self.y, 100, 100)
+            self.image.clip_composite_draw(*rect, 0, 'h', self.x, self.y, action[self.frame][2] * PLAYER_SIZE_RATE, action[self.frame][3] * PLAYER_SIZE_RATE)
 
     def update(self):
         self.state_machine.update()
@@ -366,5 +357,5 @@ class Player:
         self.state_machine.draw()
 
     def add_slash_effect(self):
-        slash = SlashEffect(self.x, self.y, self.face_dir * 30)
+        slash = SlashEffect(self.x, self.y, self.face_dir)
         game_world.add_object(slash, 2)
