@@ -1,5 +1,6 @@
 from pico2d import load_image, get_time
 import game_world
+import game_framework
 from slash_effect import SlashEffect
 from sdl2 import SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_a, SDLK_d, SDLK_LSHIFT, SDLK_j, SDLK_k, SDLK_l
 
@@ -34,6 +35,25 @@ def ultimate_finish(e): return e[0] == 'ULTIMATE_FINISH'
 def move_ultimate_finish(e): return e[0] == 'MOVE_ULTIMATE_FINISH'
 
 
+# 플레이어 속도 계산
+PIXEL_PER_METER = (1.0 / 0.02) # 1 pixel 2 cm
+RUN_SPEED_KMPH = 30.0 # Km / Hour
+RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
+RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
+RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+# 대쉬 속도 계산
+DASH_SPEED_KMPH = 120.0 # Km / Hour
+DASH_SPEED_MPM = (DASH_SPEED_KMPH * 1000.0 / 60.0)
+DASH_SPEED_MPS = (DASH_SPEED_MPM / 60.0)
+DASH_SPEED_PPS = (DASH_SPEED_MPS * PIXEL_PER_METER)
+# 중력 처리
+GRAVITY_MPS2 = 9.8
+GRAVITY_PPS2 = GRAVITY_MPS2 * PIXEL_PER_METER
+# 애니메이션 속도 계산
+TIME_PER_ACTION = 0.5
+ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+
+
 class Ultimate:
     def __init__(self, player):
         self.player = player
@@ -50,7 +70,8 @@ class Ultimate:
         self.large_y_size = 167
 
     def enter(self, e):
-        self.player.dir = 0
+        self.player.frame = 0
+        self.player.anim_progress = 0.0
 
     def exit(self, e):
         pass
@@ -85,6 +106,7 @@ class Slash:
 
     def enter(self, e):
         self.player.frame = 0
+        self.player.anim_progress = 0.0
 
     def exit(self, e):
         self.player.add_slash_effect()
@@ -116,7 +138,7 @@ class Attack:
 
     def enter(self, e):
         self.player.frame = 0
-
+        self.player.anim_progress = 0.0
 
     def exit(self, e):
         pass
@@ -149,10 +171,11 @@ class Attack:
 class Dash:
     def __init__(self, player):
         self.player = player
-        self.action = ((54,1722,54,35),(70,1720,74,37),(153,1722,63,35),(225,1722,57,35),(291,1722,56,35),(356,1722,55,35),(420,1722,54,35))
+        self.action = ((7,1722,54,35),(70,1720,74,37),(153,1722,63,35),(225,1722,57,35),(291,1722,56,35),(356,1722,55,35),(420,1722,54,35))
 
     def enter(self, e):
         self.player.frame = 0
+        self.player.anim_progress = 0.0
         self.dash_dir = self.player.face_dir
         #추후에 플레이어 무적 상태 추가
         pass
@@ -169,8 +192,12 @@ class Dash:
                 move_pressed = self.player.left_pressed or self.player.right_pressed
                 event = 'MOVE_DASH_FINISH' if move_pressed else 'DASH_FINISH'
             self.player.state_machine.handle_event((event, None))
-        self.player.next_frame(self.action)
-        self.player.x = max(0, min(1280, self.player.x + self.dash_dir * 20))
+
+        # 대쉬 전용 프레임 진행
+        self.player.anim_progress += 7.0 * game_framework.frame_time * len(self.action)
+        self.player.frame = int(self.player.anim_progress) % len(self.action)
+
+        self.player.x = max(0, min(1280, self.player.x + self.dash_dir * DASH_SPEED_PPS * game_framework.frame_time))
 
 
     def draw(self):
@@ -183,6 +210,9 @@ class Jump:
         self.action = ((7, 1655, 43, 47), (59, 1655, 43, 47), (111, 1655, 43, 47))
 
     def enter(self, e):
+        self.player.frame = 0
+        self.player.anim_progress = 0.0
+        # 방향 설정
         left = self.player.left_pressed
         right = self.player.right_pressed
         self.player.dir = (1 if right else 0) + (-1 if left else 0)
@@ -196,11 +226,15 @@ class Jump:
         self.player.next_frame(self.action)
         self.player.move_x()
 
-        self.player.y += self.player.dropSpeed * 5
-        self.player.dropSpeed -= 0.1
+        # 중력 적용
+        dt = game_framework.frame_time
+        self.player.y += self.player.dropSpeed * dt
+        self.player.dropSpeed -= GRAVITY_PPS2 * dt
+
+        # 착지시 처리
         if self.player.y < self.player.ground_y:
             self.player.y = self.player.ground_y
-            self.player.dropSpeed = 3.0
+            self.player.dropSpeed = 8.0 * PIXEL_PER_METER
             if self.player.dir == 0 : self.player.state_machine.handle_event(('LAND', None))
             else : self.player.state_machine.handle_event(('MOVE_LAND', None))
 
@@ -213,6 +247,8 @@ class Run:
         self.action = ((7, 1777, 54, 41), (70, 1777, 53, 40), (132, 1777, 53, 41), (194, 1777, 53, 41), (256, 1777, 52, 40), (317, 1776, 52, 43))
 
     def enter(self, e):
+        self.player.frame = 0
+        self.player.anim_progress = 0.0
         left = self.player.left_pressed
         right = self.player.right_pressed
         self.player.dir = (1 if right else 0) + (-1 if left else 0)
@@ -237,6 +273,8 @@ class Idle:
 
     def enter(self, e):
         self.player.dir = 0
+        self.player.frame = 0
+        self.player.anim_progress = 0.0
 
     def exit(self, e):
         pass
@@ -253,7 +291,7 @@ class Player:
 
         # 점프 관련 변수
         self.ground_y = self.y
-        self.dropSpeed = 3.0
+        self.dropSpeed = 8.0 * PIXEL_PER_METER
 
         # 방향 변수
         self.face_dir = 1
@@ -263,6 +301,7 @@ class Player:
 
         # 애니메이션 변수
         self.frame = 0
+        self.anim_progress = 0.0
         self.image = load_image('Sprite/Player.png')
 
         # 상태머신
@@ -287,13 +326,17 @@ class Player:
         )
 
     def next_frame(self, action):
-        self.frame = (self.frame + 1) % len(action)
+        # 진행 누적
+        self.anim_progress += ACTION_PER_TIME * game_framework.frame_time * len(action)
+        # 정수 프레임 산출
+        self.frame = int(self.anim_progress) % len(action)
 
     def move_x(self):
-        self.x = max(0, min(1280, self.x + self.dir * 5))
+        self.x = max(0, min(1280, self.x + self.dir * RUN_SPEED_PPS * game_framework.frame_time))
 
     def draw_current(self, action):
-        rect = action[self.frame]
+        idx = self.frame % len(action)
+        rect = action[idx]
         if self.face_dir == 1:
             self.image.clip_draw(*rect, self.x, self.y, 100, 100)
         else:
