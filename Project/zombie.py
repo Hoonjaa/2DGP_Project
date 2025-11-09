@@ -22,6 +22,11 @@ TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 # 좀비 크기 비율
 ZOMBIE_SIZE_RATE = (200 / 120)
+# 좀비 속도 계산
+RUN_SPEED_KMPH = 15.0 # Km / Hour
+RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
+RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
+RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
 
 class Run:
@@ -38,15 +43,16 @@ class Run:
 
     def do(self):
         self.monster.next_frame(self.action)
+        self.monster.move_x()
         if not self.monster.check_near_player():
             print("Zombie lose Player")
             self.monster.state_machine.handle_event(('LOSE_PLAYER', None))
 
         player = game_world.find_object_by_type(Player)
-        if player and self.monster.x > player.x + 40:
+        if player and self.monster.x > player.x + 20:
             self.monster.dir = -1
             self.monster.face_dir = -1
-        elif player and self.monster.x < player.x - 40:
+        elif player and self.monster.x < player.x - 20:
             self.monster.dir = 1
             self.monster.face_dir = 1
         else:
@@ -121,7 +127,6 @@ class Zombie:
                 # self.JUMP: {},
                 # self.HIT: {},
                 # self.DIE: {},
-                # self.ATTACK: {},
             }
         )
 
@@ -138,6 +143,9 @@ class Zombie:
             self.image.clip_draw(*rect, self.x, self.y, action[self.frame][2] * ZOMBIE_SIZE_RATE, action[self.frame][3] * ZOMBIE_SIZE_RATE)
         else:
             self.image.clip_composite_draw(*rect, 0, 'h', self.x, self.y, action[self.frame][2] * ZOMBIE_SIZE_RATE, action[self.frame][3] * ZOMBIE_SIZE_RATE)
+
+    def move_x(self):
+        self.x = self.x + self.dir * RUN_SPEED_PPS * game_framework.frame_time
 
     def update(self):
         self.state_machine.update()
