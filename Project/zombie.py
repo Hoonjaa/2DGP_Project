@@ -1,4 +1,4 @@
-from pico2d import load_image
+from pico2d import load_image, draw_rectangle
 import game_world
 import game_framework
 
@@ -32,9 +32,12 @@ class Idle:
 
     def draw(self):
         self.monster.draw_current(self.action)
+        draw_rectangle(*self.get_bb(), 255, 0, 0)
 
     def get_bb(self):
-        pass
+        x_offset = self.action[self.monster.frame][2] * ZOMBIE_SIZE_RATE / 2
+        y_offset = self.action[self.monster.frame][3] * ZOMBIE_SIZE_RATE / 2
+        return (self.monster.x - x_offset, self.monster.y - y_offset, self.monster.x + x_offset, self.monster.y + y_offset)
 
 
 class Zombie:
@@ -93,6 +96,10 @@ class Zombie:
 
     def draw(self):
         self.state_machine.draw()
+        draw_rectangle(*self.get_sensing_bb(), 255, 255, 0)
 
     def get_bb(self):
         self.state_machine.get_bb()
+
+    def get_sensing_bb(self):
+        return self.x - 300, self.y - 300, self.x + 300, self.y + 300
