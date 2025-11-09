@@ -47,19 +47,7 @@ def collide(a, b):
 
     return True
 
-def sensing_collide(a, b):
-    left_a, bottom_a, right_a, top_a = a.get_bb()
-    left_b, bottom_b, right_b, top_b = b.get_sensing_bb()
-
-    if left_a > right_b: return False
-    if right_a < left_b: return False
-    if top_a < bottom_b: return False
-    if bottom_a > top_b: return False
-
-    return True
-
 collision_pairs = {}
-sensing_collision_pairs = {}
 
 def add_collision_pair(group, a, b):
     if group not in collision_pairs:
@@ -69,26 +57,11 @@ def add_collision_pair(group, a, b):
     if b:
         collision_pairs[group][1].append(b)
 
-def add_sensing_collision_pair(group, a, b):
-    if group not in sensing_collision_pairs:
-        sensing_collision_pairs[group] = ([], [])
-    if a:
-        sensing_collision_pairs[group][0].append(a)
-    if b:
-        sensing_collision_pairs[group][1].append(b)
-
 
 def handle_collisions():
     for group, pairs in collision_pairs.items():
         for a in pairs[0]:
             for b in pairs[1]:
                 if collide(a, b):
-                    a.handle_collision(group, b) #객체한테 처리 위임
-                    b.handle_collision(group, a)
-
-    for group, pairs in sensing_collision_pairs.items():
-        for a in pairs[0]:
-            for b in pairs[1]:
-                if sensing_collide(a, b):
                     a.handle_collision(group, b) #객체한테 처리 위임
                     b.handle_collision(group, a)
