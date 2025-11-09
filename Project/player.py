@@ -3,6 +3,7 @@ import game_world
 import game_framework
 from slash_effect import SlashEffect
 from player_attack import PlayerAttack
+from player_ult_attack import PlayerUltAttack
 from sdl2 import SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_a, SDLK_d, SDLK_LSHIFT, SDLK_j, SDLK_k, SDLK_l
 
 from state_machine import StateMachine
@@ -65,13 +66,18 @@ class Ultimate:
                        (570,197,164,70),(743,196,164,71),(916,210,184,57),(1109,189,194,78),(7,117,188,68),
                        (204,118,190,67),(403,115,192,70),(604,115,196,70),(809,112,164,73),(982,107,170,78),
                        (1161,142,160,43),(7,60,160,43),(176,60,160,43),(343,60,160,43))
+        self.ult_attack = None
 
     def enter(self, e):
         self.player.frame = 0
         self.player.anim_progress = 0.0
 
+        self.ult_attack = PlayerUltAttack(self.player.x, self.player.y, self.player)
+        game_world.add_object(self.ult_attack, 2)
+        game_world.add_collision_pair('zombie:player_ult', None, self.ult_attack)
+
     def exit(self, e):
-        pass
+        game_world.remove_object(self.ult_attack)
 
     def do(self):
         if self.player.frame == len(self.action) - 1:

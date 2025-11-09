@@ -28,6 +28,7 @@ def init():
     game_world.add_object(zombie,0)
     game_world.add_collision_pair('zombie:player_attack', zombie, None)
     game_world.add_collision_pair('zombie:player_slash', zombie, None)
+    game_world.add_collision_pair('zombie:player_ult', zombie, None)
 
 def update():
     game_world.update()
