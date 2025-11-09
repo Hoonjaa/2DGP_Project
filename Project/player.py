@@ -78,7 +78,8 @@ class Ultimate:
             event = 'MOVE_ULTIMATE_FINISH' if move_pressed else 'ULTIMATE_FINISH'
             self.player.state_machine.handle_event((event, None))
 
-        self.player.next_frame(self.action)
+        self.player.anim_progress += 0.8 * game_framework.frame_time * len(self.action)
+        self.player.frame = int(self.player.anim_progress) % len(self.action)
 
     def draw(self):
         frame = self.player.frame
@@ -157,7 +158,8 @@ class Attack:
                 event = 'MOVE_ATTACK_FINISH' if move_pressed else 'ATTACK_FINISH'
             self.player.state_machine.handle_event((event, None))
 
-        self.player.next_frame(self.action)
+        self.player.anim_progress += 1.5 * game_framework.frame_time * len(self.action)
+        self.player.frame = int(self.player.anim_progress) % len(self.action)
 
     def draw(self):
         frame = self.player.frame
