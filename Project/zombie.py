@@ -1,8 +1,17 @@
 from pico2d import load_image, draw_rectangle
 import game_world
 import game_framework
-
+from player import Player
 from state_machine import StateMachine
+
+
+# 이벤트 체크 함수
+def key_event(e, ev_type, key):
+    return e[0] == 'INPUT' and e[1].type == ev_type and e[1].key == key
+
+def find_player(e) : return e[0] == 'FIND_PLAYER'
+def lose_player(e) : return e[0] == 'LOSE_PLAYER'
+
 
 PIXEL_PER_METER = (1.0 / 0.02) # 1 pixel 2 cm
 # 중력 처리
@@ -13,6 +22,45 @@ TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 # 좀비 크기 비율
 ZOMBIE_SIZE_RATE = (200 / 120)
+
+
+class Run:
+    def __init__(self, monster):
+        self.monster = monster
+        self.action = ((164,280,47,62),(217,280,52,61),(275,280,52,58),(344,280,52,58),(416,280,53,58),(475,280,53,59))
+
+    def enter(self, e):
+        self.monster.frame = 0
+        self.monster.anim_progress = 0.0
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        self.monster.next_frame(self.action)
+        if not self.monster.check_near_player():
+            print("Zombie lose Player")
+            self.monster.state_machine.handle_event(('LOSE_PLAYER', None))
+
+        player = game_world.find_object_by_type(Player)
+        if player and self.monster.x > player.x + 40:
+            self.monster.dir = -1
+            self.monster.face_dir = -1
+        elif player and self.monster.x < player.x - 40:
+            self.monster.dir = 1
+            self.monster.face_dir = 1
+        else:
+            self.monster.dir = 0
+
+    def draw(self):
+        self.monster.draw_current(self.action)
+        draw_rectangle(*self.get_bb(), 255, 0, 0)
+
+    def get_bb(self):
+        x_offset = self.action[self.monster.frame][2] * ZOMBIE_SIZE_RATE / 2
+        y_offset = self.action[self.monster.frame][3] * ZOMBIE_SIZE_RATE / 2
+        return (self.monster.x - x_offset, self.monster.y - y_offset, self.monster.x + x_offset, self.monster.y + y_offset)
+
 
 class Idle:
     def __init__(self, monster):
@@ -29,6 +77,9 @@ class Idle:
 
     def do(self):
         self.monster.next_frame(self.action)
+        if self.monster.check_near_player():
+            print("Player Near Zombie")
+            self.monster.state_machine.handle_event(('FIND_PLAYER', None))
 
     def draw(self):
         self.monster.draw_current(self.action)
@@ -61,11 +112,12 @@ class Zombie:
 
         # 상태 머신 초기화
         self.IDLE = Idle(self)
+        self.RUN = Run(self)
         self.state_machine = StateMachine(
             self.IDLE,
             {
-                self.IDLE: {},
-                # self.RUN: {},
+                self.IDLE: { find_player: self.RUN },
+                self.RUN: { lose_player: self.IDLE },
                 # self.JUMP: {},
                 # self.HIT: {},
                 # self.DIE: {},
@@ -89,8 +141,6 @@ class Zombie:
 
     def update(self):
         self.state_machine.update()
-        if self.check_near_player():
-            print("Player Near Zombie")
 
     def handle_event(self, event):
         # 들어온 외부 키 입력을 상태머신에게 전달하기 위해 튜플화 시킨후 전달
@@ -103,7 +153,6 @@ class Zombie:
         self.state_machine.get_bb()
 
     def check_near_player(self):
-        from player import Player
         player = game_world.find_object_by_type(Player)
         if player:
             distance = self.x - player.x
