@@ -10,6 +10,9 @@ class StateMachine:
     def draw(self):
         self.current_state.draw() #현재 상태의 그리기 수행
 
+    def get_bb(self):
+        return self.current_state.get_bb()
+
     def handle_event(self, state_event):
         for check_event in self.rules[self.current_state].keys(): #현재 상태에서 가능한 이벤트 확인
             if check_event(state_event): #이벤트가 발생했는지 확인

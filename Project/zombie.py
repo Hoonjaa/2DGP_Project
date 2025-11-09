@@ -33,6 +33,9 @@ class Idle:
     def draw(self):
         self.monster.draw_current(self.action)
 
+    def get_bb(self):
+        pass
+
 
 class Zombie:
     image = None
@@ -90,3 +93,6 @@ class Zombie:
 
     def draw(self):
         self.state_machine.draw()
+
+    def get_bb(self):
+        self.state_machine.get_bb()

@@ -1,4 +1,4 @@
-from pico2d import load_image, get_time
+from pico2d import load_image, draw_rectangle
 import game_world
 import game_framework
 from slash_effect import SlashEffect
@@ -91,6 +91,13 @@ class Ultimate:
             self.player.image.clip_draw(*rect, x_render, y_render, size_x, size_y)
         else:
             self.player.image.clip_composite_draw(*rect, 0, 'h', x_render, y_render, size_x, size_y)
+        draw_rectangle(*self.get_bb(), 255, 0, 0)
+
+    def get_bb(self):
+        x_offset = 50 * PLAYER_SIZE_RATE / 2
+        x_correct = 20 * PLAYER_SIZE_RATE * self.player.face_dir
+        y_offset = 50 * PLAYER_SIZE_RATE / 2
+        return (self.player.x - x_offset + x_correct, self.player.y - y_offset, self.player.x + x_offset + x_correct, self.player.y + y_offset)
 
 
 class Slash:
@@ -118,6 +125,12 @@ class Slash:
 
     def draw(self):
         self.player.draw_current(self.action)
+        draw_rectangle(*self.get_bb(), 255, 0, 0)
+
+    def get_bb(self):
+        x_offset = self.action[self.player.frame][2] * PLAYER_SIZE_RATE / 2
+        y_offset = self.action[self.player.frame][3] * PLAYER_SIZE_RATE / 2
+        return (self.player.x - x_offset, self.player.y - y_offset, self.player.x + x_offset, self.player.y + y_offset)
 
 
 class Attack:
@@ -157,6 +170,12 @@ class Attack:
             self.player.image.clip_draw(*rect, self.player.x, y_render, size_x, size_y)
         else:
             self.player.image.clip_composite_draw(*rect, 0, 'h', self.player.x, y_render, size_x, size_y)
+        draw_rectangle(*self.get_bb(), 255, 0, 0)
+
+    def get_bb(self):
+        x_offset = 50 * PLAYER_SIZE_RATE / 2
+        y_offset = 50 * PLAYER_SIZE_RATE / 2
+        return (self.player.x - x_offset, self.player.y - y_offset, self.player.x + x_offset, self.player.y + y_offset)
 
 
 class Dash:
@@ -193,6 +212,9 @@ class Dash:
 
     def draw(self):
         self.player.draw_current(self.action)
+
+    def get_bb(self):
+        pass
 
 
 class Jump:
@@ -231,6 +253,12 @@ class Jump:
 
     def draw(self):
         self.player.draw_current(self.action)
+        draw_rectangle(*self.get_bb(), 255, 0, 0)
+
+    def get_bb(self):
+        x_offset = self.action[self.player.frame][2] * PLAYER_SIZE_RATE / 2
+        y_offset = self.action[self.player.frame][3] * PLAYER_SIZE_RATE / 2
+        return (self.player.x - x_offset, self.player.y - y_offset, self.player.x + x_offset, self.player.y + y_offset)
 
 class Run:
     def __init__(self, player):
@@ -255,6 +283,12 @@ class Run:
 
     def draw(self):
         self.player.draw_current(self.action)
+        draw_rectangle(*self.get_bb(), 255, 0, 0)
+
+    def get_bb(self):
+        x_offset = self.action[self.player.frame][2] * PLAYER_SIZE_RATE / 2
+        y_offset = self.action[self.player.frame][3] * PLAYER_SIZE_RATE / 2
+        return (self.player.x - x_offset, self.player.y - y_offset, self.player.x + x_offset, self.player.y + y_offset)
 
 
 class Idle:
@@ -275,6 +309,12 @@ class Idle:
 
     def draw(self):
         self.player.draw_current(self.action)
+        draw_rectangle(*self.get_bb(),255,0,0)
+
+    def get_bb(self):
+        x_offset = self.action[self.player.frame][2] * PLAYER_SIZE_RATE / 2
+        y_offset = self.action[self.player.frame][3] * PLAYER_SIZE_RATE / 2
+        return (self.player.x - x_offset, self.player.y - y_offset, self.player.x + x_offset, self.player.y + y_offset)
 
 class Player:
     def __init__(self):
@@ -355,6 +395,9 @@ class Player:
 
     def draw(self):
         self.state_machine.draw()
+
+    def get_bb(self):
+        self.state_machine.get_bb()
 
     def add_slash_effect(self):
         slash = SlashEffect(self.x, self.y, self.face_dir)
