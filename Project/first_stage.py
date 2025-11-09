@@ -2,6 +2,7 @@ from pico2d import *
 import game_world
 import game_framework
 from player import Player
+from zombie import Zombie
 from test_background import Background
 
 def handle_events():
@@ -22,6 +23,9 @@ def init():
 
     player = Player()
     game_world.add_object(player,1)
+
+    zombie = Zombie()
+    game_world.add_object(zombie,0)
 
 def update():
     game_world.update()
