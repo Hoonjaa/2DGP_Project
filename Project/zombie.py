@@ -46,6 +46,7 @@ class Hit:
         pass
 
     def do(self):
+        self.monster.x -= self.monster.face_dir * (RUN_SPEED_PPS / 4) * game_framework.frame_time
         self.monster.next_frame(self.action)
 
         if self.monster.frame == len(self.action) - 1:
