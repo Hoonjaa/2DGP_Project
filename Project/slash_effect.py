@@ -1,4 +1,4 @@
-from pico2d import load_image
+from pico2d import load_image, draw_rectangle
 import game_world
 import game_framework
 
@@ -35,3 +35,7 @@ class SlashEffect:
         else:
             self.image.clip_composite_draw(self.frame * SLASH_SRC_SIZE, 0, SLASH_SRC_SIZE, SLASH_SRC_SIZE,
                                            0, 'h', self.x, self.y, dw, dw)
+        draw_rectangle(*self.get_bb(), 0, 255, 0)
+
+    def get_bb(self):
+        return (self.x - 50, self.y - 80, self.x + 50, self.y + 80)
