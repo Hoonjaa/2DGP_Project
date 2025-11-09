@@ -2,6 +2,7 @@ from pico2d import load_image, draw_rectangle
 import game_world
 import game_framework
 from player import Player
+from damage_text import DamageText
 from state_machine import StateMachine
 
 
@@ -211,4 +212,6 @@ class Zombie:
     def handle_collision(self, group, other):
         if group == 'zombie:player_attack' and self.current_state != 'HIT':
             print("Zombie Hit by Player Attack")
+            damage_text = DamageText(self.x, self.y + 50, other.player.base_damage)
+            game_world.add_object(damage_text, 2)
             self.state_machine.handle_event(('HIT', None))

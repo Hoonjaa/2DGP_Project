@@ -147,7 +147,7 @@ class Attack:
         self.player.frame = 0
         self.player.anim_progress = 0.0
 
-        self.attack = PlayerAttack(self.player.x, self.player.y)
+        self.attack = PlayerAttack(self.player.x, self.player.y, self.player)
         game_world.add_object(self.attack, 2)
         game_world.add_collision_pair('zombie:player_attack', None, self.attack)
 
@@ -328,6 +328,9 @@ class Idle:
 class Player:
     def __init__(self):
         self.x, self.y = 640, 90
+
+        #데미지 관련 변수
+        self.base_damage = 10
 
         # 점프 관련 변수
         self.ground_y = self.y

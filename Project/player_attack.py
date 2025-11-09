@@ -1,7 +1,8 @@
 from pico2d import draw_rectangle
 
 class PlayerAttack:
-    def __init__(self, x = 0, y = 0):
+    def __init__(self, x = 0, y = 0, player = None):
+        self.player = player
         self.x, self.y = x, y
 
     def update(self):
