@@ -12,3 +12,6 @@ class PlayerAttack:
 
     def get_bb(self):
         return (self.x - 100, self.y - 50, self.x + 100, self.y + 100)
+
+    def handle_collision(self, group, other):
+        pass

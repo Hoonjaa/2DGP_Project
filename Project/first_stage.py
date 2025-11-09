@@ -26,9 +26,11 @@ def init():
 
     zombie = Zombie()
     game_world.add_object(zombie,0)
+    game_world.add_collision_pair('zombie:player_attack', zombie, None)
 
 def update():
     game_world.update()
+    game_world.handle_collisions()
 
 def draw():
     clear_canvas()

@@ -146,8 +146,11 @@ class Attack:
     def enter(self, e):
         self.player.frame = 0
         self.player.anim_progress = 0.0
+
         self.attack = PlayerAttack(self.player.x, self.player.y)
         game_world.add_object(self.attack, 2)
+        game_world.add_collision_pair('zombie:player_attack', None, self.attack)
+
 
     def exit(self, e):
         game_world.remove_object(self.attack)

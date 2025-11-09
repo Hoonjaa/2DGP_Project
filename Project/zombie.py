@@ -11,6 +11,8 @@ def key_event(e, ev_type, key):
 
 def find_player(e) : return e[0] == 'FIND_PLAYER'
 def lose_player(e) : return e[0] == 'LOSE_PLAYER'
+def hit(e) : return e[0] == 'HIT'
+def hit_finish(e) : return e[0] == 'HIT_FINISH'
 
 
 PIXEL_PER_METER = (1.0 / 0.02) # 1 pixel 2 cm
@@ -29,6 +31,39 @@ RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
 
+class Hit:
+    def __init__(self, monster):
+        self.monster = monster
+        self.action = ((4,73,54,66),(4,73,54,66),(4,73,54,66),(4,73,54,66))
+
+    def enter(self, e):
+        self.monster.frame = 0
+        self.monster.anim_progress = 0.0
+        self.monster.current_state = 'HIT'
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        self.monster.next_frame(self.action)
+
+        if self.monster.frame == len(self.action) - 1:
+            self.monster.state_machine.handle_event(('HIT_FINISH', None))
+
+        if self.monster.check_near_player():
+            # print("Player Near Zombie")
+            self.monster.state_machine.handle_event(('FIND_PLAYER', None))
+
+    def draw(self):
+        self.monster.draw_current(self.action)
+        draw_rectangle(*self.get_bb(), 255, 0, 0)
+
+    def get_bb(self):
+        x_offset = self.action[self.monster.frame][2] * ZOMBIE_SIZE_RATE / 2
+        y_offset = self.action[self.monster.frame][3] * ZOMBIE_SIZE_RATE / 2
+        return (self.monster.x - x_offset, self.monster.y - y_offset, self.monster.x + x_offset, self.monster.y + y_offset)
+
+
 class Run:
     def __init__(self, monster):
         self.monster = monster
@@ -37,6 +72,7 @@ class Run:
     def enter(self, e):
         self.monster.frame = 0
         self.monster.anim_progress = 0.0
+        self.monster.current_state = 'RUN'
 
     def exit(self, e):
         pass
@@ -44,8 +80,9 @@ class Run:
     def do(self):
         self.monster.next_frame(self.action)
         self.monster.move_x()
+
         if not self.monster.check_near_player():
-            print("Zombie lose Player")
+            # print("Zombie lose Player")
             self.monster.state_machine.handle_event(('LOSE_PLAYER', None))
 
         player = game_world.find_object_by_type(Player)
@@ -77,6 +114,7 @@ class Idle:
         self.monster.dir = 0
         self.monster.frame = 0
         self.monster.anim_progress = 0.0
+        self.monster.current_state = 'IDLE'
 
     def exit(self, e):
         pass
@@ -84,7 +122,7 @@ class Idle:
     def do(self):
         self.monster.next_frame(self.action)
         if self.monster.check_near_player():
-            print("Player Near Zombie")
+            # print("Player Near Zombie")
             self.monster.state_machine.handle_event(('FIND_PLAYER', None))
 
     def draw(self):
@@ -101,6 +139,8 @@ class Zombie:
     image = None
     def __init__(self):
         self.x, self.y = 740, 90
+
+        self.current_state = 'IDLE'
 
         # 애니메이션 관련 변수
         self.frame = 0
@@ -119,13 +159,14 @@ class Zombie:
         # 상태 머신 초기화
         self.IDLE = Idle(self)
         self.RUN = Run(self)
+        self.HIT = Hit(self)
         self.state_machine = StateMachine(
             self.IDLE,
             {
-                self.IDLE: { find_player: self.RUN },
-                self.RUN: { lose_player: self.IDLE },
+                self.IDLE: { find_player: self.RUN, hit: self.HIT },
+                self.RUN: { lose_player: self.IDLE, hit: self.HIT },
                 # self.JUMP: {},
-                # self.HIT: {},
+                self.HIT: {hit_finish: self.IDLE},
                 # self.DIE: {},
             }
         )
@@ -158,7 +199,7 @@ class Zombie:
         self.state_machine.draw()
 
     def get_bb(self):
-        self.state_machine.get_bb()
+        return self.state_machine.get_bb()
 
     def check_near_player(self):
         player = game_world.find_object_by_type(Player)
@@ -166,3 +207,8 @@ class Zombie:
             distance = self.x - player.x
             return -300 < distance < 300
         return False
+
+    def handle_collision(self, group, other):
+        if group == 'zombie:player_attack' and self.current_state != 'HIT':
+            print("Zombie Hit by Player Attack")
+            self.state_machine.handle_event(('HIT', None))
