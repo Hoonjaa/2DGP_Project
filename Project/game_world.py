@@ -37,8 +37,15 @@ def clear():
         layer.clear()
 
 def collide(a, b):
-    left_a, bottom_a, right_a, top_a = a.get_bb()
-    left_b, bottom_b, right_b, top_b = b.get_bb()
+    bb_a = a.get_bb()
+    bb_b = b.get_bb()
+
+    # 바운딩 박스가 None인 경우 충돌하지 않는 것으로 처리
+    if bb_a is None or bb_b is None:
+        return False
+
+    left_a, bottom_a, right_a, top_a = bb_a
+    left_b, bottom_b, right_b, top_b = bb_b
 
     if left_a > right_b: return False
     if right_a < left_b: return False

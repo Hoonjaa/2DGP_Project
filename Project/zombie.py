@@ -14,6 +14,7 @@ def find_player(e) : return e[0] == 'FIND_PLAYER'
 def lose_player(e) : return e[0] == 'LOSE_PLAYER'
 def hit(e) : return e[0] == 'HIT'
 def hit_finish(e) : return e[0] == 'HIT_FINISH'
+def death(e) : return e[0] == 'DEATH'
 
 
 PIXEL_PER_METER = (1.0 / 0.02) # 1 pixel 2 cm
@@ -32,6 +33,43 @@ RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
 
+class Death:
+    def __init__(self, monster):
+        self.monster = monster
+        self.action = ((4,9,38,54),(48,9,37,56),(91,9,45,57),(142,9,44,56),(192,9,41,50),
+                       (239,9,44,42),(289,9,39,42),(334,9,34,42),(374,9,42,42),(422,9,60,25),
+                       (488,9,63,12),(557,9,64,13),(630,9,64,11))
+
+    def enter(self, e):
+        self.monster.frame = 0
+        self.monster.anim_progress = 0.0
+        self.monster.current_state = 'DEATH'
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        self.monster.anim_progress += 1 * game_framework.frame_time * len(self.action)
+        self.monster.frame = int(self.monster.anim_progress) % len(self.action)
+
+        if self.monster.frame == len(self.action) - 1:
+            game_world.remove_object(self.monster)
+
+    def draw(self):
+        frame = self.monster.frame
+        size_x, size_y = self.action[self.monster.frame][2] * ZOMBIE_SIZE_RATE, self.action[self.monster.frame][3] * ZOMBIE_SIZE_RATE
+        x_render = self.monster.x + (self.action[self.monster.frame][2] - 48) / 2 * ZOMBIE_SIZE_RATE * self.monster.face_dir
+        y_render = self.monster.y + (self.action[self.monster.frame][3] - 48) / 2 * ZOMBIE_SIZE_RATE
+
+        rect = self.action[frame]
+        if self.monster.face_dir == 1:
+            self.monster.image.clip_draw(*rect, x_render, y_render, size_x, size_y)
+        else:
+            self.monster.image.clip_composite_draw(*rect, 0, 'h', x_render, y_render, size_x, size_y)
+
+    def get_bb(self):
+        pass
+
 class Hit:
     def __init__(self, monster):
         self.monster = monster
@@ -49,12 +87,11 @@ class Hit:
         self.monster.x -= self.monster.face_dir * (RUN_SPEED_PPS / 4) * game_framework.frame_time
         self.monster.next_frame(self.action)
 
+        if self.monster.hp <= 0:
+            self.monster.state_machine.handle_event(('DEATH', None))
+
         if self.monster.frame == len(self.action) - 1:
             self.monster.state_machine.handle_event(('HIT_FINISH', None))
-
-        if self.monster.check_near_player():
-            # print("Player Near Zombie")
-            self.monster.state_machine.handle_event(('FIND_PLAYER', None))
 
     def draw(self):
         self.monster.draw_current(self.action)
@@ -141,6 +178,7 @@ class Zombie:
     image = None
     def __init__(self):
         self.x, self.y = 740, 90
+        self.hp = 200
 
         self.current_state = 'IDLE'
 
@@ -162,14 +200,15 @@ class Zombie:
         self.IDLE = Idle(self)
         self.RUN = Run(self)
         self.HIT = Hit(self)
+        self.DEATH = Death(self)
         self.state_machine = StateMachine(
             self.IDLE,
             {
                 self.IDLE: { find_player: self.RUN, hit: self.HIT },
                 self.RUN: { lose_player: self.IDLE, hit: self.HIT },
                 # self.JUMP: {},
-                self.HIT: {hit_finish: self.IDLE},
-                # self.DIE: {},
+                self.HIT: {hit_finish: self.IDLE, death: self.DEATH},
+                self.DEATH: {},
             }
         )
 
@@ -215,16 +254,19 @@ class Zombie:
             print("Zombie Hit by Player Attack")
             damage_text = DamageText(self.x, self.y + 50, other.player.base_damage)
             game_world.add_object(damage_text, 2)
+            self.hp -= other.player.base_damage
             self.state_machine.handle_event(('HIT', None))
 
         if group == 'zombie:player_slash' and self.current_state != 'HIT':
             print("Zombie Hit by Player Slash")
             damage_text = DamageText(self.x, self.y + 50, other.player.slash_damage)
             game_world.add_object(damage_text, 2)
+            self.hp -= other.player.slash_damage
             self.state_machine.handle_event(('HIT', None))
 
         if group == 'zombie:player_ult' and self.current_state != 'HIT':
             print("Zombie Hit by Player Ult Attack")
             damage_text = DamageText(self.x, self.y + 50, other.player.ult_damage)
             game_world.add_object(damage_text, 2)
+            self.hp -= other.player.ult_damage
             self.state_machine.handle_event(('HIT', None))
