@@ -2,6 +2,7 @@ from pico2d import load_image, draw_rectangle
 import game_world
 import game_framework
 from slash_effect import SlashEffect
+from player_attack import PlayerAttack
 from sdl2 import SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_a, SDLK_d, SDLK_LSHIFT, SDLK_j, SDLK_k, SDLK_l
 
 from state_machine import StateMachine
@@ -140,13 +141,16 @@ class Attack:
         self.action = ((7,1395,47,43),(63,1397,47,41),(119,1368,74,70),(202,1368,76,70),(287,1368,77,71),
                        (373,1381,97,57),(479,1360,101,78),(589,1370,95,68),(693,1371,90,67),(792,1368,97,70),
                        (898,1368,97,70),(1004,1365,79,73),(1092,1360,90,78),(1191,1381,92,57),(1292,1395,49,43),(1350,1396,48,42))
+        self.attack = None
 
     def enter(self, e):
         self.player.frame = 0
         self.player.anim_progress = 0.0
+        self.attack = PlayerAttack(self.player.x, self.player.y)
+        game_world.add_object(self.attack, 2)
 
     def exit(self, e):
-        pass
+        game_world.remove_object(self.attack)
 
     def do(self):
         if self.player.frame == len(self.action) - 1:
