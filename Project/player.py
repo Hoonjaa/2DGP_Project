@@ -338,6 +338,7 @@ class Player:
         #데미지 관련 변수
         self.base_damage = 10
         self.slash_damage = 30
+        self.ult_damage = 30
 
         # 점프 관련 변수
         self.ground_y = self.y
