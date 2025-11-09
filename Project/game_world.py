@@ -65,3 +65,10 @@ def handle_collisions():
                 if collide(a, b):
                     a.handle_collision(group, b) #객체한테 처리 위임
                     b.handle_collision(group, a)
+
+def find_object_by_type(obj_type):
+    for layer in world:
+        for obj in layer:
+            if isinstance(obj, obj_type):
+                return obj
+    return None

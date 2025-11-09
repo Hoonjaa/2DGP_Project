@@ -89,6 +89,8 @@ class Zombie:
 
     def update(self):
         self.state_machine.update()
+        if self.check_near_player():
+            print("Player Near Zombie")
 
     def handle_event(self, event):
         # 들어온 외부 키 입력을 상태머신에게 전달하기 위해 튜플화 시킨후 전달
@@ -96,10 +98,14 @@ class Zombie:
 
     def draw(self):
         self.state_machine.draw()
-        draw_rectangle(*self.get_sensing_bb(), 255, 255, 0)
 
     def get_bb(self):
         self.state_machine.get_bb()
 
-    def get_sensing_bb(self):
-        return self.x - 300, self.y - 300, self.x + 300, self.y + 300
+    def check_near_player(self):
+        from player import Player
+        player = game_world.find_object_by_type(Player)
+        if player:
+            distance = self.x - player.x
+            return -300 < distance < 300
+        return False
