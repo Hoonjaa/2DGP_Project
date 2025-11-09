@@ -331,6 +331,7 @@ class Player:
 
         #데미지 관련 변수
         self.base_damage = 10
+        self.slash_damage = 30
 
         # 점프 관련 변수
         self.ground_y = self.y
@@ -412,5 +413,6 @@ class Player:
         self.state_machine.get_bb()
 
     def add_slash_effect(self):
-        slash = SlashEffect(self.x, self.y, self.face_dir)
+        slash = SlashEffect(self.x, self.y, self.face_dir, self)
         game_world.add_object(slash, 2)
+        game_world.add_collision_pair('zombie:player_slash', None, slash)

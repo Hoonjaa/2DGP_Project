@@ -14,7 +14,8 @@ SLASH_DRAW_SIZE = SLASH_SRC_SIZE * 300 // 128  # == 150, int로 고정
 
 class SlashEffect:
     image = None
-    def __init__(self, x = 0, y = 0, dir = 0):
+    def __init__(self, x = 0, y = 0, dir = 0, player = None):
+        self.player = player
         if SlashEffect.image is None:
             SlashEffect.image = load_image('Sprite/Player_skill_effect.png')
         self.x, self.y = x, y
@@ -39,3 +40,6 @@ class SlashEffect:
 
     def get_bb(self):
         return (self.x - 50, self.y - 80, self.x + 50, self.y + 80)
+
+    def handle_collision(self, group, other):
+        pass
