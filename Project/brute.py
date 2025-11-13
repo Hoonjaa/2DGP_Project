@@ -1,9 +1,43 @@
 from pico2d import load_image
+import game_framework
+from state_machine import StateMachine
+
+
+PIXEL_PER_METER = (1.0 / 0.02)
+# BRUTE 크기 비율
+BRUTE_SIZE_RATE = (400 / 120)
+# 애니메이션 속도
+TIME_PER_ACTION = 1.0
+ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+
+
+class Idle:
+    def __init__(self, monster):
+        self.monster = monster
+        self.action = ((3,325,67,62),(76,325,65,62),(147,325,67,62),(220,325,69,60),(295,325,71,60),
+                       (372,325,71,60),(449,325,71,60),(526,325,70,61))
+
+    def enter(self, e):
+        self.monster.dir = 0
+
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        self.monster.next_frame(self.action)
+
+    def draw(self):
+        self.monster.draw_current(self.action)
+
+    def get_bb(self):
+        pass
+
 
 class Brute:
     image = None
     def __init__(self):
-        self.x, self.y = 940, 90
+        self.x, self.y = 940, 130
         self.hp = 300
 
         self.current_state = 'IDLE'
@@ -17,3 +51,42 @@ class Brute:
         # 방향 변수
         self.face_dir = 1
         self.dir = 0
+
+        # 상태 머신 초기화
+        self.IDLE = Idle(self)
+        self.state_machine = StateMachine(
+            self.IDLE,
+            {
+                self.IDLE: {},
+            }
+        )
+
+
+    def next_frame(self, action):
+        # 진행 누적
+        self.anim_progress += ACTION_PER_TIME * game_framework.frame_time * len(action)
+        # 정수 프레임 산출
+        self.frame = int(self.anim_progress) % len(action)
+
+    def draw_current(self, action):
+        idx = self.frame % len(action)
+        rect = action[idx]
+        if self.face_dir == 1:
+            self.image.clip_draw(*rect, self.x, self.y, action[self.frame][2] * BRUTE_SIZE_RATE,
+                                 action[self.frame][3] * BRUTE_SIZE_RATE)
+        else:
+            self.image.clip_composite_draw(*rect, 0, 'h', self.x, self.y, action[self.frame][2] * BRUTE_SIZE_RATE,
+                                           action[self.frame][3] * BRUTE_SIZE_RATE)
+
+    def update(self):
+        self.state_machine.update()
+
+    def handle_event(self, event):
+        # 들어온 외부 키 입력을 상태머신에게 전달하기 위해 튜플화 시킨후 전달
+        self.state_machine.handle_event(('INPUT', event))
+
+    def draw(self):
+        self.state_machine.draw()
+
+    def handle_collision(self, group, other):
+        pass

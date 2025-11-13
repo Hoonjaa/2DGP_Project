@@ -1,6 +1,7 @@
 from pico2d import *
 import game_world
 import game_framework
+from brute import Brute
 from player import Player
 from zombie import Zombie
 from test_background import Background
@@ -29,6 +30,9 @@ def init():
     game_world.add_collision_pair('zombie:player_attack', zombie, None)
     game_world.add_collision_pair('zombie:player_slash', zombie, None)
     game_world.add_collision_pair('zombie:player_ult', zombie, None)
+
+    brute = Brute()
+    game_world.add_object(brute,0)
 
 def update():
     game_world.update()
