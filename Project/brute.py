@@ -11,6 +11,29 @@ TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 
 
+class Attack:
+    def __init__(self, monster):
+        self.monster = monster
+        self.action = ((3,169,72,80),(81,169,73,80),(160,169,112,80),(278,169,90,80),(374,169,89,80),
+                       (469,169,87,80),(562,169,76,80),(644,169,72,80),(722,169,61,80))
+
+    def enter(self, e):
+        self.monster.dir = 0
+        self.monster.y += 36
+
+    def exit(self, e):
+        self.monster.y -= 36
+
+    def do(self):
+        self.monster.next_frame(self.action)
+
+    def draw(self):
+        self.monster.draw_current(self.action)
+
+    def get_bb(self):
+        pass
+
+
 class Run:
     def __init__(self, monster):
         self.monster = monster
@@ -24,7 +47,7 @@ class Run:
         pass
 
     def do(self):
-        self.monster.anim_progress += 2 * game_framework.frame_time * len(self.action)
+        self.monster.anim_progress += 1.5 * game_framework.frame_time * len(self.action)
         self.monster.frame = int(self.monster.anim_progress) % len(self.action)
 
     def draw(self):
@@ -78,11 +101,13 @@ class Brute:
         # 상태 머신 초기화
         self.IDLE = Idle(self)
         self.RUN = Run(self)
+        self.ATTACK = Attack(self)
         self.state_machine = StateMachine(
-            self.RUN,
+            self.ATTACK,
             {
                 self.IDLE: {},
                 self.RUN: {},
+                self.ATTACK: {}
             }
         )
 
