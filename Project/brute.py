@@ -152,7 +152,7 @@ class Brute:
         self.HIT = Hit(self)
         self.DEATH = Death(self)
         self.state_machine = StateMachine(
-            self.HIT,
+            self.DEATH,
             {
                 self.IDLE: {},
                 self.RUN: {},
