@@ -11,6 +11,29 @@ TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 
 
+class Death:
+    def __init__(self, monster):
+        self.monster = monster
+        self.action = ((3,9,69,78),(78,9,66,76),(150,9,65,54),(221,9,60,50),(287,9,87,36),
+                       (380,9,86,25),(472,9,88,25),(566,9,88,25),(660,9,88,25),(754,9,88,25),
+                       (848,9,88,25),(942,9,88,25),(1036,9,88,25))
+
+    def enter(self, e):
+        self.monster.dir = 0
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        self.monster.next_frame(self.action)
+
+    def draw(self):
+        self.monster.draw_current(self.action)
+
+    def get_bb(self):
+        pass
+
+
 class Hit:
     def __init__(self, monster):
         self.monster = monster
@@ -116,7 +139,7 @@ class Idle:
 class Brute:
     image = None
     def __init__(self):
-        self.x, self.y = 940, 140
+        self.x, self.y = 940, 165
         self.hp = 300
 
         self.current_state = 'IDLE'
@@ -136,13 +159,15 @@ class Brute:
         self.RUN = Run(self)
         self.ATTACK = Attack(self)
         self.HIT = Hit(self)
+        self.DEATH = Death(self)
         self.state_machine = StateMachine(
-            self.HIT,
+            self.DEATH,
             {
                 self.IDLE: {},
                 self.RUN: {},
                 self.ATTACK: {},
                 self.HIT: {},
+                self.DEATH: {},
             }
         )
 
@@ -156,12 +181,18 @@ class Brute:
     def draw_current(self, action):
         idx = self.frame % len(action)
         rect = action[idx]
+
+        max_height = 80  # 첫 프레임 높이
+        current_height = action[self.frame][3]
+        y_offset = self.y - (max_height - current_height) * BRUTE_SIZE_RATE / 2
         if self.face_dir == 1:
-            self.image.clip_draw(*rect, self.x, self.y, action[self.frame][2] * BRUTE_SIZE_RATE,
-                                 action[self.frame][3] * BRUTE_SIZE_RATE)
+            self.image.clip_draw(*rect, self.x, y_offset,
+                                         action[self.frame][2] * BRUTE_SIZE_RATE,
+                                         action[self.frame][3] * BRUTE_SIZE_RATE)
         else:
-            self.image.clip_composite_draw(*rect, 0, 'h', self.x, self.y, action[self.frame][2] * BRUTE_SIZE_RATE,
-                                           action[self.frame][3] * BRUTE_SIZE_RATE)
+            self.image.clip_composite_draw(*rect, 0, 'h', self.x, y_offset,
+                                                   action[self.frame][2] * BRUTE_SIZE_RATE,
+                                                   action[self.frame][3] * BRUTE_SIZE_RATE)
 
     def update(self):
         self.state_machine.update()
