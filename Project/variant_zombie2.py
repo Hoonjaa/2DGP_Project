@@ -10,6 +10,29 @@ TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 
 
+class Death:
+    def __init__(self, monster):
+        self.monster = monster
+        self.action = ((4,98,50,55),(60,98,56,44),(122,98,60,27),(188,98,46,32),(240,98,62,33),
+                       (312,98,76,12),(395,98,78,12))
+
+    def enter(self, e):
+        self.monster.dir = 0
+
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        self.monster.next_frame(self.action)
+
+    def draw(self):
+        self.monster.draw_current(self.action)
+
+    def get_bb(self):
+        pass
+
+
 class Hit:
     def __init__(self, monster):
         self.monster = monster
@@ -103,12 +126,14 @@ class VZ2:
         self.IDLE = Idle(self)
         self.RUN = Run(self)
         self.HIT = Hit(self)
+        self.DEATH = Death(self)
         self.state_machine = StateMachine(
-            self.HIT,
+            self.IDLE,
             {
                 self.IDLE: {},
                 self.RUN: {},
                 self.HIT: {},
+                self.DEATH: {},
             }
         )
 
@@ -121,14 +146,24 @@ class VZ2:
     def draw_current(self, action):
         idx = self.frame % len(action)
         rect = action[idx]
+
+        max_height = 60  # 첫 프레임 높이
+        current_height = action[self.frame][3]
+        y_offset = self.y - (max_height - current_height) * VZ2_SIZE_RATE / 2
         if self.face_dir == 1:
-            self.image.clip_draw(*rect, self.x, self.y, action[self.frame][2] * VZ2_SIZE_RATE, action[self.frame][3] * VZ2_SIZE_RATE)
+            self.image.clip_draw(*rect, self.x, y_offset,
+                                 action[self.frame][2] * VZ2_SIZE_RATE,
+                                 action[self.frame][3] * VZ2_SIZE_RATE)
+        else:
+            self.image.clip_composite_draw(*rect, 0, 'h', self.x, y_offset,
+                                           action[self.frame][2] * VZ2_SIZE_RATE,
+                                           action[self.frame][3] * VZ2_SIZE_RATE)
 
     def bb_operation(self, action):
         x_offset = action[self.frame][2] * VZ2_SIZE_RATE / 2
         y_offset = action[self.frame][3] * VZ2_SIZE_RATE / 2
         # draw_current와 동일한 y 위치 조정
-        max_height = action[self.frame][3]
+        max_height = 58
         current_height = action[self.frame][3]
         adjusted_y = self.y - (max_height - current_height) * VZ2_SIZE_RATE / 2
 
