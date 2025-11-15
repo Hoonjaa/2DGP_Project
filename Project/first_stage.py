@@ -5,6 +5,7 @@ from brute import Brute
 from player import Player
 from zombie import Zombie
 from variant_zombie2 import VZ2
+from variant_zombie1 import VZ1
 from test_background import Background
 
 def handle_events():
@@ -37,6 +38,9 @@ def init():
 
     vz2 = VZ2()
     game_world.add_object(vz2,0)
+
+    vz1 = VZ1()
+    game_world.add_object(vz1,0)
 
 def update():
     game_world.update()
