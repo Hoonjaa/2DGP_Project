@@ -66,10 +66,9 @@ class Attack:
 
     def enter(self, e):
         self.monster.dir = 0
-        self.monster.y += 36
 
     def exit(self, e):
-        self.monster.y -= 36
+        pass
 
     def do(self):
         self.monster.next_frame(self.action)
@@ -161,7 +160,7 @@ class Brute:
         self.HIT = Hit(self)
         self.DEATH = Death(self)
         self.state_machine = StateMachine(
-            self.DEATH,
+            self.ATTACK,
             {
                 self.IDLE: {},
                 self.RUN: {},
