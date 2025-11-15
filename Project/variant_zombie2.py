@@ -10,6 +10,29 @@ TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 
 
+class Hit:
+    def __init__(self, monster):
+        self.monster = monster
+        self.action = ((4,161,33,55),(4,161,33,55),(4,161,33,55),(4,161,33,55))
+
+    def enter(self, e):
+        self.monster.dir = 0
+
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        self.monster.next_frame(self.action)
+
+    def draw(self):
+        self.monster.draw_current(self.action)
+        draw_rectangle(*self.get_bb(), 255, 0, 0)
+
+    def get_bb(self):
+        return self.monster.bb_operation(self.action)
+
+
 class Run:
     def __init__(self, monster):
         self.monster = monster
@@ -79,11 +102,13 @@ class VZ2:
         # 상태 머신 초기화
         self.IDLE = Idle(self)
         self.RUN = Run(self)
+        self.HIT = Hit(self)
         self.state_machine = StateMachine(
-            self.RUN,
+            self.HIT,
             {
                 self.IDLE: {},
                 self.RUN: {},
+                self.HIT: {},
             }
         )
 
@@ -103,7 +128,7 @@ class VZ2:
         x_offset = action[self.frame][2] * VZ2_SIZE_RATE / 2
         y_offset = action[self.frame][3] * VZ2_SIZE_RATE / 2
         # draw_current와 동일한 y 위치 조정
-        max_height = 58  # Idle 상태의 기준 높이
+        max_height = action[self.frame][3]
         current_height = action[self.frame][3]
         adjusted_y = self.y - (max_height - current_height) * VZ2_SIZE_RATE / 2
 
