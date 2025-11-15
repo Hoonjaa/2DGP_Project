@@ -30,9 +30,6 @@ class Death:
     def draw(self):
         self.monster.draw_current(self.action)
 
-    def get_bb(self):
-        pass
-
 
 class Hit:
     def __init__(self, monster):
@@ -50,12 +47,7 @@ class Hit:
 
     def draw(self):
         self.monster.draw_current(self.action)
-        draw_rectangle(*self.get_bb(), 255, 0, 0)
-
-    def get_bb(self):
-        x_offset = self.action[self.monster.frame][2] * BRUTE_SIZE_RATE / 2
-        y_offset = self.action[self.monster.frame][3] * BRUTE_SIZE_RATE / 2
-        return (self.monster.x - x_offset, self.monster.y - y_offset, self.monster.x + x_offset, self.monster.y + y_offset)
+        draw_rectangle(*self.monster.get_bb(self.action), 255, 0, 0)
 
 
 class Attack:
@@ -75,12 +67,7 @@ class Attack:
 
     def draw(self):
         self.monster.draw_current(self.action)
-        draw_rectangle(*self.get_bb(), 255, 0, 0)
-
-    def get_bb(self):
-        x_offset = self.action[self.monster.frame][2] * BRUTE_SIZE_RATE / 2
-        y_offset = self.action[self.monster.frame][3] * BRUTE_SIZE_RATE / 2
-        return (self.monster.x - x_offset, self.monster.y - y_offset, self.monster.x + x_offset, self.monster.y + y_offset)
+        draw_rectangle(*self.monster.get_bb(self.action), 255, 0, 0)
 
 
 class Run:
@@ -101,12 +88,7 @@ class Run:
 
     def draw(self):
         self.monster.draw_current(self.action)
-        draw_rectangle(*self.get_bb(), 255, 0, 0)
-
-    def get_bb(self):
-        x_offset = self.action[self.monster.frame][2] * BRUTE_SIZE_RATE / 2
-        y_offset = self.action[self.monster.frame][3] * BRUTE_SIZE_RATE / 2
-        return (self.monster.x - x_offset, self.monster.y - y_offset, self.monster.x + x_offset, self.monster.y + y_offset)
+        draw_rectangle(*self.monster.get_bb(self.action), 255, 0, 0)
 
 
 class Idle:
@@ -127,12 +109,7 @@ class Idle:
 
     def draw(self):
         self.monster.draw_current(self.action)
-        draw_rectangle(*self.get_bb(), 255, 0, 0)
-
-    def get_bb(self):
-        x_offset = self.action[self.monster.frame][2] * BRUTE_SIZE_RATE / 2
-        y_offset = self.action[self.monster.frame][3] * BRUTE_SIZE_RATE / 2
-        return (self.monster.x - x_offset, self.monster.y - y_offset, self.monster.x + x_offset, self.monster.y + y_offset)
+        draw_rectangle(*self.monster.get_bb(self.action), 255, 0, 0)
 
 
 class Brute:
@@ -160,7 +137,7 @@ class Brute:
         self.HIT = Hit(self)
         self.DEATH = Death(self)
         self.state_machine = StateMachine(
-            self.ATTACK,
+            self.HIT,
             {
                 self.IDLE: {},
                 self.RUN: {},
@@ -192,6 +169,17 @@ class Brute:
             self.image.clip_composite_draw(*rect, 0, 'h', self.x, y_offset,
                                                    action[self.frame][2] * BRUTE_SIZE_RATE,
                                                    action[self.frame][3] * BRUTE_SIZE_RATE)
+
+    def get_bb(self, action):
+        x_offset = action[self.frame][2] * BRUTE_SIZE_RATE / 2
+        y_offset = action[self.frame][3] * BRUTE_SIZE_RATE / 2
+        # draw_current와 동일한 y 위치 조정
+        max_height = 80  # Idle 상태의 기준 높이
+        current_height = action[self.frame][3]
+        adjusted_y = self.y - (max_height - current_height) * BRUTE_SIZE_RATE / 2
+
+        return (self.x - x_offset, adjusted_y - y_offset,
+                self.x + x_offset, adjusted_y + y_offset)
 
     def update(self):
         self.state_machine.update()
