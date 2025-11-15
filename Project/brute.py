@@ -30,6 +30,9 @@ class Death:
     def draw(self):
         self.monster.draw_current(self.action)
 
+    def get_bb(self):
+        pass
+
 
 class Hit:
     def __init__(self, monster):
@@ -47,7 +50,10 @@ class Hit:
 
     def draw(self):
         self.monster.draw_current(self.action)
-        draw_rectangle(*self.monster.get_bb(self.action), 255, 0, 0)
+        draw_rectangle(*self.get_bb(), 255, 0, 0)
+
+    def get_bb(self):
+        return self.monster.bb_operation(self.action)
 
 
 class Attack:
@@ -67,7 +73,10 @@ class Attack:
 
     def draw(self):
         self.monster.draw_current(self.action)
-        draw_rectangle(*self.monster.get_bb(self.action), 255, 0, 0)
+        draw_rectangle(*self.get_bb(), 255, 0, 0)
+
+    def get_bb(self):
+        return self.monster.bb_operation(self.action)
 
 
 class Run:
@@ -88,7 +97,10 @@ class Run:
 
     def draw(self):
         self.monster.draw_current(self.action)
-        draw_rectangle(*self.monster.get_bb(self.action), 255, 0, 0)
+        draw_rectangle(*self.get_bb(), 255, 0, 0)
+
+    def get_bb(self):
+        return self.monster.bb_operation(self.action)
 
 
 class Idle:
@@ -109,7 +121,10 @@ class Idle:
 
     def draw(self):
         self.monster.draw_current(self.action)
-        draw_rectangle(*self.monster.get_bb(self.action), 255, 0, 0)
+        draw_rectangle(*self.get_bb(), 255, 0, 0)
+
+    def get_bb(self):
+        return self.monster.bb_operation(self.action)
 
 
 class Brute:
@@ -170,7 +185,7 @@ class Brute:
                                                    action[self.frame][2] * BRUTE_SIZE_RATE,
                                                    action[self.frame][3] * BRUTE_SIZE_RATE)
 
-    def get_bb(self, action):
+    def bb_operation(self, action):
         x_offset = action[self.frame][2] * BRUTE_SIZE_RATE / 2
         y_offset = action[self.frame][3] * BRUTE_SIZE_RATE / 2
         # draw_current와 동일한 y 위치 조정
@@ -179,7 +194,10 @@ class Brute:
         adjusted_y = self.y - (max_height - current_height) * BRUTE_SIZE_RATE / 2
 
         return (self.x - x_offset, adjusted_y - y_offset,
-                self.x + x_offset, adjusted_y + y_offset)
+              self.x + x_offset, adjusted_y + y_offset)
+
+    def get_bb(self):
+        return self.state_machine.get_bb()
 
     def update(self):
         self.state_machine.update()
