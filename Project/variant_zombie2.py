@@ -6,11 +6,32 @@ PIXEL_PER_METER = (1.0 / 0.02)
 # BRUTE 크기 비율
 VZ2_SIZE_RATE = (300 / 120)
 # 애니메이션 속도
-TIME_PER_ACTION = 0.5
+TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 
 
+class Run:
+    def __init__(self, monster):
+        self.monster = monster
+        self.action = ((4,289,26,58),(36,289,27,57),(69,289,20,58),(95,289,18,59),(119,289,23,58),
+                       (148,289,26,57),(180,289,26,58),(212,289,26,59))
 
+    def enter(self, e):
+        self.monster.dir = 0
+
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        self.monster.next_frame(self.action)
+
+    def draw(self):
+        self.monster.draw_current(self.action)
+        draw_rectangle(*self.get_bb(), 255, 0, 0)
+
+    def get_bb(self):
+        return self.monster.bb_operation(self.action)
 
 
 class Idle:
@@ -57,10 +78,12 @@ class VZ2:
 
         # 상태 머신 초기화
         self.IDLE = Idle(self)
+        self.RUN = Run(self)
         self.state_machine = StateMachine(
-            self.IDLE,
+            self.RUN,
             {
                 self.IDLE: {},
+                self.RUN: {},
             }
         )
 
