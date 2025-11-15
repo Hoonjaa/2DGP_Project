@@ -11,6 +11,27 @@ TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 
 
+class Hit:
+    def __init__(self, monster):
+        self.monster = monster
+        self.action = ((3,98,75,62),(3,98,75,62),(3,98,75,62),(3,98,75,62))
+
+    def enter(self, e):
+        self.monster.dir = 0
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        self.monster.next_frame(self.action)
+
+    def draw(self):
+        self.monster.draw_current(self.action)
+
+    def get_bb(self):
+        pass
+
+
 class Attack:
     def __init__(self, monster):
         self.monster = monster
@@ -102,12 +123,14 @@ class Brute:
         self.IDLE = Idle(self)
         self.RUN = Run(self)
         self.ATTACK = Attack(self)
+        self.HIT = Hit(self)
         self.state_machine = StateMachine(
-            self.ATTACK,
+            self.HIT,
             {
                 self.IDLE: {},
                 self.RUN: {},
-                self.ATTACK: {}
+                self.ATTACK: {},
+                self.HIT: {},
             }
         )
 
