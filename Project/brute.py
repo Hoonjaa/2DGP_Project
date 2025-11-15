@@ -1,4 +1,4 @@
-from pico2d import load_image
+from pico2d import load_image, draw_rectangle
 import game_framework
 from state_machine import StateMachine
 
@@ -96,9 +96,12 @@ class Idle:
 
     def draw(self):
         self.monster.draw_current(self.action)
+        draw_rectangle(*self.get_bb(), 255, 0, 0)
 
     def get_bb(self):
-        pass
+        x_offset = self.action[self.monster.frame][2] * BRUTE_SIZE_RATE / 2
+        y_offset = self.action[self.monster.frame][3] * BRUTE_SIZE_RATE / 2
+        return (self.monster.x - x_offset, self.monster.y - y_offset, self.monster.x + x_offset, self.monster.y + y_offset)
 
 
 class Brute:
@@ -125,7 +128,7 @@ class Brute:
         self.ATTACK = Attack(self)
         self.HIT = Hit(self)
         self.state_machine = StateMachine(
-            self.HIT,
+            self.IDLE,
             {
                 self.IDLE: {},
                 self.RUN: {},
