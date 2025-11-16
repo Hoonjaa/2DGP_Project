@@ -10,6 +10,31 @@ TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 
 
+class Attack1:
+    def __init__(self, monster):
+        self.monster = monster
+        self.action = ((7,1345,66,107),(82,1380,99,72),(190,1382,100,70),(299,1319,180,133),(488,1314,180,138),
+                       (677,1319,168,133),(854,1335,171,117),(1034,1343,174,109),(1217,1338,175,114))
+
+    def enter(self, e):
+        self.monster.dir = 0
+
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        self.monster.next_frame(self.action)
+
+    def draw(self):
+        self.monster.draw_current(self.action)
+        draw_rectangle(*self.get_bb(), 255, 0, 0)
+
+    def get_bb(self):
+        return (self.monster.x - 50 * BOSS_SIZE_RATE, self.monster.y - 20 * BOSS_SIZE_RATE,
+                self.monster.x + 28 * BOSS_SIZE_RATE, self.monster.y + 60 * BOSS_SIZE_RATE)
+
+
 class Dash:
     def __init__(self, monster):
         self.monster = monster
@@ -103,12 +128,14 @@ class Boss:
         self.IDLE = Idle(self)
         self.RUN = Run(self)
         self.DASH = Dash(self)
+        self.ATTACK1 = Attack1(self)
         self.state_machine = StateMachine(
-            self.DASH,
+            self.ATTACK1,
             {
                 self.IDLE: {},
                 self.RUN: {},
                 self.DASH: {},
+                self.ATTACK1: {},
             }
         )
 
