@@ -74,7 +74,7 @@ class Ultimate:
 
         self.ult_attack = PlayerUltAttack(self.player.x, self.player.y, self.player)
         game_world.add_object(self.ult_attack, 2)
-        game_world.add_collision_pair('zombie:player_ult', None, self.ult_attack)
+        game_world.add_collision_pair('monster:player_ult', None, self.ult_attack)
 
     def exit(self, e):
         game_world.remove_object(self.ult_attack)
@@ -155,7 +155,7 @@ class Attack:
 
         self.attack = PlayerAttack(self.player.x, self.player.y, self.player)
         game_world.add_object(self.attack, 2)
-        game_world.add_collision_pair('zombie:player_attack', None, self.attack)
+        game_world.add_collision_pair('monster:player_attack', None, self.attack)
 
 
     def exit(self, e):
@@ -432,7 +432,7 @@ class Player:
     def add_slash_effect(self):
         slash = SlashEffect(self.x, self.y, self.face_dir, self)
         game_world.add_object(slash, 2)
-        game_world.add_collision_pair('zombie:player_slash', None, slash)
+        game_world.add_collision_pair('monster:player_slash', None, slash)
 
     def handle_collision(self, group, other):
         if group == 'player:zombie' and not self.is_hit:

@@ -249,21 +249,21 @@ class Zombie:
         return False
 
     def handle_collision(self, group, other):
-        if group == 'zombie:player_attack' and self.current_state != 'HIT':
+        if group == 'monster:player_attack' and self.current_state != 'HIT':
             print("Zombie Hit by Player Attack")
             damage_text = DamageText(self.x, self.y + 50, other.player.base_damage)
             game_world.add_object(damage_text, 2)
             self.hp -= other.player.base_damage
             self.state_machine.handle_event(('HIT', None))
 
-        if group == 'zombie:player_slash' and self.current_state != 'HIT':
+        if group == 'monster:player_slash' and self.current_state != 'HIT':
             print("Zombie Hit by Player Slash")
             damage_text = DamageText(self.x, self.y + 50, other.player.slash_damage)
             game_world.add_object(damage_text, 2)
             self.hp -= other.player.slash_damage
             self.state_machine.handle_event(('HIT', None))
 
-        if group == 'zombie:player_ult' and self.current_state != 'HIT':
+        if group == 'monster:player_ult' and self.current_state != 'HIT':
             print("Zombie Hit by Player Ult Attack")
             damage_text = DamageText(self.x, self.y + 50, other.player.ult_damage)
             game_world.add_object(damage_text, 2)
