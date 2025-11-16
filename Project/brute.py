@@ -1,6 +1,20 @@
 from pico2d import load_image, draw_rectangle
 import game_framework
 from state_machine import StateMachine
+from player import Player
+import game_world
+
+
+# 이벤트 체크 함수
+def key_event(e, ev_type, key):
+    return e[0] == 'INPUT' and e[1].type == ev_type and e[1].key == key
+
+def attack_finish(e) : return e[0] == 'ATTACK_FINISH'
+def find_player(e) : return e[0] == 'FIND_PLAYER'
+def lose_player(e) : return e[0] == 'LOSE_PLAYER'
+def hit(e) : return e[0] == 'HIT'
+def hit_finish(e) : return e[0] == 'HIT_FINISH'
+def death(e) : return e[0] == 'DEATH'
 
 
 PIXEL_PER_METER = (1.0 / 0.02)
@@ -9,6 +23,11 @@ BRUTE_SIZE_RATE = (400 / 120)
 # 애니메이션 속도
 TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+#BRUTE 속도 계산
+RUN_SPEED_KMPH = 10.0 # Km / Hour
+RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
+RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
+RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
 
 class Death:
@@ -85,8 +104,9 @@ class Run:
         self.action = ((3,255,73,63),(81,255,78,63),(166,255,73,62),(247,255,68,63))
 
     def enter(self, e):
-        self.monster.dir = 0
-
+        self.monster.frame = 0
+        self.monster.anim_progress = 0.0
+        self.monster.current_state = 'RUN'
 
     def exit(self, e):
         pass
@@ -94,6 +114,22 @@ class Run:
     def do(self):
         self.monster.anim_progress += 1.5 * game_framework.frame_time * len(self.action)
         self.monster.frame = int(self.monster.anim_progress) % len(self.action)
+
+        self.monster.move_x()
+
+        if not self.monster.check_near_player():
+            # print("Zombie lose Player")
+            self.monster.state_machine.handle_event(('LOSE_PLAYER', None))
+
+        player = game_world.find_object_by_type(Player)
+        if player and self.monster.x > player.x + 20:
+            self.monster.dir = -1
+            self.monster.face_dir = -1
+        elif player and self.monster.x < player.x - 20:
+            self.monster.dir = 1
+            self.monster.face_dir = 1
+        else:
+            self.monster.dir = 0
 
     def draw(self):
         self.monster.draw_current(self.action)
@@ -111,13 +147,18 @@ class Idle:
 
     def enter(self, e):
         self.monster.dir = 0
-
+        self.monster.frame = 0
+        self.monster.anim_progress = 0.0
+        self.monster.current_state = 'IDLE'
 
     def exit(self, e):
         pass
 
     def do(self):
         self.monster.next_frame(self.action)
+        if self.monster.check_near_player():
+            # print("Player Near Brute")
+            self.monster.state_machine.handle_event(('FIND_PLAYER', None))
 
     def draw(self):
         self.monster.draw_current(self.action)
@@ -152,12 +193,12 @@ class Brute:
         self.HIT = Hit(self)
         self.DEATH = Death(self)
         self.state_machine = StateMachine(
-            self.DEATH,
+            self.IDLE,
             {
-                self.IDLE: {},
-                self.RUN: {},
-                self.ATTACK: {},
-                self.HIT: {},
+                self.IDLE: { find_player: self.RUN, hit: self.HIT },
+                self.RUN: { lose_player: self.IDLE, hit: self.HIT },
+                self.ATTACK: { attack_finish: self.IDLE, hit: self.HIT },
+                self.HIT: {hit_finish: self.IDLE, death: self.DEATH},
                 self.DEATH: {},
             }
         )
@@ -198,6 +239,16 @@ class Brute:
 
     def get_bb(self):
         return self.state_machine.get_bb()
+
+    def move_x(self):
+        self.x = self.x + self.dir * RUN_SPEED_PPS * game_framework.frame_time
+
+    def check_near_player(self):
+        player = game_world.find_object_by_type(Player)
+        if player:
+            distance = self.x - player.x
+            return -300 < distance < 300
+        return False
 
     def update(self):
         self.state_machine.update()

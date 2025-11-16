@@ -178,7 +178,7 @@ class Zombie:
     image = None
     def __init__(self):
         self.x, self.y = 740, 90
-        self.hp = 200
+        self.hp = 100
 
         self.current_state = 'IDLE'
 
