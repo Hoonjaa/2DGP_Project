@@ -206,7 +206,6 @@ class Zombie:
             {
                 self.IDLE: { find_player: self.RUN, hit: self.HIT },
                 self.RUN: { lose_player: self.IDLE, hit: self.HIT },
-                # self.JUMP: {},
                 self.HIT: {hit_finish: self.IDLE, death: self.DEATH},
                 self.DEATH: {},
             }
