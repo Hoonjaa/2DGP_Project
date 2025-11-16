@@ -10,6 +10,31 @@ TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 
 
+class Death:
+    def __init__(self, monster):
+        self.monster = monster
+        self.action = ((2,10,45,62),(52,10,62,59),(119,10,74,35),(198,10,61,51),(264,10,69,44),
+                       (338,10,75,42),(418,10,79,30),(502,10,80,29),(587,10,69,44),(661,10,72,42),
+                       (738,10,74,20),(817,10,74,21))
+
+    def enter(self, e):
+        self.monster.dir = 0
+
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        self.monster.anim_progress += 0.7 * game_framework.frame_time * len(self.action)
+        self.monster.frame = int(self.monster.anim_progress) % len(self.action)
+
+    def draw(self):
+        self.monster.draw_current(self.action)
+
+    def get_bb(self):
+        pass
+
+
 class Hit:
     def __init__(self, monster):
         self.monster = monster
@@ -153,14 +178,16 @@ class VZ1:
         self.TP_OUT = Teleport_Out(self)
         self.ATTACK = Attack(self)
         self.HIT = Hit(self)
+        self.DEATH = Death(self)
         self.state_machine = StateMachine(
-            self.HIT,
+            self.DEATH,
             {
                 self.IDLE: {},
                 self.TP_IN: {},
                 self.TP_OUT: {},
                 self.ATTACK: {},
                 self.HIT: {},
+                self.DEATH: {},
             }
         )
 
