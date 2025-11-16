@@ -6,6 +6,7 @@ from player import Player
 from zombie import Zombie
 from variant_zombie2 import VZ2
 from variant_zombie1 import VZ1
+from boss import Boss
 from test_background import Background
 
 def handle_events():
@@ -41,6 +42,9 @@ def init():
 
     vz1 = VZ1()
     game_world.add_object(vz1,0)
+
+    boss = Boss()
+    game_world.add_object(boss,0)
 
 def update():
     game_world.update()
