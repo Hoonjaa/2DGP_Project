@@ -2,6 +2,7 @@ from pico2d import load_image, draw_rectangle
 import game_framework
 from state_machine import StateMachine
 from player import Player
+from brute_attack import BruteAttack
 import game_world
 
 
@@ -9,6 +10,7 @@ import game_world
 def key_event(e, ev_type, key):
     return e[0] == 'INPUT' and e[1].type == ev_type and e[1].key == key
 
+def attack_player(e) : return e[0] == 'ATTACK_PLAYER'
 def attack_finish(e) : return e[0] == 'ATTACK_FINISH'
 def find_player(e) : return e[0] == 'FIND_PLAYER'
 def lose_player(e) : return e[0] == 'LOSE_PLAYER'
@@ -80,15 +82,31 @@ class Attack:
         self.monster = monster
         self.action = ((3,169,72,80),(81,169,73,80),(160,169,112,80),(278,169,90,80),(374,169,89,80),
                        (469,169,87,80),(562,169,76,80),(644,169,72,80),(722,169,61,80))
+        self.attack = None
 
     def enter(self, e):
-        self.monster.dir = 0
+        self.monster.frame = 0
+        self.monster.anim_progress = 0.0
 
     def exit(self, e):
-        pass
+        if self.attack:
+            game_world.remove_object(self.attack)
+            self.attack = None
 
     def do(self):
         self.monster.next_frame(self.action)
+
+        if self.monster.frame == 2 and self.attack is None:
+            self.attack = BruteAttack(self.monster.x, self.monster.y, self.monster)
+            game_world.add_object(self.attack, 2)
+            game_world.add_collision_pair('player:brute_attack', None, self.attack)
+
+        if self.monster.frame > 2 and self.attack:
+            game_world.remove_object(self.attack)
+            self.attack = None
+
+        if self.monster.frame == len(self.action) - 1:
+            self.monster.state_machine.handle_event(('ATTACK_FINISH', None))
 
     def draw(self):
         self.monster.draw_current(self.action)
@@ -120,6 +138,9 @@ class Run:
         if not self.monster.check_near_player():
             # print("Zombie lose Player")
             self.monster.state_machine.handle_event(('LOSE_PLAYER', None))
+
+        if self.monster.check_near_player_attack():
+            self.monster.state_machine.handle_event(('ATTACK_PLAYER', None))
 
         player = game_world.find_object_by_type(Player)
         if player and self.monster.x > player.x + 20:
@@ -196,7 +217,7 @@ class Brute:
             self.IDLE,
             {
                 self.IDLE: { find_player: self.RUN, hit: self.HIT },
-                self.RUN: { lose_player: self.IDLE, hit: self.HIT },
+                self.RUN: { lose_player: self.IDLE, hit: self.HIT, attack_player: self.ATTACK },
                 self.ATTACK: { attack_finish: self.IDLE, hit: self.HIT },
                 self.HIT: {hit_finish: self.IDLE, death: self.DEATH},
                 self.DEATH: {},
@@ -247,7 +268,14 @@ class Brute:
         player = game_world.find_object_by_type(Player)
         if player:
             distance = self.x - player.x
-            return -300 < distance < 300
+            return -500 < distance < 500
+        return False
+
+    def check_near_player_attack(self):
+        player = game_world.find_object_by_type(Player)
+        if player:
+            distance = self.x - player.x
+            return -200 < distance < 200
         return False
 
     def update(self):

@@ -1,0 +1,18 @@
+from pico2d import draw_rectangle
+
+class BruteAttack:
+    def __init__(self, x = 0, y = 0, brute = None):
+        self.brute = brute
+        self.x, self.y = x, y
+
+    def update(self):
+        pass
+
+    def draw(self):
+        draw_rectangle(*self.get_bb(), 0, 0, 255)
+
+    def get_bb(self):
+        return (self.x - 180, self.y - 130, self.x + 150, self.y + 130)
+
+    def handle_collision(self, group, other):
+        pass
