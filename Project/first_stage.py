@@ -27,9 +27,12 @@ def init():
 
     player = Player()
     game_world.add_object(player,1)
+    game_world.add_collision_pair('player:zombie', player, None)
+    game_world.add_collision_pair('player:brute_attack', player, None)
 
     zombie = Zombie()
     game_world.add_object(zombie,0)
+    game_world.add_collision_pair('player:zombie', None, zombie)
     game_world.add_collision_pair('zombie:player_attack', zombie, None)
     game_world.add_collision_pair('zombie:player_slash', zombie, None)
     game_world.add_collision_pair('zombie:player_ult', zombie, None)

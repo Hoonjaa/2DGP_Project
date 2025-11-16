@@ -334,6 +334,7 @@ class Idle:
 class Player:
     def __init__(self):
         self.x, self.y = 640, 90
+        self.hp = 100
 
         #데미지 관련 변수
         self.base_damage = 10
@@ -417,9 +418,18 @@ class Player:
         self.state_machine.draw()
 
     def get_bb(self):
-        self.state_machine.get_bb()
+        return self.state_machine.get_bb()
 
     def add_slash_effect(self):
         slash = SlashEffect(self.x, self.y, self.face_dir, self)
         game_world.add_object(slash, 2)
         game_world.add_collision_pair('zombie:player_slash', None, slash)
+
+    def handle_collision(self, group, other):
+        if group == 'player:zombie':
+            self.hp -= 10
+            # print("Player Hit by Zombie!")
+
+        if group == 'player:brute_attack':
+            self.hp -= 20
+            print("Player Hit by Brute Attack! HP:", self.hp)
