@@ -44,10 +44,10 @@ class Attack:
 
     def enter(self, e):
         self.monster.dir = 0
-
+        self.monster.y += 10
 
     def exit(self, e):
-        pass
+        self.monster.y -= 10
 
     def do(self):
         self.monster.next_frame(self.action)
@@ -157,7 +157,7 @@ class Boss:
         self.ATTACK = Attack(self)
         self.CHARGE_ATTACK = Charge_Attack(self)
         self.state_machine = StateMachine(
-            self.CHARGE_ATTACK,
+            self.ATTACK,
             {
                 self.IDLE: {},
                 self.RUN: {},
