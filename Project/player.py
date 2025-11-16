@@ -356,6 +356,10 @@ class Player:
         self.anim_progress = 0.0
         self.image = load_image('Sprite/Player.png')
 
+        #맞고 있는 중인지 판정 변수
+        self.is_hit = False
+        self.hit_timer = 0.0
+
         # 상태머신
         self.IDLE = Idle(self)
         self.RUN = Run(self)
@@ -396,6 +400,11 @@ class Player:
 
     def update(self):
         self.state_machine.update()
+        if self.is_hit:
+            self.hit_timer += game_framework.frame_time
+            if self.hit_timer >= 1.0:
+                self.is_hit = False
+                self.hit_timer = 0.0
 
     def handle_event(self, event):
         # 전역 키 눌림 상태 갱신
@@ -426,10 +435,12 @@ class Player:
         game_world.add_collision_pair('zombie:player_slash', None, slash)
 
     def handle_collision(self, group, other):
-        if group == 'player:zombie':
+        if group == 'player:zombie' and not self.is_hit:
             self.hp -= 10
-            # print("Player Hit by Zombie!")
+            self.is_hit = True
+            print("Player Hit by Zombie!")
 
-        if group == 'player:brute_attack':
+        if group == 'player:brute_attack' and not self.is_hit:
             self.hp -= 20
+            self.is_hit = True
             print("Player Hit by Brute Attack! HP:", self.hp)
