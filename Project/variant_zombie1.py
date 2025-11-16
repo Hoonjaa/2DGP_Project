@@ -10,6 +10,54 @@ TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 
 
+class Attack:
+    def __init__(self, monster):
+        self.monster = monster
+        self.action = ((2,541,61,66),(68,541,57,68),(130,541,59,65),(194,541,92,59),(291,541,60,45),
+                       (356,541,60,43),(421,541,59,43),(485,541,60,47),(550,541,53,53),(608,541,40,58))
+
+    def enter(self, e):
+        self.monster.dir = 0
+
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        self.monster.next_frame(self.action)
+
+    def draw(self):
+        self.monster.draw_current(self.action)
+        draw_rectangle(*self.get_bb(), 255, 0, 0)
+
+    def get_bb(self):
+        return self.monster.bb_operation(self.action)
+
+
+class Teleport_Out:
+    def __init__(self, monster):
+        self.monster = monster
+        self.action = ((2,756,52,64),(59,756,56,63),(120,756,56,57),(181,756,49,60))
+
+    def enter(self, e):
+        self.monster.dir = 0
+
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        self.monster.anim_progress += 1.7 * game_framework.frame_time * len(self.action)
+        self.monster.frame = int(self.monster.anim_progress) % len(self.action)
+
+    def draw(self):
+        self.monster.draw_current(self.action)
+        draw_rectangle(*self.get_bb(), 255, 0, 0)
+
+    def get_bb(self):
+        return self.monster.bb_operation(self.action)
+
+
 class Teleport_In:
     def __init__(self, monster):
         self.monster = monster
@@ -79,11 +127,15 @@ class VZ1:
         # 상태 머신 초기화
         self.IDLE = Idle(self)
         self.TP_IN = Teleport_In(self)
+        self.TP_OUT = Teleport_Out(self)
+        self.ATTACK = Attack(self)
         self.state_machine = StateMachine(
-            self.TP_IN,
+            self.ATTACK,
             {
                 self.IDLE: {},
                 self.TP_IN: {},
+                self.TP_OUT: {},
+                self.ATTACK: {},
             }
         )
 
