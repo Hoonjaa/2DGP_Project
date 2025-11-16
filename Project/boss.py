@@ -10,6 +10,30 @@ TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 
 
+class Run:
+    def __init__(self, monster):
+        self.monster = monster
+        self.action = ((7,1867,84,75),(100,1867,84,75),(193,1867,76,77),(278,1867,84,75),(371,1867,84,75),(464,1867,76,77))
+
+    def enter(self, e):
+        self.monster.dir = 0
+
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        self.monster.next_frame(self.action)
+
+    def draw(self):
+        self.monster.draw_current(self.action)
+        draw_rectangle(*self.get_bb(), 255, 0, 0)
+
+    def get_bb(self):
+        return (self.monster.x - 30 * BOSS_SIZE_RATE, self.monster.y - 20 * BOSS_SIZE_RATE,
+                self.monster.x + 35 * BOSS_SIZE_RATE, self.monster.y + 35 * BOSS_SIZE_RATE)
+
+
 class Idle:
     def __init__(self, monster):
         self.monster = monster
@@ -38,7 +62,7 @@ class Boss:
     image = None
 
     def __init__(self):
-        self.x, self.y = 300, 90
+        self.x, self.y = 300, 80
         self.hp = 250
 
         self.current_state = 'IDLE'
@@ -55,10 +79,12 @@ class Boss:
 
         # 상태 머신 초기화
         self.IDLE = Idle(self)
+        self.RUN = Run(self)
         self.state_machine = StateMachine(
-            self.IDLE,
+            self.RUN,
             {
                 self.IDLE: {},
+                self.RUN: {},
             }
         )
 
