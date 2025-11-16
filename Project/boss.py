@@ -10,6 +10,28 @@ TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 
 
+class Death:
+    def __init__(self, monster):
+        self.monster = monster
+        self.action = ((415,271,89,91),(513,271,83,93),(605,271,86,92),(700,271,89,91),(798,271,83,93),(890,271,86,92))
+
+    def enter(self, e):
+        self.monster.dir = 0
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        self.monster.anim_progress += 0.7 * game_framework.frame_time * len(self.action)
+        self.monster.frame = int(self.monster.anim_progress) % len(self.action)
+
+    def draw(self):
+        self.monster.draw_current(self.action)
+
+    def get_bb(self):
+        pass
+
+
 class Skill:
     def __init__(self, monster):
         self.monster = monster
@@ -182,8 +204,9 @@ class Boss:
         self.ATTACK = Attack(self)
         self.CHARGE_ATTACK = Charge_Attack(self)
         self.SKILL = Skill(self)
+        self.DEATH = Death(self)
         self.state_machine = StateMachine(
-            self.SKILL,
+            self.DEATH,
             {
                 self.IDLE: {},
                 self.RUN: {},
@@ -191,6 +214,7 @@ class Boss:
                 self.ATTACK: {},
                 self.CHARGE_ATTACK: {},
                 self.SKILL: {},
+                self.DEATH: {},
             }
         )
 
