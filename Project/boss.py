@@ -10,6 +10,28 @@ TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 
 
+class Dash:
+    def __init__(self, monster):
+        self.monster = monster
+        self.action = ((7,1782,95,68),(111,1782,95,68),(215,1782,99,68),(323,1782,101,68),(433,1782,103,68),(545,1782,94,68))
+
+    def enter(self, e):
+        self.monster.dir = 0
+
+
+    def exit(self, e):
+        pass
+
+    def do(self):
+        self.monster.next_frame(self.action)
+
+    def draw(self):
+        self.monster.draw_current(self.action)
+
+    def get_bb(self):
+        pass
+
+
 class Run:
     def __init__(self, monster):
         self.monster = monster
@@ -80,11 +102,13 @@ class Boss:
         # 상태 머신 초기화
         self.IDLE = Idle(self)
         self.RUN = Run(self)
+        self.DASH = Dash(self)
         self.state_machine = StateMachine(
-            self.RUN,
+            self.DASH,
             {
                 self.IDLE: {},
                 self.RUN: {},
+                self.DASH: {},
             }
         )
 
