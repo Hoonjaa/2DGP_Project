@@ -1,6 +1,7 @@
 from pico2d import load_image, draw_rectangle
 import game_framework
 import game_world
+import random
 from player import Player
 from boss_attack import BossAttack
 from state_machine import StateMachine
@@ -10,6 +11,8 @@ from state_machine import StateMachine
 def key_event(e, ev_type, key):
     return e[0] == 'INPUT' and e[1].type == ev_type and e[1].key == key
 
+def charge_attack_player(e) : return e[0] == 'CHARGE_ATTACK_PLAYER'
+def charge_attack_finish(e) : return e[0] == 'CHARGE_ATTACK_FINISH'
 def attack_player(e) : return e[0] == 'ATTACK_PLAYER'
 def attack_finish(e) : return e[0] == 'ATTACK_FINISH'
 def find_player(e) : return e[0] == 'FIND_PLAYER'
@@ -85,16 +88,34 @@ class Charge_Attack:
         self.action = ((7,1060,129,101),(145,1061,126,98),(280,1061,126,100),(7,1060,129,101),(145,1061,126,98),
                        (280,1061,126,100),(415,1027,163,134),(587,1023,168,138),(764,1064,174,97),(947,1044,175,117),
                        (1131,1053,177,108),(1317,1046,182,115))
+        self.attack = None
 
     def enter(self, e):
-        self.monster.dir = 0
+        self.monster.frame = 0
+        self.monster.anim_progress = 0.0
+        self.monster.current_state = 'CHARGE_ATTACK'
         self.monster.y += 10
 
     def exit(self, e):
         self.monster.y -= 10
+        if self.attack:
+            game_world.remove_object(self.attack)
+            self.attack = None
 
     def do(self):
         self.monster.next_frame(self.action)
+
+        if self.monster.frame == 2 and self.attack is None:
+            self.attack = BossAttack(self.monster.x, self.monster.y, self.monster.attack_damage, self.monster.face_dir, self.monster)
+            game_world.add_object(self.attack, 2)
+            game_world.add_collision_pair('player:monster_attack', None, self.attack)
+
+        if self.monster.frame > 3 and self.attack:
+            game_world.remove_object(self.attack)
+            self.attack = None
+
+        if self.monster.frame == len(self.action) - 1:
+            self.monster.state_machine.handle_event(('CHARGE_ATTACK_FINISH', None))
 
     def draw(self):
         self.monster.draw_current(self.action)
@@ -193,7 +214,9 @@ class Run:
             self.monster.state_machine.handle_event(('LOSE_PLAYER', None))
 
         if self.monster.check_near_player_attack():
-            self.monster.state_machine.handle_event(('ATTACK_PLAYER', None))
+            # ATTACK과 CHARGE_ATTACK 중 랜덤 선택
+            attack_type = random.choice(['ATTACK_PLAYER', 'CHARGE_ATTACK_PLAYER'])
+            self.monster.state_machine.handle_event((attack_type, None))
 
         player = game_world.find_object_by_type(Player)
         if player and self.monster.x > player.x + 20:
@@ -279,10 +302,10 @@ class Boss:
             self.IDLE,
             {
                 self.IDLE: { find_player: self.RUN },
-                self.RUN: { lose_player: self.IDLE, attack_player: self.ATTACK },
+                self.RUN: { lose_player: self.IDLE, attack_player: self.ATTACK, charge_attack_player: self.CHARGE_ATTACK },
                 self.DASH: {},
                 self.ATTACK: { attack_finish: self.IDLE },
-                self.CHARGE_ATTACK: {},
+                self.CHARGE_ATTACK: { charge_attack_finish: self.IDLE },
                 self.SKILL: {},
                 self.DEATH: {},
             }
