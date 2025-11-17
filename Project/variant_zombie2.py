@@ -2,6 +2,7 @@ from pico2d import load_image, draw_rectangle
 import game_framework
 import game_world
 from player import Player
+from damage_text import DamageText
 from state_machine import StateMachine
 
 
@@ -71,7 +72,9 @@ class Hit:
         pass
 
     def do(self):
-        self.monster.next_frame(self.action)
+        self.monster.anim_progress += 2.0 * game_framework.frame_time * len(self.action)
+        self.monster.frame = int(self.monster.anim_progress) % len(self.action)
+
         self.monster.x -= self.monster.face_dir * (RUN_SPEED_PPS / 4) * game_framework.frame_time
 
         if self.monster.hp <= 0:
@@ -246,3 +249,25 @@ class VZ2:
 
     def draw(self):
         self.state_machine.draw()
+
+    def handle_collision(self, group, other):
+        if group == 'monster:player_attack' and self.current_state != 'HIT':
+            print("Variant_Zombie2 Hit by Player Attack")
+            damage_text = DamageText(self.x, self.y + 50, other.player.base_damage)
+            game_world.add_object(damage_text, 2)
+            self.hp -= other.player.base_damage
+            self.state_machine.handle_event(('HIT', None))
+
+        if group == 'monster:player_slash' and self.current_state != 'HIT':
+            print("Variant_Zombie2 Hit by Player Slash")
+            damage_text = DamageText(self.x, self.y + 50, other.player.slash_damage)
+            game_world.add_object(damage_text, 2)
+            self.hp -= other.player.slash_damage
+            self.state_machine.handle_event(('HIT', None))
+
+        if group == 'monster:player_ult' and self.current_state != 'HIT':
+            print("Variant_Zombie2 Hit by Player Ult Attack")
+            damage_text = DamageText(self.x, self.y + 50, other.player.ult_damage)
+            game_world.add_object(damage_text, 2)
+            self.hp -= other.player.ult_damage
+            self.state_machine.handle_event(('HIT', None))
