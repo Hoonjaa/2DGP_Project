@@ -12,7 +12,7 @@ class BruteAttack:
         draw_rectangle(*self.get_bb(), 0, 0, 255)
 
     def get_bb(self):
-        return (self.x - 180, self.y - 130, self.x + 150, self.y + 130)
+        return (self.x - 180, self.y - 130, self.x + 180, self.y + 130)
 
     def handle_collision(self, group, other):
         pass
