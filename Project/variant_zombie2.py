@@ -167,6 +167,8 @@ class VZ2:
         self.x, self.y = 600, 115
         self.hp = 200
 
+        self.attack_damage = 15
+
         self.current_state = 'IDLE'
 
         # 애니메이션 관련 변수

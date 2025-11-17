@@ -33,7 +33,7 @@ def init():
 
     # zombie = Zombie()
     # game_world.add_object(zombie,0)
-    # game_world.add_collision_pair('player:zombie', None, zombie)
+    # game_world.add_collision_pair('player:monster_attack', None, zombie)
     # game_world.add_collision_pair('monster:player_attack', zombie, None)
     # game_world.add_collision_pair('monster:player_slash', zombie, None)
     # game_world.add_collision_pair('monster:player_ult', zombie, None)
@@ -46,6 +46,7 @@ def init():
     #
     vz2 = VZ2()
     game_world.add_object(vz2,0)
+    game_world.add_collision_pair('player:monster_attack', None, vz2)
     game_world.add_collision_pair('monster:player_attack', vz2, None)
     game_world.add_collision_pair('monster:player_slash', vz2, None)
     game_world.add_collision_pair('monster:player_ult', vz2, None)

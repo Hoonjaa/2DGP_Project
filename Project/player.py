@@ -435,12 +435,12 @@ class Player:
         game_world.add_collision_pair('monster:player_slash', None, slash)
 
     def handle_collision(self, group, other):
-        if group == 'player:zombie' and not self.is_hit:
-            self.hp -= 10
+        if group == 'player:monster_attack' and not self.is_hit:
+            self.hp -= other.attack_damage
             self.is_hit = True
-            print("Player Hit by Zombie!")
+            print("Player Hit by Zombie!", self.hp)
 
         if group == 'player:brute_attack' and not self.is_hit:
-            self.hp -= 20
+            self.hp -= other.attack_damage
             self.is_hit = True
             print("Player Hit by Brute Attack! HP:", self.hp)
