@@ -2,6 +2,7 @@ from pico2d import load_image, draw_rectangle
 import game_framework
 import game_world
 from player import Player
+from boss_attack import BossAttack
 from state_machine import StateMachine
 
 
@@ -109,16 +110,34 @@ class Attack:
         self.monster = monster
         self.action = ((7,1345,66,107),(82,1380,99,72),(190,1382,100,70),(299,1319,180,133),(488,1314,180,138),
                        (677,1319,168,133),(854,1335,171,117),(1034,1343,174,109),(1217,1338,175,114))
+        self.attack = None
 
     def enter(self, e):
-        self.monster.dir = 0
+        self.monster.frame = 0
+        self.monster.anim_progress = 0.0
+        self.monster.current_state = 'ATTACK'
         self.monster.y += 10
 
     def exit(self, e):
         self.monster.y -= 10
+        if self.attack:
+            game_world.remove_object(self.attack)
+            self.attack = None
 
     def do(self):
         self.monster.next_frame(self.action)
+
+        if self.monster.frame == 2 and self.attack is None:
+            self.attack = BossAttack(self.monster.x, self.monster.y, self.monster.attack_damage, self.monster.face_dir, self.monster)
+            game_world.add_object(self.attack, 2)
+            game_world.add_collision_pair('player:monster_attack', None, self.attack)
+
+        if self.monster.frame > 3 and self.attack:
+            game_world.remove_object(self.attack)
+            self.attack = None
+
+        if self.monster.frame == len(self.action) - 1:
+            self.monster.state_machine.handle_event(('ATTACK_FINISH', None))
 
     def draw(self):
         self.monster.draw_current(self.action)
@@ -232,6 +251,10 @@ class Boss:
         self.x, self.y = 300, 80
         self.hp = 500
 
+        self.attack_damage = 20
+        self.charge_attack_damage = 40
+        self.skill_damage = 30
+
         self.current_state = 'IDLE'
 
         # 애니메이션 관련 변수
@@ -256,9 +279,9 @@ class Boss:
             self.IDLE,
             {
                 self.IDLE: { find_player: self.RUN },
-                self.RUN: { lose_player: self.IDLE},
+                self.RUN: { lose_player: self.IDLE, attack_player: self.ATTACK },
                 self.DASH: {},
-                self.ATTACK: {},
+                self.ATTACK: { attack_finish: self.IDLE },
                 self.CHARGE_ATTACK: {},
                 self.SKILL: {},
                 self.DEATH: {},
@@ -301,7 +324,7 @@ class Boss:
         player = game_world.find_object_by_type(Player)
         if player:
             distance = self.x - player.x
-            return -200 < distance < 200
+            return -150 < distance < 150
         return False
 
 
