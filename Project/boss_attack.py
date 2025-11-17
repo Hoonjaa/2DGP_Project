@@ -14,7 +14,7 @@ class BossAttack:
         draw_rectangle(*self.get_bb(), 0, 0, 255)
 
     def get_bb(self):
-        return (self.x - 100 + (self.dir * 30), self.y - 50, self.x + 100 + (self.dir * 30), self.y + 50)
+        return (self.x - 140 + (self.dir * 50), self.y - 60, self.x + 140 + (self.dir * 50), self.y + 200)
 
     def handle_collision(self, group, other):
         pass
