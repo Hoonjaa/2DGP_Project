@@ -1,6 +1,24 @@
 from pico2d import load_image, draw_rectangle
 import game_framework
+import game_world
+from player import Player
 from state_machine import StateMachine
+
+
+# 이벤트 체크 함수
+def key_event(e, ev_type, key):
+    return e[0] == 'INPUT' and e[1].type == ev_type and e[1].key == key
+
+def attack_player(e) : return e[0] == 'ATTACK_PLAYER'
+def attack_finish(e) : return e[0] == 'ATTACK_FINISH'
+def find_player(e) : return e[0] == 'FIND_PLAYER'
+def lose_player(e) : return e[0] == 'LOSE_PLAYER'
+def teleport_in_finish(e) : return e[0] == 'TP_IN_FINISH'
+def teleport_out_finish(e) : return e[0] == 'TP_OUT_FINISH'
+def hit(e) : return e[0] == 'HIT'
+def hit_finish(e) : return e[0] == 'HIT_FINISH'
+def death(e) : return e[0] == 'DEATH'
+
 
 PIXEL_PER_METER = (1.0 / 0.02)
 # BRUTE 크기 비율
@@ -65,7 +83,9 @@ class Attack:
                        (356,541,60,43),(421,541,59,43),(485,541,60,47),(550,541,53,53),(608,541,40,58))
 
     def enter(self, e):
-        self.monster.dir = 0
+        self.monster.frame = 0
+        self.monster.anim_progress = 0.0
+        self.monster.current_state = 'ATTACK'
 
 
     def exit(self, e):
@@ -73,6 +93,9 @@ class Attack:
 
     def do(self):
         self.monster.next_frame(self.action)
+
+        if self.monster.frame == len(self.action) - 1:
+            self.monster.state_machine.handle_event(('ATTACK_FINISH', None))
 
     def draw(self):
         self.monster.draw_current(self.action)
@@ -88,8 +111,16 @@ class Teleport_Out:
         self.action = ((2,756,52,64),(59,756,56,63),(120,756,56,57),(181,756,49,60))
 
     def enter(self, e):
-        self.monster.dir = 0
+        self.monster.frame = 0
+        self.monster.anim_progress = 0.0
+        self.monster.current_state = 'TP_OUT'
 
+        player = game_world.find_object_by_type(Player)
+        self.monster.x = player.x + (100 * -player.face_dir)
+        if self.monster.x <= player.x:
+            self.monster.face_dir = 1
+        else:
+            self.monster.face_dir = -1
 
     def exit(self, e):
         pass
@@ -97,6 +128,9 @@ class Teleport_Out:
     def do(self):
         self.monster.anim_progress += 1.7 * game_framework.frame_time * len(self.action)
         self.monster.frame = int(self.monster.anim_progress) % len(self.action)
+
+        if self.monster.frame == len(self.action) - 1:
+            self.monster.state_machine.handle_event(('ATTACK_PLAYER', None))
 
     def draw(self):
         self.monster.draw_current(self.action)
@@ -112,8 +146,9 @@ class Teleport_In:
         self.action = ((2,676,40,65),(47,676,44,67),(96,676,45,72),(146,676,45,68))
 
     def enter(self, e):
-        self.monster.dir = 0
-
+        self.monster.frame = 0
+        self.monster.anim_progress = 0.0
+        self.monster.current_state = 'TP_IN'
 
     def exit(self, e):
         pass
@@ -121,6 +156,9 @@ class Teleport_In:
     def do(self):
         self.monster.anim_progress += 1.7 * game_framework.frame_time * len(self.action)
         self.monster.frame = int(self.monster.anim_progress) % len(self.action)
+
+        if self.monster.frame == len(self.action) - 1:
+            self.monster.state_machine.handle_event(('TP_IN_FINISH', None))
 
     def draw(self):
         self.monster.draw_current(self.action)
@@ -138,6 +176,9 @@ class Idle:
 
     def enter(self, e):
         self.monster.dir = 0
+        self.monster.frame = 0
+        self.monster.anim_progress = 0.0
+        self.monster.current_state = 'IDLE'
 
 
     def exit(self, e):
@@ -145,6 +186,9 @@ class Idle:
 
     def do(self):
         self.monster.next_frame(self.action)
+        if self.monster.check_near_player():
+            # print("Player Near Zombie")
+            self.monster.state_machine.handle_event(('FIND_PLAYER', None))
 
     def draw(self):
         self.monster.draw_current(self.action)
@@ -158,7 +202,9 @@ class VZ1:
     image = None
     def __init__(self):
         self.x, self.y = 700, 105
-        self.hp = 250
+        self.hp = 150
+
+        self.attack_damage = 20
 
         self.current_state = 'IDLE'
 
@@ -180,12 +226,12 @@ class VZ1:
         self.HIT = Hit(self)
         self.DEATH = Death(self)
         self.state_machine = StateMachine(
-            self.DEATH,
+            self.IDLE,
             {
-                self.IDLE: {},
-                self.TP_IN: {},
-                self.TP_OUT: {},
-                self.ATTACK: {},
+                self.IDLE: { find_player: self.TP_IN},
+                self.TP_IN: { teleport_in_finish: self.TP_OUT },
+                self.TP_OUT: { attack_player: self.ATTACK },
+                self.ATTACK: { attack_finish: self.IDLE },
                 self.HIT: {},
                 self.DEATH: {},
             }
@@ -223,6 +269,13 @@ class VZ1:
 
         return (self.x - x_offset, adjusted_y - y_offset,
               self.x + x_offset, adjusted_y + y_offset)
+
+    def check_near_player(self):
+        player = game_world.find_object_by_type(Player)
+        if player:
+            distance = self.x - player.x
+            return -400 < distance < 400
+        return False
 
     def get_bb(self):
         return self.state_machine.get_bb()
