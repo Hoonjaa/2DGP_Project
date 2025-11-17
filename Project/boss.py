@@ -13,14 +13,14 @@ from state_machine import StateMachine
 def key_event(e, ev_type, key):
     return e[0] == 'INPUT' and e[1].type == ev_type and e[1].key == key
 
+def avoidance(e) : return e[0] == 'AVOIDANCE'
+def dash_finish(e) : return e[0] == 'DASH_FINISH'
 def charge_attack_player(e) : return e[0] == 'CHARGE_ATTACK_PLAYER'
 def charge_attack_finish(e) : return e[0] == 'CHARGE_ATTACK_FINISH'
 def attack_player(e) : return e[0] == 'ATTACK_PLAYER'
 def attack_finish(e) : return e[0] == 'ATTACK_FINISH'
 def find_player(e) : return e[0] == 'FIND_PLAYER'
 def lose_player(e) : return e[0] == 'LOSE_PLAYER'
-def hit(e) : return e[0] == 'HIT'
-def hit_finish(e) : return e[0] == 'HIT_FINISH'
 def death(e) : return e[0] == 'DEATH'
 
 
@@ -30,11 +30,16 @@ BOSS_SIZE_RATE = (300 / 160)
 # 애니메이션 속도
 TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
-#BRUTE 속도 계산
+# 속도 계산
 RUN_SPEED_KMPH = 20.0 # Km / Hour
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+# 대쉬 속도 계산
+DASH_SPEED_KMPH = 180.0 # Km / Hour
+DASH_SPEED_MPM = (DASH_SPEED_KMPH * 1000.0 / 60.0)
+DASH_SPEED_MPS = (DASH_SPEED_MPM / 60.0)
+DASH_SPEED_PPS = (DASH_SPEED_MPS * PIXEL_PER_METER)
 
 
 class Death:
@@ -43,14 +48,18 @@ class Death:
         self.action = ((415,271,89,91),(513,271,83,93),(605,271,86,92),(700,271,89,91),(798,271,83,93),(890,271,86,92))
 
     def enter(self, e):
-        self.monster.dir = 0
+        self.monster.frame = 0
+        self.monster.anim_progress = 0.0
+        self.monster.current_state = 'DEATH'
 
     def exit(self, e):
         pass
 
     def do(self):
-        self.monster.anim_progress += 0.7 * game_framework.frame_time * len(self.action)
+        self.monster.anim_progress += 0.3 * game_framework.frame_time * len(self.action)
         self.monster.frame = int(self.monster.anim_progress) % len(self.action)
+        if self.monster.frame == len(self.action) - 1:
+            game_world.remove_object(self.monster)
 
     def draw(self):
         self.monster.draw_current(self.action)
@@ -177,14 +186,22 @@ class Dash:
         self.action = ((7,1782,95,68),(111,1782,95,68),(215,1782,99,68),(323,1782,101,68),(433,1782,103,68),(545,1782,94,68))
 
     def enter(self, e):
-        self.monster.dir = 0
+        self.monster.frame = 0
+        self.monster.anim_progress = 0.0
+        self.dash_dir = self.monster.face_dir
 
 
     def exit(self, e):
         pass
 
     def do(self):
-        self.monster.next_frame(self.action)
+        self.monster.anim_progress += 5.0 * game_framework.frame_time * len(self.action)
+        self.monster.frame = int(self.monster.anim_progress) % len(self.action)
+
+        self.monster.x = self.monster.x + self.dash_dir * DASH_SPEED_PPS * game_framework.frame_time
+
+        if self.monster.frame == len(self.action) - 1:
+            self.monster.state_machine.handle_event(('DASH_FINISH', None))
 
     def draw(self):
         self.monster.draw_current(self.action)
@@ -274,7 +291,7 @@ class Boss:
 
     def __init__(self):
         self.x, self.y = 300, 80
-        self.hp = 500
+        self.hp = 100
 
         self.attack_damage = 20
         self.charge_attack_damage = 40
@@ -307,11 +324,11 @@ class Boss:
         self.state_machine = StateMachine(
             self.IDLE,
             {
-                self.IDLE: { find_player: self.RUN },
-                self.RUN: { lose_player: self.IDLE, attack_player: self.ATTACK, charge_attack_player: self.CHARGE_ATTACK },
-                self.DASH: {},
-                self.ATTACK: { attack_finish: self.IDLE },
-                self.CHARGE_ATTACK: { charge_attack_finish: self.IDLE },
+                self.IDLE: { find_player: self.RUN, avoidance: self.DASH, death: self.DEATH },
+                self.RUN: { lose_player: self.IDLE, attack_player: self.ATTACK, charge_attack_player: self.CHARGE_ATTACK, avoidance: self.DASH, death: self.DEATH },
+                self.DASH: { dash_finish: self.IDLE },
+                self.ATTACK: { attack_finish: self.IDLE, avoidance: self.DASH, death: self.DEATH },
+                self.CHARGE_ATTACK: { charge_attack_finish: self.IDLE, avoidance: self.DASH, death: self.DEATH },
                 self.SKILL: {},
                 self.DEATH: {},
             }
@@ -377,25 +394,46 @@ class Boss:
 
     def handle_collision(self, group, other):
         if group == 'monster:player_attack' and not self.is_hit:
-            print("Brute Hit by Player Attack")
+            print("Boss Hit by Player Attack")
+            # 30% 확률로 회피
+            if random.random() < 0.3:
+                self.state_machine.handle_event(('AVOIDANCE', None))
+                return
+
             damage_text = DamageText(self.x, self.y + 50, other.player.base_damage)
             game_world.add_object(damage_text, 2)
             self.is_hit = True
             self.hp -= other.player.base_damage
-            self.state_machine.handle_event(('HIT', None))
+
+            if self.hp <= 0:
+                self.state_machine.handle_event(('DEATH', None))
 
         if group == 'monster:player_slash' and not self.is_hit:
-            print("Brute Hit by Player Slash")
+            print("Boss Hit by Player Slash")
+            # 30% 확률로 회피
+            if random.random() < 0.3:
+                self.state_machine.handle_event(('AVOIDANCE', None))
+                return
+
             damage_text = DamageText(self.x, self.y + 50, other.player.slash_damage)
             game_world.add_object(damage_text, 2)
             self.is_hit = True
             self.hp -= other.player.slash_damage
-            self.state_machine.handle_event(('HIT', None))
+
+            if self.hp <= 0:
+                self.state_machine.handle_event(('DEATH', None))
 
         if group == 'monster:player_ult' and not self.is_hit:
-            print("Brute Hit by Player Ult Attack")
+            print("Boss Hit by Player Ult Attack")
+            # 30% 확률로 회피
+            if random.random() < 0.3:
+                self.state_machine.handle_event(('AVOIDANCE', None))
+                return
+
             damage_text = DamageText(self.x, self.y + 50, other.player.ult_damage)
             game_world.add_object(damage_text, 2)
             self.is_hit = True
             self.hp -= other.player.ult_damage
-            self.state_machine.handle_event(('HIT', None))
+
+            if self.hp <= 0:
+                self.state_machine.handle_event(('DEATH', None))
