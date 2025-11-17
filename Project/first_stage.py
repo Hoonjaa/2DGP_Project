@@ -16,6 +16,35 @@ def handle_events():
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             game_framework.quit()
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_1:
+            zombie = Zombie()
+            game_world.add_object(zombie, 0)
+            game_world.add_collision_pair('player:monster_attack', None, zombie)
+            game_world.add_collision_pair('monster:player_attack', zombie, None)
+            game_world.add_collision_pair('monster:player_slash', zombie, None)
+            game_world.add_collision_pair('monster:player_ult', zombie, None)
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_3:
+            brute = Brute()
+            game_world.add_object(brute, 0)
+            game_world.add_collision_pair('monster:player_attack', brute, None)
+            game_world.add_collision_pair('monster:player_slash', brute, None)
+            game_world.add_collision_pair('monster:player_ult', brute, None)
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_2:
+            vz2 = VZ2()
+            game_world.add_object(vz2, 0)
+            game_world.add_collision_pair('player:monster_attack', None, vz2)
+            game_world.add_collision_pair('monster:player_attack', vz2, None)
+            game_world.add_collision_pair('monster:player_slash', vz2, None)
+            game_world.add_collision_pair('monster:player_ult', vz2, None)
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_4:
+            vz1 = VZ1()
+            game_world.add_object(vz1, 0)
+            game_world.add_collision_pair('monster:player_attack', vz1, None)
+            game_world.add_collision_pair('monster:player_slash', vz1, None)
+            game_world.add_collision_pair('monster:player_ult', vz1, None)
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_5:
+            boss = Boss()
+            game_world.add_object(boss, 0)
         else:
             player.handle_event(event)
 
@@ -48,15 +77,15 @@ def init():
     # game_world.add_collision_pair('monster:player_attack', vz2, None)
     # game_world.add_collision_pair('monster:player_slash', vz2, None)
     # game_world.add_collision_pair('monster:player_ult', vz2, None)
-
+    #
     # vz1 = VZ1()
     # game_world.add_object(vz1,0)
     # game_world.add_collision_pair('monster:player_attack', vz1, None)
     # game_world.add_collision_pair('monster:player_slash', vz1, None)
     # game_world.add_collision_pair('monster:player_ult', vz1, None)
-
-    boss = Boss()
-    game_world.add_object(boss,0)
+    #
+    # boss = Boss()
+    # game_world.add_object(boss,0)
 
 def update():
     game_world.update()
