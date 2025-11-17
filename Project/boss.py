@@ -4,6 +4,7 @@ import game_world
 import random
 from player import Player
 from boss_attack import BossAttack
+from boss_charge_attack import BossChargeAttack
 from state_machine import StateMachine
 
 
@@ -105,12 +106,12 @@ class Charge_Attack:
     def do(self):
         self.monster.next_frame(self.action)
 
-        if self.monster.frame == 2 and self.attack is None:
-            self.attack = BossAttack(self.monster.x, self.monster.y, self.monster.attack_damage, self.monster.face_dir, self.monster)
+        if self.monster.frame == 6 and self.attack is None:
+            self.attack = BossChargeAttack(self.monster.x, self.monster.y, self.monster.attack_damage, self.monster.face_dir, self.monster)
             game_world.add_object(self.attack, 2)
             game_world.add_collision_pair('player:monster_attack', None, self.attack)
 
-        if self.monster.frame > 3 and self.attack:
+        if self.monster.frame > 8 and self.attack:
             game_world.remove_object(self.attack)
             self.attack = None
 
@@ -148,12 +149,12 @@ class Attack:
     def do(self):
         self.monster.next_frame(self.action)
 
-        if self.monster.frame == 2 and self.attack is None:
+        if self.monster.frame == 3 and self.attack is None:
             self.attack = BossAttack(self.monster.x, self.monster.y, self.monster.attack_damage, self.monster.face_dir, self.monster)
             game_world.add_object(self.attack, 2)
             game_world.add_collision_pair('player:monster_attack', None, self.attack)
 
-        if self.monster.frame > 3 and self.attack:
+        if self.monster.frame > 5 and self.attack:
             game_world.remove_object(self.attack)
             self.attack = None
 
