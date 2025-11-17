@@ -438,9 +438,4 @@ class Player:
         if group == 'player:monster_attack' and not self.is_hit:
             self.hp -= other.attack_damage
             self.is_hit = True
-            print("Player Hit by Zombie!", self.hp)
-
-        if group == 'player:brute_attack' and not self.is_hit:
-            self.hp -= other.attack_damage
-            self.is_hit = True
-            print("Player Hit by Brute Attack! HP:", self.hp)
+            print("Player Hit!", self.hp)

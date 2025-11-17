@@ -112,9 +112,9 @@ class Attack:
         self.monster.next_frame(self.action)
 
         if self.monster.frame == 2 and self.attack is None:
-            self.attack = BruteAttack(self.monster.x, self.monster.y, self.monster)
+            self.attack = BruteAttack(self.monster.x, self.monster.y, self.monster.attack_damage, self.monster)
             game_world.add_object(self.attack, 2)
-            game_world.add_collision_pair('player:brute_attack', None, self.attack)
+            game_world.add_collision_pair('player:monster_attack', None, self.attack)
 
         if self.monster.frame > 2 and self.attack:
             game_world.remove_object(self.attack)
@@ -209,6 +209,8 @@ class Brute:
     def __init__(self):
         self.x, self.y = 940, 165
         self.hp = 300
+
+        self.attack_damage = 20
 
         self.current_state = 'IDLE'
 

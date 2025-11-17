@@ -180,6 +180,8 @@ class Zombie:
         self.x, self.y = 740, 90
         self.hp = 100
 
+        self.attack_damage = 10
+
         self.current_state = 'IDLE'
 
         # 애니메이션 관련 변수

@@ -1,7 +1,8 @@
 from pico2d import draw_rectangle
 
 class BruteAttack:
-    def __init__(self, x = 0, y = 0, brute = None):
+    def __init__(self, x = 0, y = 0, damage = 0, brute = None):
+        self.attack_damage = damage
         self.brute = brute
         self.x, self.y = x, y
 
