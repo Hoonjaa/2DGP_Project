@@ -2,6 +2,8 @@ from pico2d import load_image, draw_rectangle
 import game_framework
 import game_world
 from player import Player
+from damage_text import DamageText
+from vz2_attack import VZ2Attack
 from state_machine import StateMachine
 
 
@@ -26,6 +28,11 @@ VZ1_SIZE_RATE = (250 / 120)
 # 애니메이션 속도
 TIME_PER_ACTION = 1.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+# 속도 계산
+RUN_SPEED_KMPH = 18.0 # Km / Hour
+RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
+RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
+RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
 
 class Death:
@@ -36,7 +43,9 @@ class Death:
                        (738,10,74,20),(817,10,74,21))
 
     def enter(self, e):
-        self.monster.dir = 0
+        self.monster.frame = 0
+        self.monster.anim_progress = 0.0
+        self.monster.current_state = 'DEATH'
 
 
     def exit(self, e):
@@ -45,6 +54,9 @@ class Death:
     def do(self):
         self.monster.anim_progress += 0.7 * game_framework.frame_time * len(self.action)
         self.monster.frame = int(self.monster.anim_progress) % len(self.action)
+
+        if self.monster.frame == len(self.action) - 1:
+            game_world.remove_object(self.monster)
 
     def draw(self):
         self.monster.draw_current(self.action)
@@ -59,7 +71,9 @@ class Hit:
         self.action = ((2,237,45,67),(2,237,45,67),(2,237,45,67),(2,237,45,67))
 
     def enter(self, e):
-        self.monster.dir = 0
+        self.monster.frame = 0
+        self.monster.anim_progress = 0.0
+        self.monster.current_state = 'HIT'
 
 
     def exit(self, e):
@@ -67,6 +81,13 @@ class Hit:
 
     def do(self):
         self.monster.next_frame(self.action)
+        self.monster.x -= self.monster.face_dir * (RUN_SPEED_PPS / 4) * game_framework.frame_time
+
+        if self.monster.hp <= 0:
+            self.monster.state_machine.handle_event(('DEATH', None))
+
+        if self.monster.frame == len(self.action) - 1:
+            self.monster.state_machine.handle_event(('HIT_FINISH', None))
 
     def draw(self):
         self.monster.draw_current(self.action)
@@ -81,6 +102,7 @@ class Attack:
         self.monster = monster
         self.action = ((2,541,61,66),(68,541,57,68),(130,541,59,65),(194,541,92,59),(291,541,60,45),
                        (356,541,60,43),(421,541,59,43),(485,541,60,47),(550,541,53,53),(608,541,40,58))
+        self.attack = None
 
     def enter(self, e):
         self.monster.frame = 0
@@ -89,10 +111,21 @@ class Attack:
 
 
     def exit(self, e):
-        pass
+        if self.attack:
+            game_world.remove_object(self.attack)
+            self.attack = None
 
     def do(self):
         self.monster.next_frame(self.action)
+
+        if self.monster.frame == 2 and self.attack is None:
+            self.attack = VZ2Attack(self.monster.x, self.monster.y, self.monster.attack_damage, self.monster.face_dir, self.monster)
+            game_world.add_object(self.attack, 2)
+            game_world.add_collision_pair('player:monster_attack', None, self.attack)
+
+        if self.monster.frame > 3 and self.attack:
+            game_world.remove_object(self.attack)
+            self.attack = None
 
         if self.monster.frame == len(self.action) - 1:
             self.monster.state_machine.handle_event(('ATTACK_FINISH', None))
@@ -228,11 +261,11 @@ class VZ1:
         self.state_machine = StateMachine(
             self.IDLE,
             {
-                self.IDLE: { find_player: self.TP_IN},
-                self.TP_IN: { teleport_in_finish: self.TP_OUT },
-                self.TP_OUT: { attack_player: self.ATTACK },
-                self.ATTACK: { attack_finish: self.IDLE },
-                self.HIT: {},
+                self.IDLE: { find_player: self.TP_IN, hit: self.HIT },
+                self.TP_IN: { teleport_in_finish: self.TP_OUT, hit: self.HIT },
+                self.TP_OUT: { attack_player: self.ATTACK, hit: self.HIT },
+                self.ATTACK: { attack_finish: self.IDLE, hit: self.HIT },
+                self.HIT: { hit_finish: self.IDLE, death: self.DEATH },
                 self.DEATH: {},
             }
         )
@@ -289,3 +322,25 @@ class VZ1:
 
     def draw(self):
         self.state_machine.draw()
+
+    def handle_collision(self, group, other):
+        if group == 'monster:player_attack' and self.current_state != 'HIT':
+            print("Variant_Zombie1 Hit by Player Attack")
+            damage_text = DamageText(self.x, self.y + 50, other.player.base_damage)
+            game_world.add_object(damage_text, 2)
+            self.hp -= other.player.base_damage
+            self.state_machine.handle_event(('HIT', None))
+
+        if group == 'monster:player_slash' and self.current_state != 'HIT':
+            print("Variant_Zombie1 Hit by Player Slash")
+            damage_text = DamageText(self.x, self.y + 50, other.player.slash_damage)
+            game_world.add_object(damage_text, 2)
+            self.hp -= other.player.slash_damage
+            self.state_machine.handle_event(('HIT', None))
+
+        if group == 'monster:player_ult' and self.current_state != 'HIT':
+            print("Variant_Zombie1 Hit by Player Ult Attack")
+            damage_text = DamageText(self.x, self.y + 50, other.player.ult_damage)
+            game_world.add_object(damage_text, 2)
+            self.hp -= other.player.ult_damage
+            self.state_machine.handle_event(('HIT', None))

@@ -51,6 +51,9 @@ def init():
 
     vz1 = VZ1()
     game_world.add_object(vz1,0)
+    game_world.add_collision_pair('monster:player_attack', vz1, None)
+    game_world.add_collision_pair('monster:player_slash', vz1, None)
+    game_world.add_collision_pair('monster:player_ult', vz1, None)
 
     # boss = Boss()
     # game_world.add_object(boss,0)
