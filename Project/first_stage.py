@@ -45,6 +45,9 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_5:
             boss = Boss()
             game_world.add_object(boss, 0)
+            game_world.add_collision_pair('monster:player_attack', boss, None)
+            game_world.add_collision_pair('monster:player_slash', boss, None)
+            game_world.add_collision_pair('monster:player_ult', boss, None)
         else:
             player.handle_event(event)
 

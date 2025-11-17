@@ -2,6 +2,7 @@ from pico2d import load_image, draw_rectangle
 import game_framework
 import game_world
 import random
+from damage_text import DamageText
 from player import Player
 from boss_attack import BossAttack
 from boss_charge_attack import BossChargeAttack
@@ -291,6 +292,10 @@ class Boss:
         self.face_dir = 1
         self.dir = 0
 
+        # 맞고 있는 중인지 판정 변수
+        self.is_hit = False
+        self.hit_timer = 0.0
+
         # 상태 머신 초기화
         self.IDLE = Idle(self)
         self.RUN = Run(self)
@@ -357,6 +362,11 @@ class Boss:
 
     def update(self):
         self.state_machine.update()
+        if self.is_hit:
+            self.hit_timer += game_framework.frame_time
+            if self.hit_timer >= 0.5:
+                self.is_hit = False
+                self.hit_timer = 0.0
 
     def handle_event(self, event):
         # 들어온 외부 키 입력을 상태머신에게 전달하기 위해 튜플화 시킨후 전달
@@ -364,3 +374,28 @@ class Boss:
 
     def draw(self):
         self.state_machine.draw()
+
+    def handle_collision(self, group, other):
+        if group == 'monster:player_attack' and not self.is_hit:
+            print("Brute Hit by Player Attack")
+            damage_text = DamageText(self.x, self.y + 50, other.player.base_damage)
+            game_world.add_object(damage_text, 2)
+            self.is_hit = True
+            self.hp -= other.player.base_damage
+            self.state_machine.handle_event(('HIT', None))
+
+        if group == 'monster:player_slash' and not self.is_hit:
+            print("Brute Hit by Player Slash")
+            damage_text = DamageText(self.x, self.y + 50, other.player.slash_damage)
+            game_world.add_object(damage_text, 2)
+            self.is_hit = True
+            self.hp -= other.player.slash_damage
+            self.state_machine.handle_event(('HIT', None))
+
+        if group == 'monster:player_ult' and not self.is_hit:
+            print("Brute Hit by Player Ult Attack")
+            damage_text = DamageText(self.x, self.y + 50, other.player.ult_damage)
+            game_world.add_object(damage_text, 2)
+            self.is_hit = True
+            self.hp -= other.player.ult_damage
+            self.state_machine.handle_event(('HIT', None))
