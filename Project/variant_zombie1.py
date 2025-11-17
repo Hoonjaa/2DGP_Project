@@ -80,7 +80,9 @@ class Hit:
         pass
 
     def do(self):
-        self.monster.next_frame(self.action)
+        self.monster.anim_progress += 2.0 * game_framework.frame_time * len(self.action)
+        self.monster.frame = int(self.monster.anim_progress) % len(self.action)
+
         self.monster.x -= self.monster.face_dir * (RUN_SPEED_PPS / 4) * game_framework.frame_time
 
         if self.monster.hp <= 0:
