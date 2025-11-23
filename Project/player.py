@@ -203,7 +203,7 @@ class Dash:
         self.player.frame = 0
         self.player.anim_progress = 0.0
         self.dash_dir = self.player.face_dir
-        #추후에 플레이어 무적 상태 추가
+        self.player.dash_cooldown = self.player.dash_cooldown_time
         pass
 
     def exit(self, e):
@@ -347,6 +347,10 @@ class Player:
         self.slash_cooldown = 0.0
         self.slash_cooldown_time = 3.0
 
+        # 대쉬 쿨타임 변수
+        self.dash_cooldown = 0.0
+        self.dash_cooldown_time = 0.5
+
         # 점프 관련 변수
         self.ground_y = self.y
         self.dropSpeed = 8.0 * PIXEL_PER_METER
@@ -418,6 +422,11 @@ class Player:
             if self.slash_cooldown < 0:
                 self.slash_cooldown = 0
 
+        if self.dash_cooldown > 0:
+            self.dash_cooldown -= game_framework.frame_time
+            if self.dash_cooldown < 0:
+                self.dash_cooldown = 0
+
     def handle_event(self, event):
         # 전역 키 눌림 상태 갱신
         if event.type == SDL_KEYDOWN:
@@ -427,6 +436,9 @@ class Player:
                 self.right_pressed = True
             elif event.key == SDLK_k:
                 if self.slash_cooldown > 0:
+                    return
+            elif event.key == SDLK_LSHIFT:
+                if self.dash_cooldown > 0:
                     return
         elif event.type == SDL_KEYUP:
             if event.key == SDLK_a:
