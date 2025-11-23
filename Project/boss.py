@@ -7,6 +7,7 @@ from monster_ui import MonsterUI
 from player import Player
 from boss_attack import BossAttack
 from boss_charge_attack import BossChargeAttack
+from boss_skill import BossSkill
 from state_machine import StateMachine
 
 
@@ -16,6 +17,8 @@ def key_event(e, ev_type, key):
 
 def avoidance(e) : return e[0] == 'AVOIDANCE'
 def dash_finish(e) : return e[0] == 'DASH_FINISH'
+def skill_player(e) : return e[0] == 'SKILL_PLAYER'
+def skill_finish(e) : return e[0] == 'SKILL_FINISH'
 def charge_attack_player(e) : return e[0] == 'CHARGE_ATTACK_PLAYER'
 def charge_attack_finish(e) : return e[0] == 'CHARGE_ATTACK_FINISH'
 def attack_player(e) : return e[0] == 'ATTACK_PLAYER'
@@ -76,17 +79,33 @@ class Skill:
         self.action = ((7,683,66,107),(82,718,99,72),(190,723,100,67),(299,656,163,134),(471,652,168,138),
                        (648,693,174,97),(831,673,175,117),(1015,682, 177,108),(1201,675,182,115),(1392,724,75,66),
                        (1476,724,75,66),(1560,724,75,66))
+        self.skill = None
 
     def enter(self, e):
-        self.monster.dir = 0
+        self.monster.frame = 0
+        self.monster.anim_progress = 0.0
+        self.monster.current_state = 'SKILL'
         self.monster.y += 10
+        self.monster.is_hit = True
+
+        self.monster.skill_cooldown = self.monster.skill_cooldown_time
 
     def exit(self, e):
         self.monster.y -= 10
+        self.monster.is_hit = False
 
     def do(self):
-        self.monster.anim_progress += 0.8 * game_framework.frame_time * len(self.action)
+        self.monster.anim_progress += 0.5 * game_framework.frame_time * len(self.action)
         self.monster.frame = int(self.monster.anim_progress) % len(self.action)
+
+        if self.monster.frame == 6 and self.skill is None:
+            self.skill = BossSkill(self.monster.x, self.monster.y, self.monster.skill_damage, self.monster.face_dir, self.monster)
+            game_world.add_object(self.skill, 2)
+            game_world.add_collision_pair('player:monster_attack', None, self.skill)
+
+        if self.monster.frame == len(self.action) - 1:
+            self.monster.state_machine.handle_event(('SKILL_FINISH', None))
+
 
     def draw(self):
         self.monster.draw_current(self.action)
@@ -234,6 +253,10 @@ class Run:
 
         self.monster.move_x()
 
+        if self.monster.check_near_player() and self.monster.skill_cooldown <= 0:
+            self.monster.state_machine.handle_event(('SKILL_PLAYER', None))
+            return
+
         if not self.monster.check_near_player():
             self.monster.state_machine.handle_event(('LOSE_PLAYER', None))
             return
@@ -303,7 +326,7 @@ class Boss:
 
         self.attack_damage = 20
         self.charge_attack_damage = 40
-        self.skill_damage = 30
+        self.skill_damage = 60
 
         self.current_state = 'IDLE'
 
@@ -330,6 +353,10 @@ class Boss:
         self.attack_cooldown = 0.0
         self.attack_cooldown_time = 2.0
 
+        # 스킬 쿨타임
+        self.skill_cooldown = 0.0
+        self.skill_cooldown_time = 5.0
+
         # 상태 머신 초기화
         self.IDLE = Idle(self)
         self.RUN = Run(self)
@@ -341,12 +368,12 @@ class Boss:
         self.state_machine = StateMachine(
             self.IDLE,
             {
-                self.IDLE: { find_player: self.RUN, avoidance: self.DASH, death: self.DEATH },
-                self.RUN: { lose_player: self.IDLE, attack_player: self.ATTACK, charge_attack_player: self.CHARGE_ATTACK, avoidance: self.DASH, death: self.DEATH },
+                self.IDLE: { find_player: self.RUN, avoidance: self.DASH, death: self.DEATH, skill_player: self.SKILL },
+                self.RUN: { lose_player: self.IDLE, attack_player: self.ATTACK, charge_attack_player: self.CHARGE_ATTACK, avoidance: self.DASH, death: self.DEATH, skill_player: self.SKILL },
                 self.DASH: { dash_finish: self.IDLE },
                 self.ATTACK: { attack_finish: self.IDLE, avoidance: self.DASH, death: self.DEATH },
                 self.CHARGE_ATTACK: { charge_attack_finish: self.IDLE, avoidance: self.DASH, death: self.DEATH },
-                self.SKILL: {},
+                self.SKILL: { skill_finish: self.IDLE},
                 self.DEATH: {},
             }
         )
@@ -406,6 +433,11 @@ class Boss:
             self.attack_cooldown -= game_framework.frame_time
             if self.attack_cooldown < 0:
                 self.attack_cooldown = 0
+
+        if self.skill_cooldown > 0:
+            self.skill_cooldown -= game_framework.frame_time
+            if self.skill_cooldown < 0:
+                self.skill_cooldown = 0
 
     def handle_event(self, event):
         # 들어온 외부 키 입력을 상태머신에게 전달하기 위해 튜플화 시킨후 전달
