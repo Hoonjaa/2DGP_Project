@@ -49,8 +49,8 @@ class Death:
     def do(self):
         self.monster.next_frame(self.action)
         if self.monster.frame == len(self.action) - 1:
-            game_world.remove_object(self.monster)
             game_world.remove_object(self.monster.monster_ui)
+            game_world.remove_object(self.monster)
 
     def draw(self):
         self.monster.draw_current(self.action)

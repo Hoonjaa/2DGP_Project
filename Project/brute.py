@@ -2,6 +2,7 @@ from pico2d import load_image, draw_rectangle
 import game_framework
 from state_machine import StateMachine
 from player import Player
+from monster_ui import MonsterUI
 from brute_attack import BruteAttack
 from damage_text import DamageText
 import game_world
@@ -51,6 +52,7 @@ class Death:
     def do(self):
         self.monster.next_frame(self.action)
         if self.monster.frame == len(self.action) - 1:
+            game_world.remove_object(self.monster.monster_ui)
             game_world.remove_object(self.monster)
 
     def draw(self):
@@ -75,7 +77,8 @@ class Hit:
 
     def do(self):
         self.monster.x -= self.monster.face_dir * (RUN_SPEED_PPS / 4) * game_framework.frame_time
-        self.monster.next_frame(self.action)
+        self.monster.anim_progress += 2.0 * game_framework.frame_time * len(self.action)
+        self.monster.frame = int(self.monster.anim_progress) % len(self.action)
 
         if self.monster.hp <= 0:
             self.monster.state_machine.handle_event(('DEATH', None))
@@ -209,10 +212,16 @@ class Brute:
     def __init__(self):
         self.x, self.y = 940, 165
         self.hp = 300
+        self.max_hp = 300
 
         self.attack_damage = 20
 
         self.current_state = 'IDLE'
+
+        # 체력 UI
+        self.monster_ui_offset_y = 90
+        self.monster_ui = MonsterUI(self)
+        game_world.add_object(self.monster_ui, 3)
 
         # 애니메이션 관련 변수
         self.frame = 0
