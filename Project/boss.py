@@ -108,6 +108,7 @@ class Charge_Attack:
         self.monster.anim_progress = 0.0
         self.monster.current_state = 'CHARGE_ATTACK'
         self.monster.y += 10
+        self.monster.attack_cooldown = self.monster.attack_cooldown_time
 
     def exit(self, e):
         self.monster.y -= 10
@@ -151,6 +152,7 @@ class Attack:
         self.monster.anim_progress = 0.0
         self.monster.current_state = 'ATTACK'
         self.monster.y += 10
+        self.monster.attack_cooldown = self.monster.attack_cooldown_time
 
     def exit(self, e):
         self.monster.y -= 10
@@ -191,6 +193,7 @@ class Dash:
         self.monster.frame = 0
         self.monster.anim_progress = 0.0
         self.dash_dir = self.monster.face_dir
+        self.monster.current_state = 'DASH'
 
 
     def exit(self, e):
@@ -233,11 +236,13 @@ class Run:
 
         if not self.monster.check_near_player():
             self.monster.state_machine.handle_event(('LOSE_PLAYER', None))
+            return
 
-        if self.monster.check_near_player_attack():
+        if self.monster.check_near_player_attack() and self.monster.attack_cooldown <= 0:
             # ATTACK과 CHARGE_ATTACK 중 랜덤 선택
             attack_type = random.choice(['ATTACK_PLAYER', 'CHARGE_ATTACK_PLAYER'])
             self.monster.state_machine.handle_event((attack_type, None))
+            return
 
         player = game_world.find_object_by_type(Player)
         if player and self.monster.x > player.x + 20:
@@ -321,6 +326,10 @@ class Boss:
         self.is_hit = False
         self.hit_timer = 0.0
 
+        # 공격 쿨타임
+        self.attack_cooldown = 0.0
+        self.attack_cooldown_time = 2.0
+
         # 상태 머신 초기화
         self.IDLE = Idle(self)
         self.RUN = Run(self)
@@ -392,6 +401,11 @@ class Boss:
             if self.hit_timer >= 0.5:
                 self.is_hit = False
                 self.hit_timer = 0.0
+
+        if self.attack_cooldown > 0:
+            self.attack_cooldown -= game_framework.frame_time
+            if self.attack_cooldown < 0:
+                self.attack_cooldown = 0
 
     def handle_event(self, event):
         # 들어온 외부 키 입력을 상태머신에게 전달하기 위해 튜플화 시킨후 전달
