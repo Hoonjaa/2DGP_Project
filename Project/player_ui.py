@@ -95,7 +95,7 @@ class PlayerUI:
         # Draw health bar
         health_bar_width = 300
         health_bar_height = 20
-        health_percentage = self.player.hp / self.player.max_hp
+        health_percentage = max(0, min(1, self.player.hp / self.player.max_hp))
         filled_width = int(health_bar_width * health_percentage)
         border_thickness = 3
 
