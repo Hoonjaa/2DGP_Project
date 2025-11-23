@@ -4,6 +4,22 @@ from player import Player
 import game_framework
 
 
+class ShiftUI:
+    def __init__(self, player):
+        self.x, self.y = 50, 50
+        self.player = player
+        self.image = load_image('Sprite/shift_key.png')
+
+    def update(self):
+        pass
+
+    def draw(self):
+        if self.player.dash_cooldown > 0:
+            self.image.clip_draw(18, 10, 30, 14, self.x, self.y, 90, 42)
+        else:
+            self.image.clip_draw(18, 32, 30, 14, self.x, self.y, 90, 42)
+
+
 class PlayerUI:
     def __init__(self, player):
         self.x, self.y = 50, 650
@@ -12,6 +28,9 @@ class PlayerUI:
         self.shake_time = 0  # 흔들림 남은 시간
         self.shake_duration = 0.3  # 흔들림 지속 시간
         self.shake_intensity = 10  # 흔들림 강도
+
+        # 키보드 UI 추가
+        self.shift_ui = ShiftUI(player)
 
     def update(self):
         # 체력이 감소했는지 확인
@@ -60,3 +79,5 @@ class PlayerUI:
         # Draw filled part of health bar (green)
         draw_rectangle(draw_x, draw_y, draw_x + filled_width, draw_y + health_bar_height, 0, 255, 0, 0, True)
 
+        # Draw shift UI
+        self.shift_ui.draw()
