@@ -4,9 +4,25 @@ from player import Player
 import game_framework
 
 
+class SlashUI:
+    def __init__(self, player):
+        self.x, self.y = 60, 550
+        self.player = player
+        self.image = load_image('Sprite/keytile.png')
+
+    def update(self):
+        pass
+
+    def draw(self):
+        if self.player.slash_cooldown > 0:
+            self.image.clip_draw(426, 207, 13, 14, self.x, self.y, 39, 42)
+        else:
+            self.image.clip_draw(426, 343, 13, 14, self.x, self.y, 39, 42)
+
+
 class ShiftUI:
     def __init__(self, player):
-        self.x, self.y = 50, 50
+        self.x, self.y = 85, 600
         self.player = player
         self.image = load_image('Sprite/shift_key.png')
 
@@ -31,6 +47,7 @@ class PlayerUI:
 
         # 키보드 UI 추가
         self.shift_ui = ShiftUI(player)
+        self.slash_ui = SlashUI(player)
 
     def update(self):
         # 체력이 감소했는지 확인
@@ -81,3 +98,5 @@ class PlayerUI:
 
         # Draw shift UI
         self.shift_ui.draw()
+        # Draw slash UI
+        self.slash_ui.draw()
