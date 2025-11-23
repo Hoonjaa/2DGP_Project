@@ -72,6 +72,8 @@ class Ultimate:
         self.player.frame = 0
         self.player.anim_progress = 0.0
 
+        self.player.ult_cooldown = self.player.ult_cooldown_time
+
         self.ult_attack = PlayerUltAttack(self.player.x, self.player.y, self.player)
         game_world.add_object(self.ult_attack, 2)
         game_world.add_collision_pair('monster:player_ult', None, self.ult_attack)
@@ -346,6 +348,8 @@ class Player:
         # 스킬 쿨타임 변수
         self.slash_cooldown = 0.0
         self.slash_cooldown_time = 3.0
+        self.ult_cooldown = 0.0
+        self.ult_cooldown_time = 10.0
 
         # 대쉬 쿨타임 변수
         self.dash_cooldown = 0.0
@@ -427,6 +431,11 @@ class Player:
             if self.dash_cooldown < 0:
                 self.dash_cooldown = 0
 
+        if self.ult_cooldown > 0:
+            self.ult_cooldown -= game_framework.frame_time
+            if self.ult_cooldown < 0:
+                self.ult_cooldown = 0
+
     def handle_event(self, event):
         # 전역 키 눌림 상태 갱신
         if event.type == SDL_KEYDOWN:
@@ -439,6 +448,9 @@ class Player:
                     return
             elif event.key == SDLK_LSHIFT:
                 if self.dash_cooldown > 0:
+                    return
+            elif event.key == SDLK_l:
+                if self.ult_cooldown > 0:
                     return
         elif event.type == SDL_KEYUP:
             if event.key == SDLK_a:
