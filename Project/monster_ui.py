@@ -4,7 +4,7 @@ import game_framework
 
 class MonsterUI:
     def __init__(self, monster):
-        self.x, self.y = monster.x - 40, monster.y + 60
+        self.x, self.y = monster.x - 40, monster.y + monster.monster_ui_offset_y
         self.monster = monster
         self.prev_hp = monster.hp  # 이전 프레임의 체력
         self.shake_time = 0  # 흔들림 남은 시간
@@ -12,7 +12,7 @@ class MonsterUI:
         self.shake_intensity = 4  # 흔들림 강도
 
     def update(self):
-        self.x, self.y = self.monster.x - 40, self.monster.y + 60
+        self.x, self.y = self.monster.x - 40, self.monster.y + self.monster.monster_ui_offset_y
 
         # 체력이 감소했는지 확인
         if self.monster.hp < self.prev_hp:

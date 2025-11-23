@@ -2,6 +2,7 @@ from pico2d import load_image, draw_rectangle
 import game_framework
 import game_world
 from player import Player
+from monster_ui import MonsterUI
 from damage_text import DamageText
 from state_machine import StateMachine
 
@@ -49,6 +50,7 @@ class Death:
         self.monster.next_frame(self.action)
         if self.monster.frame == len(self.action) - 1:
             game_world.remove_object(self.monster)
+            game_world.remove_object(self.monster.monster_ui)
 
     def draw(self):
         self.monster.draw_current(self.action)
@@ -166,10 +168,16 @@ class VZ2:
     def __init__(self):
         self.x, self.y = 600, 115
         self.hp = 200
+        self.max_hp = 200
 
         self.attack_damage = 15
 
         self.current_state = 'IDLE'
+
+        # 체력 UI
+        self.monster_ui_offset_y = 80
+        self.monster_ui = MonsterUI(self)
+        game_world.add_object(self.monster_ui, 3)
 
         # 애니메이션 관련 변수
         self.frame = 0

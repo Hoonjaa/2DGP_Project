@@ -188,6 +188,7 @@ class Zombie:
         self.current_state = 'IDLE'
 
         # 체력 UI
+        self.monster_ui_offset_y = 80
         self.monster_ui = MonsterUI(self)
         game_world.add_object(self.monster_ui, 3)
 
