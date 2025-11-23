@@ -116,6 +116,7 @@ class Slash:
     def enter(self, e):
         self.player.frame = 0
         self.player.anim_progress = 0.0
+        self.player.slash_cooldown = self.player.slash_cooldown_time
 
     def exit(self, e):
         self.player.add_slash_effect()
@@ -342,6 +343,10 @@ class Player:
         self.slash_damage = 30
         self.ult_damage = 30
 
+        # 스킬 쿨타임 변수
+        self.slash_cooldown = 0.0
+        self.slash_cooldown_time = 3.0
+
         # 점프 관련 변수
         self.ground_y = self.y
         self.dropSpeed = 8.0 * PIXEL_PER_METER
@@ -407,6 +412,12 @@ class Player:
                 self.is_hit = False
                 self.hit_timer = 0.0
 
+        # 쿨타임 감소
+        if self.slash_cooldown > 0:
+            self.slash_cooldown -= game_framework.frame_time
+            if self.slash_cooldown < 0:
+                self.slash_cooldown = 0
+
     def handle_event(self, event):
         # 전역 키 눌림 상태 갱신
         if event.type == SDL_KEYDOWN:
@@ -414,6 +425,9 @@ class Player:
                 self.left_pressed = True
             elif event.key == SDLK_d:
                 self.right_pressed = True
+            elif event.key == SDLK_k:
+                if self.slash_cooldown > 0:
+                    return
         elif event.type == SDL_KEYUP:
             if event.key == SDLK_a:
                 self.left_pressed = False

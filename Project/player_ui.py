@@ -10,8 +10,8 @@ class PlayerUI:
         self.player = player
         self.prev_hp = player.hp  # 이전 프레임의 체력
         self.shake_time = 0  # 흔들림 남은 시간
-        self.shake_duration = 0.3  # 흔들림 지속 시간 (초)
-        self.shake_intensity = 10  # 흔들림 강도 (픽셀)
+        self.shake_duration = 0.3  # 흔들림 지속 시간
+        self.shake_intensity = 10  # 흔들림 강도
 
     def update(self):
         # 체력이 감소했는지 확인
