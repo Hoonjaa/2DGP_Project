@@ -4,6 +4,22 @@ from player import Player
 import game_framework
 
 
+class UltUI:
+    def __init__(self, player):
+        self.x, self.y = 60, 500
+        self.player = player
+        self.image = load_image('Sprite/keytile.png')
+
+    def update(self):
+        pass
+
+    def draw(self):
+        if self.player.ult_cooldown > 0:
+            self.image.clip_draw(443, 207, 13, 14, self.x, self.y, 39, 42)
+        else:
+            self.image.clip_draw(443, 343, 13, 14, self.x, self.y, 39, 42)
+
+
 class SlashUI:
     def __init__(self, player):
         self.x, self.y = 60, 550
@@ -48,6 +64,7 @@ class PlayerUI:
         # 키보드 UI 추가
         self.shift_ui = ShiftUI(player)
         self.slash_ui = SlashUI(player)
+        self.ult_ui = UltUI(player)
 
     def update(self):
         # 체력이 감소했는지 확인
@@ -100,3 +117,5 @@ class PlayerUI:
         self.shift_ui.draw()
         # Draw slash UI
         self.slash_ui.draw()
+        # Draw ult UI
+        self.ult_ui.draw()
