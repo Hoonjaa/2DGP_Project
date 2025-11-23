@@ -54,8 +54,8 @@ class Death:
         self.monster.frame = int(self.monster.anim_progress) % len(self.action)
 
         if self.monster.frame == len(self.action) - 1:
-            game_world.remove_object(self.moster.monster_ui)
             game_world.remove_object(self.monster)
+            game_world.remove_object(self.monster.monster_ui)
 
     def draw(self):
         frame = self.monster.frame

@@ -42,7 +42,7 @@ class MonsterUI:
         # Draw health bar
         health_bar_width = 80
         health_bar_height = 7
-        health_percentage = self.monster.hp / self.monster.max_hp
+        health_percentage = max(0, min(1, self.monster.hp / self.monster.max_hp))
         filled_width = int(health_bar_width * health_percentage)
         border_thickness = 2
 
