@@ -90,15 +90,23 @@ class Skill:
 
         self.monster.skill_cooldown = self.monster.skill_cooldown_time
 
+        player = game_world.find_object_by_type(Player)
+        if player.x >= self.monster.x:
+            self.monster.face_dir = 1
+        else:
+            self.monster.face_dir = -1
+
     def exit(self, e):
         self.monster.y -= 10
         self.monster.is_hit = False
+        game_world.remove_object(self.skill)
+        self.skill = None
 
     def do(self):
         self.monster.anim_progress += 0.5 * game_framework.frame_time * len(self.action)
         self.monster.frame = int(self.monster.anim_progress) % len(self.action)
 
-        if self.monster.frame == 6 and self.skill is None:
+        if self.monster.frame == 3 and self.skill is None:
             self.skill = BossSkill(self.monster.x, self.monster.y, self.monster.skill_damage, self.monster.face_dir, self.monster)
             game_world.add_object(self.skill, 2)
             game_world.add_collision_pair('player:monster_attack', None, self.skill)
@@ -354,8 +362,8 @@ class Boss:
         self.attack_cooldown_time = 2.0
 
         # 스킬 쿨타임
-        self.skill_cooldown = 0.0
-        self.skill_cooldown_time = 5.0
+        self.skill_cooldown = 15.0
+        self.skill_cooldown_time = 15.0
 
         # 상태 머신 초기화
         self.IDLE = Idle(self)
