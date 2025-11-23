@@ -337,8 +337,8 @@ class Idle:
 class Player:
     def __init__(self):
         self.x, self.y = 640, 90
-        self.hp = 100
-        self.max_hp = 100
+        self.hp = 300
+        self.max_hp = 300
 
         #데미지 관련 변수
         self.base_damage = 10
