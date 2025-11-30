@@ -1,0 +1,46 @@
+from pico2d import *
+import game_world
+import game_framework
+import common
+from player_ui import PlayerUI
+from player import Player
+from test_background import Background
+
+def handle_events():
+    events = get_events()
+    for event in events:
+        if event.type == SDL_QUIT:
+            game_framework.quit()
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
+            game_framework.quit()
+        else:
+            common.player.handle_event(event)
+
+def init():
+    background = Background()
+    game_world.add_object(background,0)
+
+    if common.player in None:
+        common.player = Player()
+    game_world.add_object(common.player,1)
+
+    player_ui = PlayerUI(common.player)
+    game_world.add_object(player_ui,3)
+
+def update():
+    game_world.update()
+    game_world.handle_collisions()
+
+def draw():
+    clear_canvas()
+    game_world.render()
+    update_canvas()
+
+def finish():
+    game_world.clear()
+
+def pause():
+    pass
+
+def resume():
+    pass
