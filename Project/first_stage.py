@@ -1,6 +1,7 @@
 from pico2d import *
 import game_world
 import game_framework
+import common
 from player_ui import PlayerUI
 from brute import Brute
 from player import Player
@@ -50,19 +51,17 @@ def handle_events():
             game_world.add_collision_pair('monster:player_slash', boss, None)
             game_world.add_collision_pair('monster:player_ult', boss, None)
         else:
-            player.handle_event(event)
+            common.player.handle_event(event)
 
 def init():
-    global player
-
     background = Background()
     game_world.add_object(background,0)
 
-    player = Player()
-    game_world.add_object(player,1)
-    game_world.add_collision_pair('player:monster_attack', player, None)
+    common.player = Player()
+    game_world.add_object(common.player,1)
+    game_world.add_collision_pair('player:monster_attack', common.player, None)
 
-    player_ui = PlayerUI(player)
+    player_ui = PlayerUI(common.player)
     game_world.add_object(player_ui,3)
 
     # zombie = Zombie()
