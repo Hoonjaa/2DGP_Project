@@ -1,6 +1,6 @@
 from pico2d import *
 import game_framework
-import first_stage
+import title_stage
 
 image = None
 logo_start_time = 2.0
@@ -26,7 +26,7 @@ def update():
 
     logo_start_time -= game_framework.frame_time
     if logo_start_time <= 0.0:
-        game_framework.change_mode(first_stage)
+        game_framework.change_mode(title_stage)
 
 def draw():
     clear_canvas()
