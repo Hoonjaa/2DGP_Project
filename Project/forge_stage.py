@@ -6,6 +6,7 @@ from player_ui import PlayerUI
 from player import Player
 from forge_ground import ForgeGround
 from blue_sky import BlueSky
+from forge import Forge
 
 def handle_events():
     events = get_events()
@@ -23,6 +24,9 @@ def init():
 
     ground = ForgeGround()
     game_world.add_object(ground,0)
+
+    forge = Forge()
+    game_world.add_object(forge,0)
 
     if common.player is None:
         common.player = Player()
