@@ -57,7 +57,8 @@ def init():
     background = Background()
     game_world.add_object(background,0)
 
-    common.player = Player()
+    if common.player in None:
+        common.player = Player()
     game_world.add_object(common.player,1)
     game_world.add_collision_pair('player:monster_attack', common.player, None)
 
