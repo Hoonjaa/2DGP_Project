@@ -4,7 +4,7 @@ import game_framework
 import common
 from player_ui import PlayerUI
 from player import Player
-from test_background import Background
+from forge_ground import ForgeGround
 
 def handle_events():
     events = get_events()
@@ -17,8 +17,8 @@ def handle_events():
             common.player.handle_event(event)
 
 def init():
-    background = Background()
-    game_world.add_object(background,0)
+    ground = ForgeGround()
+    game_world.add_object(ground,0)
 
     if common.player is None:
         common.player = Player()
