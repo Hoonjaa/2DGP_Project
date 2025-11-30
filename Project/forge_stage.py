@@ -20,7 +20,7 @@ def init():
     background = Background()
     game_world.add_object(background,0)
 
-    if common.player in None:
+    if common.player is None:
         common.player = Player()
     game_world.add_object(common.player,1)
 
