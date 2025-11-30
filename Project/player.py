@@ -340,6 +340,9 @@ class Player:
         self.hp = 300
         self.max_hp = 300
 
+        # 재화 관련 변수
+        self.jewel = 0
+
         #데미지 관련 변수
         self.base_damage = 10
         self.slash_damage = 30

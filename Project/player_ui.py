@@ -3,6 +3,19 @@ from pico2d import *
 from player import Player
 import game_framework
 
+class JewelUI:
+    def __init__(self, player):
+        self.x, self.y = 1100, 650
+        self.player = player
+        self.image = load_image('Sprite/jewel.png')
+        self.font = load_font('ENCR10B.TTF', 50)
+
+    def update(self):
+        pass
+
+    def draw(self):
+        self.image.draw(self.x, self.y)
+        self.font.draw(self.x + 20, self.y, f':{self.player.jewel}', (0, 0, 0))
 
 class UltUI:
     def __init__(self, player):
@@ -65,6 +78,7 @@ class PlayerUI:
         self.shift_ui = ShiftUI(player)
         self.slash_ui = SlashUI(player)
         self.ult_ui = UltUI(player)
+        self.jewel_ui = JewelUI(player)
 
     def update(self):
         # 체력이 감소했는지 확인
@@ -113,6 +127,8 @@ class PlayerUI:
         # Draw filled part of health bar (green)
         draw_rectangle(draw_x, draw_y, draw_x + filled_width, draw_y + health_bar_height, 0, 255, 0, 0, True)
 
+        # Draw jewel UI
+        self.jewel_ui.draw()
         # Draw shift UI
         self.shift_ui.draw()
         # Draw slash UI
