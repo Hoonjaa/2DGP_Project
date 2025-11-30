@@ -34,5 +34,5 @@ def update():
 
 def draw():
     clear_canvas()
-    image.clip_draw(0,0,1344,768,640,360)
+    image.draw(640,360,1280,720)
     update_canvas()
