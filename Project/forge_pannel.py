@@ -2,6 +2,26 @@ from pico2d import *
 import game_world
 from arrow import Arrow
 
+class SlashText2:
+    font = None
+    price_font = None
+
+    def __init__(self, x=0, y=0):
+        self.x, self.y = x, y
+        self.text = '스킬 공격력 + 10'
+        self.price = '가격 : 30'
+        if SlashText2.font == None:
+            SlashText2.font = load_font('Galmuri14.ttf', 24)
+        if SlashText2.price_font == None:
+            SlashText2.price_font = load_font('Galmuri14.ttf', 15)
+
+    def update(self):
+        pass
+
+    def draw(self):
+        SlashText2.font.draw(self.x, self.y + 50, str(self.text), (0, 0, 0))
+        SlashText2.price_font.draw(self.x, self.y - 40, str(self.price), (0, 0, 0))
+
 class SlashText:
     font = None
     explane_font = None
@@ -78,12 +98,14 @@ class ForgePannel:
         self.attack_text = AttackText(400, 500)
         self.heart_text = HeartText(833, 500)
         self.slash_text = SlashText(400, 200)
+        self.slash_text2 = SlashText2(400, 200)
 
     def draw(self):
         self.image.draw(640, 360)
         self.attack_text.draw()
         self.heart_text.draw()
-        self.slash_text.draw()
+        # self.slash_text.draw()
+        self.slash_text2.draw()
 
     def update(self):
         self.arrow.change_position(*self.arrow_positions[self.current_selection])
