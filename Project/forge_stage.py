@@ -3,6 +3,7 @@ import game_world
 import game_framework
 import common
 import forge_ui_stage
+import first_stage
 from player_ui import PlayerUI
 from player import Player
 from forge_ground import ForgeGround
@@ -41,6 +42,9 @@ def init():
 def update():
     game_world.update()
     game_world.handle_collisions()
+
+    if common.player.x > 1270:
+        game_framework.change_mode(first_stage)
 
 def draw():
     clear_canvas()
