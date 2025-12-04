@@ -97,11 +97,19 @@ class Ultimate:
         x_render = self.player.x + (self.action[self.player.frame][2] - 48) / 2 * PLAYER_SIZE_RATE * self.player.face_dir
         y_render = self.player.y + (self.action[self.player.frame][3] - 48) / 2 * PLAYER_SIZE_RATE
 
+        # 스크롤링 지원
+        if common.is_scrolling:
+            sx = x_render - common.sky_1.window_left
+            sy = y_render - common.sky_1.window_bottom
+        else:
+            sx = x_render
+            sy = y_render
+
         rect = self.action[frame]
         if self.player.face_dir == 1:
-            self.player.image.clip_draw(*rect, x_render, y_render, size_x, size_y)
+            self.player.image.clip_draw(*rect, sx, sy, size_x, size_y)
         else:
-            self.player.image.clip_composite_draw(*rect, 0, 'h', x_render, y_render, size_x, size_y)
+            self.player.image.clip_composite_draw(*rect, 0, 'h', sx, sy, size_x, size_y)
         draw_rectangle(*self.get_bb(), 255, 0, 0)
 
     def get_bb(self):
@@ -184,11 +192,19 @@ class Attack:
         # 큰 프레임에서 발(바닥) 고정: 중심이 올라가는 만큼 내려줌
         y_render = self.player.y + (self.action[self.player.frame][3] - 48) / 2 * PLAYER_SIZE_RATE
 
+        # 스크롤링 지원
+        if common.is_scrolling:
+            sx = self.player.x - common.sky_1.window_left
+            sy = y_render - common.sky_1.window_bottom
+        else:
+            sx = self.player.x
+            sy = y_render
+
         rect = self.action[frame]
         if self.player.face_dir == 1:
-            self.player.image.clip_draw(*rect, self.player.x, y_render, size_x, size_y)
+            self.player.image.clip_draw(*rect, sx, sy, size_x, size_y)
         else:
-            self.player.image.clip_composite_draw(*rect, 0, 'h', self.player.x, y_render, size_x, size_y)
+            self.player.image.clip_composite_draw(*rect, 0, 'h', sx, sy, size_x, size_y)
         draw_rectangle(*self.get_bb(), 255, 0, 0)
 
     def get_bb(self):
@@ -226,7 +242,11 @@ class Dash:
         self.player.anim_progress += 7.0 * game_framework.frame_time * len(self.action)
         self.player.frame = int(self.player.anim_progress) % len(self.action)
 
-        self.player.x = max(0, min(1280, self.player.x + self.dash_dir * DASH_SPEED_PPS * game_framework.frame_time))
+        # 스크롤링 여부에 따른 이동 범위 설정
+        if common.is_scrolling:
+            self.player.x = max(0, min(7480, self.player.x + self.dash_dir * DASH_SPEED_PPS * game_framework.frame_time))
+        else:
+            self.player.x = max(0, min(1280, self.player.x + self.dash_dir * DASH_SPEED_PPS * game_framework.frame_time))
 
 
     def draw(self):
