@@ -2,6 +2,7 @@ from pico2d import *
 import game_world
 import game_framework
 import common
+import forge_ui_stage
 from player_ui import PlayerUI
 from player import Player
 from forge_ground import ForgeGround
@@ -15,6 +16,8 @@ def handle_events():
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             game_framework.quit()
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_i:
+            game_framework.push_mode(forge_ui_stage)
         else:
             common.player.handle_event(event)
 

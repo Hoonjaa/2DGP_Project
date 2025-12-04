@@ -7,7 +7,7 @@ class ForgePannel:
         self.image = load_image('Sprite/forge_ui.png')
         self.arrow_positions = ((200, 500), (400, 500), (600, 500), (800, 500)) # 임시값
         self.arrow = Arrow(*self.arrow_positions[0])
-        game_world.add_object(self.arrow,3)
+        game_world.add_object(self.arrow,4)
 
     def draw(self):
         self.image.draw(640, 360)

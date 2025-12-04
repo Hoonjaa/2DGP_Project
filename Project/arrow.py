@@ -7,8 +7,8 @@ class Arrow:
         self.x = x
         self.y = y
 
-    def draw(self, x, y):
-        self.image.draw(x, y)
+    def draw(self):
+        self.image.draw(self.x, self.y)
 
     def update(self):
         pass
