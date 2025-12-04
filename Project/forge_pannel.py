@@ -1,7 +1,30 @@
 from pico2d import *
 import game_world
+import game_framework
 from arrow import Arrow
 import common
+
+class PurchaseText:
+    font = None
+    def __init__(self, check_money = False):
+        self.x, self.y = 540, 600
+        self.check_money = check_money
+        self.text1 = '구매 완료!'
+        self.text2 = '돈이 부족합니다!'
+        if PurchaseText.font == None:
+            PurchaseText.font = load_font('Galmuri14.ttf', 30)
+        self.timer = 1.0
+
+    def update(self):
+        self.timer -= game_framework.frame_time
+        self.y += 30 * game_framework.frame_time
+
+        if self.timer <= 0:
+            game_world.remove_object(self)
+
+    def draw(self):
+        if self.check_money: self.font.draw(self.x, self.y, str(self.text1), (0, 0, 0))
+        else: self.font.draw(self.x, self.y, str(self.text2), (255, 0, 0))
 
 class UltText2:
     font = None
@@ -181,26 +204,56 @@ class ForgePannel:
                     if common.player.jewel >= 10:
                         common.player.base_damage += 5
                         common.player.jewel -= 10
+                        text = PurchaseText(True)
+                        game_world.add_object(text,4)
+                    else:
+                        text = PurchaseText(False)
+                        game_world.add_object(text,4)
                 elif self.current_selection == 1:
                     if common.player.jewel >= 10:
                         common.player.max_hp += 20
                         common.player.hp += 20
                         common.player.jewel -= 10
+                        text = PurchaseText(True)
+                        game_world.add_object(text, 4)
+                    else:
+                        text = PurchaseText(False)
+                        game_world.add_object(text, 4)
                 elif self.current_selection == 2:
                     if common.player.is_slash_unlocked == False:
                         if common.player.jewel >= 100:
                             common.player.is_slash_unlocked = True
                             common.player.jewel -= 100
+                            text = PurchaseText(True)
+                            game_world.add_object(text, 4)
+                        else:
+                            text = PurchaseText(False)
+                            game_world.add_object(text, 4)
                     else:
                         if common.player.jewel >= 30:
                             common.player.slash_damage += 10
                             common.player.jewel -= 30
+                            text = PurchaseText(True)
+                            game_world.add_object(text, 4)
+                        else:
+                            text = PurchaseText(False)
+                            game_world.add_object(text, 4)
                 elif self.current_selection == 3:
                     if common.player.is_ult_unlocked == False:
                         if common.player.jewel >= 200:
                             common.player.is_ult_unlocked = True
                             common.player.jewel -= 200
+                            text = PurchaseText(True)
+                            game_world.add_object(text, 4)
+                        else:
+                            text = PurchaseText(False)
+                            game_world.add_object(text, 4)
                     else:
                         if common.player.jewel >= 30:
                             common.player.ult_damage += 5
                             common.player.jewel -= 30
+                            text = PurchaseText(True)
+                            game_world.add_object(text, 4)
+                        else:
+                            text = PurchaseText(False)
+                            game_world.add_object(text, 4)
