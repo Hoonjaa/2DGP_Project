@@ -1,4 +1,5 @@
 from pico2d import load_image, draw_rectangle
+import common
 import game_world
 import game_framework
 
@@ -25,21 +26,41 @@ class SlashEffect:
     def update(self):
         self.frame = (self.frame + 1) % 2
         self.x = self.x + self.dir * SLASH_SPEED_PPS * game_framework.frame_time
-        if self.x < -64 or self.x > 1280 + 64:
-            game_world.remove_object(self)
+
+        # 스크롤링 여부에 따른 제거 범위 설정
+        if common.is_scrolling:
+            if self.x < -64 or self.x > common.sky_1.w + 64:
+                game_world.remove_object(self)
+        else:
+            if self.x < -64 or self.x > 1280 + 64:
+                game_world.remove_object(self)
 
     def draw(self):
         dw = SLASH_DRAW_SIZE
+
+        # 스크롤링 지원
+        if common.is_scrolling:
+            sx = self.x - common.sky_1.window_left
+            sy = self.y - common.sky_1.window_bottom
+        else:
+            sx = self.x
+            sy = self.y
+
         if self.dir == 1:
             self.image.clip_draw(self.frame * SLASH_SRC_SIZE, 0, SLASH_SRC_SIZE, SLASH_SRC_SIZE,
-                                 self.x, self.y, dw, dw)
+                                 sx, sy, dw, dw)
         else:
             self.image.clip_composite_draw(self.frame * SLASH_SRC_SIZE, 0, SLASH_SRC_SIZE, SLASH_SRC_SIZE,
-                                           0, 'h', self.x, self.y, dw, dw)
-        draw_rectangle(*self.get_bb(), 0, 255, 0)
+                                           0, 'h', sx, sy, dw, dw)
+        draw_rectangle(*self.get_bb(), 255, 120, 0)
 
     def get_bb(self):
-        return (self.x - 50, self.y - 80, self.x + 50, self.y + 80)
+        if common.is_scrolling:
+            sx = self.x - common.sky_1.window_left
+            sy = self.y - common.sky_1.window_bottom
+            return (sx - 50, sy - 80, sx + 50, sy + 80)
+        else:
+            return (self.x - 50, self.y - 80, self.x + 50, self.y + 80)
 
     def handle_collision(self, group, other):
         pass
