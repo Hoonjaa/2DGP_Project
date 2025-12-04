@@ -16,11 +16,11 @@ class PlayerAttack:
     def get_bb(self):
         # face_dir에 따라 공격 범위 설정
         if self.player.face_dir == 1:  # 오른쪽을 보고 있을 때
-            x_min = -30
+            x_min = -0
             x_max = 100
         else:  # 왼쪽을 보고 있을 때
             x_min = -100
-            x_max = 30
+            x_max = 0
 
         if common.is_scrolling:
             sx = self.x - common.ground_1.window_left

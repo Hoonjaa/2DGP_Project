@@ -69,7 +69,7 @@ def init():
         game_world.add_collision_pair('monster:player_slash', brute, None)
         game_world.add_collision_pair('monster:player_ult', brute, None)
 
-    for _ in range(2):
+    for _ in range(1):
         vz1 = VZ1()
         vz1.x = random.randint(5000, 7000)
         game_world.add_object(vz1, 0)
