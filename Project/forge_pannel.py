@@ -3,6 +3,26 @@ import game_world
 from arrow import Arrow
 import common
 
+class UltText2:
+    font = None
+    price_font = None
+
+    def __init__(self, x=0, y=0):
+        self.x, self.y = x, y
+        self.text = '스킬 공격력 + 5'
+        self.price = '가격 : 30'
+        if UltText2.font == None:
+            UltText2.font = load_font('Galmuri14.ttf', 24)
+        if UltText2.price_font == None:
+            UltText2.price_font = load_font('Galmuri14.ttf', 15)
+
+    def update(self):
+        pass
+
+    def draw(self):
+        UltText2.font.draw(self.x, self.y + 50, str(self.text), (0, 0, 0))
+        UltText2.price_font.draw(self.x, self.y - 40, str(self.price), (0, 0, 0))
+
 class UltText:
     font = None
     explane_font = None
@@ -130,6 +150,7 @@ class ForgePannel:
         self.slash_text = SlashText(400, 200)
         self.slash_text2 = SlashText2(400, 200)
         self.ult_text = UltText(833, 200)
+        self.ult_text2 = UltText2(833, 200)
 
     def draw(self):
         self.image.draw(640, 360)
@@ -138,6 +159,7 @@ class ForgePannel:
         if common.player.is_slash_unlocked == False: self.slash_text.draw()
         else: self.slash_text2.draw()
         if common.player.is_ult_unlocked == False: self.ult_text.draw()
+        else: self.ult_text2.draw()
 
     def update(self):
         self.arrow.change_position(*self.arrow_positions[self.current_selection])
