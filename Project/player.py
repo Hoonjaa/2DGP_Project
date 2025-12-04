@@ -262,7 +262,7 @@ class Dash:
 
         # 스크롤링 여부에 따른 이동 범위 설정
         if common.is_scrolling:
-            self.player.x = max(0, min(7480, self.player.x + self.dash_dir * DASH_SPEED_PPS * game_framework.frame_time))
+            self.player.x = max(0, min(7680, self.player.x + self.dash_dir * DASH_SPEED_PPS * game_framework.frame_time))
         else:
             self.player.x = max(0, min(1280, self.player.x + self.dash_dir * DASH_SPEED_PPS * game_framework.frame_time))
 
@@ -467,7 +467,7 @@ class Player:
 
     def move_x(self):
         if common.is_scrolling:
-            self.x = max(20, min(7480, self.x + self.dir * RUN_SPEED_PPS * game_framework.frame_time))
+            self.x = max(20, min(7680, self.x + self.dir * RUN_SPEED_PPS * game_framework.frame_time))
         else:
             self.x = max(20, min(1280, self.x + self.dir * RUN_SPEED_PPS * game_framework.frame_time))
 

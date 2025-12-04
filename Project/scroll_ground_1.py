@@ -7,7 +7,7 @@ class ScrollGround1:
         self.cw = get_canvas_width()
         self.ch = get_canvas_height()
         self.tile_w = self.image.w
-        self.w = 7488
+        self.w = 7680
         self.h = self.image.h
 
         # 초기 윈도우 위치 설정
