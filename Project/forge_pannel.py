@@ -2,6 +2,25 @@ from pico2d import *
 import game_world
 from arrow import Arrow
 
+class HeartText:
+    font = None
+    price_font = None
+    def __init__(self, x = 0, y = 0):
+        self.x, self.y = x, y
+        self.text = '최대 체력 + 20'
+        self.price = '가격 : 10'
+        if HeartText.font == None:
+            HeartText.font = load_font('Galmuri14.ttf', 24)
+        if HeartText.price_font == None:
+            HeartText.price_font = load_font('Galmuri14.ttf', 15)
+
+    def update(self):
+        pass
+
+    def draw(self):
+        HeartText.font.draw(self.x, self.y, str(self.text), (0, 0, 0))
+        HeartText.price_font.draw(self.x, self.y - 30, str(self.price), (0, 0, 0))
+
 class AttackText:
     font = None
     price_font = None
@@ -30,10 +49,12 @@ class ForgePannel:
         game_world.add_object(self.arrow,4)
 
         self.attack_text = AttackText(400, 500)
+        self.heart_text = HeartText(833, 500)
 
     def draw(self):
         self.image.draw(640, 360)
         self.attack_text.draw()
+        self.heart_text.draw()
 
     def update(self):
         self.arrow.change_position(*self.arrow_positions[self.current_selection])
