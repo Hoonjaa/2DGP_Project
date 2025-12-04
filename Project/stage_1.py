@@ -74,7 +74,7 @@ def update():
     game_world.update()
     game_world.handle_collisions()
 
-    if common.player.x > 7670 and common.total_monster <= 0:
+    if common.player.x > 7600 and common.total_monster <= 0:
         game_framework.change_mode(stage_2)
 
 def draw():

@@ -9,9 +9,9 @@ from player import Player
 from zombie import Zombie
 from variant_zombie2 import VZ2
 from variant_zombie1 import VZ1
-from boss import Boss
 from scroll_black_sky import ScrollBlackSky
 from scroll_ground_1 import ScrollGround1
+import boss_stage
 
 
 def handle_events():
@@ -72,9 +72,8 @@ def update():
     game_world.update()
     game_world.handle_collisions()
 
-    if common.player.x > 7670 and common.total_monster <= 0:
-        pass
-        # game_framework.change_mode(stage_2)
+    if common.player.x > 7600 and common.total_monster <= 0:
+        game_framework.change_mode(boss_stage)
 
 def draw():
     clear_canvas()

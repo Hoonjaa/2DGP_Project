@@ -27,7 +27,7 @@ def handle_events():
 
 def init():
     common.is_scrolling = True
-    common.total_monster = 30
+    common.total_monster = 29
 
     common.sky_1 = ScrollRedSky()
     game_world.add_object(common.sky_1,0)
@@ -82,7 +82,7 @@ def update():
     game_world.update()
     game_world.handle_collisions()
 
-    if common.player.x > 7670 and common.total_monster <= 0:
+    if common.player.x > 7600 and common.total_monster <= 0:
         game_framework.change_mode(stage_3)
 
 def draw():

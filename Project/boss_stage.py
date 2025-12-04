@@ -32,6 +32,7 @@ def init():
 
     if common.player is None:
         common.player = Player()
+    common.player.x = 100
     game_world.add_object(common.player,1)
 
     player_ui = PlayerUI(common.player)
