@@ -1,6 +1,7 @@
 from pico2d import *
 import game_world
 from arrow import Arrow
+import common
 
 class SlashText2:
     font = None
@@ -104,8 +105,8 @@ class ForgePannel:
         self.image.draw(640, 360)
         self.attack_text.draw()
         self.heart_text.draw()
-        # self.slash_text.draw()
-        self.slash_text2.draw()
+        if common.player.is_slash_unlocked == False: self.slash_text.draw()
+        else: self.slash_text2.draw()
 
     def update(self):
         self.arrow.change_position(*self.arrow_positions[self.current_selection])
