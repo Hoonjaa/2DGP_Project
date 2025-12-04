@@ -166,11 +166,41 @@ class ForgePannel:
 
     def handle_event(self, event):
         if event.type == SDL_KEYDOWN:
-            if event.key == SDLK_RIGHT:
+            if event.key == SDLK_d:
                 self.current_selection = (self.current_selection + 1) % len(self.arrow_positions)
-            elif event.key == SDLK_DOWN:
+            elif event.key == SDLK_s:
                 self.current_selection = (self.current_selection + 2) % len(self.arrow_positions)
-            elif event.key == SDLK_LEFT:
+            elif event.key == SDLK_a:
                 self.current_selection = (self.current_selection - 1) % len(self.arrow_positions)
-            elif event.key == SDLK_UP:
+            elif event.key == SDLK_w:
                 self.current_selection = (self.current_selection - 2) % len(self.arrow_positions)
+            elif event.key == SDLK_p:
+                common.player.jewel += 500  # 디버그용 보석 추가
+            elif event.key == SDLK_SPACE:
+                if self.current_selection == 0:
+                    if common.player.jewel >= 10:
+                        common.player.base_damage += 5
+                        common.player.jewel -= 10
+                elif self.current_selection == 1:
+                    if common.player.jewel >= 10:
+                        common.player.max_hp += 20
+                        common.player.hp += 20
+                        common.player.jewel -= 10
+                elif self.current_selection == 2:
+                    if common.player.is_slash_unlocked == False:
+                        if common.player.jewel >= 100:
+                            common.player.is_slash_unlocked = True
+                            common.player.jewel -= 100
+                    else:
+                        if common.player.jewel >= 30:
+                            common.player.slash_damage += 10
+                            common.player.jewel -= 30
+                elif self.current_selection == 3:
+                    if common.player.is_ult_unlocked == False:
+                        if common.player.jewel >= 200:
+                            common.player.is_ult_unlocked = True
+                            common.player.jewel -= 200
+                    else:
+                        if common.player.jewel >= 30:
+                            common.player.ult_damage += 5
+                            common.player.jewel -= 30
