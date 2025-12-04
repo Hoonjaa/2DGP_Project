@@ -23,6 +23,8 @@ def handle_events():
             common.player.handle_event(event)
 
 def init():
+    common.is_scrolling = True
+
     common.sky_1 = ScrollBlueSky()
     game_world.add_object(common.sky_1,0)
 
