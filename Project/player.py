@@ -116,7 +116,13 @@ class Ultimate:
         x_offset = 50 * PLAYER_SIZE_RATE / 2
         x_correct = 20 * PLAYER_SIZE_RATE * self.player.face_dir
         y_offset = 50 * PLAYER_SIZE_RATE / 2
-        return (self.player.x - x_offset + x_correct, self.player.y - y_offset, self.player.x + x_offset + x_correct, self.player.y + y_offset)
+
+        if common.is_scrolling:
+            sx = self.player.x - common.sky_1.window_left
+            sy = self.player.y - common.sky_1.window_bottom
+            return (sx - x_offset + x_correct, sy - y_offset, sx + x_offset + x_correct, sy + y_offset)
+        else:
+            return (self.player.x - x_offset + x_correct, self.player.y - y_offset, self.player.x + x_offset + x_correct, self.player.y + y_offset)
 
 
 class Slash:
@@ -150,7 +156,13 @@ class Slash:
     def get_bb(self):
         x_offset = self.action[self.player.frame][2] * PLAYER_SIZE_RATE / 2
         y_offset = self.action[self.player.frame][3] * PLAYER_SIZE_RATE / 2
-        return (self.player.x - x_offset, self.player.y - y_offset, self.player.x + x_offset, self.player.y + y_offset)
+
+        if common.is_scrolling:
+            sx = self.player.x - common.sky_1.window_left
+            sy = self.player.y - common.sky_1.window_bottom
+            return (sx - x_offset, sy - y_offset, sx + x_offset, sy + y_offset)
+        else:
+            return (self.player.x - x_offset, self.player.y - y_offset, self.player.x + x_offset, self.player.y + y_offset)
 
 
 class Attack:
@@ -210,7 +222,13 @@ class Attack:
     def get_bb(self):
         x_offset = 50 * PLAYER_SIZE_RATE / 2
         y_offset = 50 * PLAYER_SIZE_RATE / 2
-        return (self.player.x - x_offset, self.player.y - y_offset, self.player.x + x_offset, self.player.y + y_offset)
+
+        if common.is_scrolling:
+            sx = self.player.x - common.sky_1.window_left
+            sy = self.player.y - common.sky_1.window_bottom
+            return (sx - x_offset, sy - y_offset, sx + x_offset, sy + y_offset)
+        else:
+            return (self.player.x - x_offset, self.player.y - y_offset, self.player.x + x_offset, self.player.y + y_offset)
 
 
 class Dash:
@@ -297,7 +315,13 @@ class Jump:
     def get_bb(self):
         x_offset = self.action[self.player.frame][2] * PLAYER_SIZE_RATE / 2
         y_offset = self.action[self.player.frame][3] * PLAYER_SIZE_RATE / 2
-        return (self.player.x - x_offset, self.player.y - y_offset, self.player.x + x_offset, self.player.y + y_offset)
+
+        if common.is_scrolling:
+            sx = self.player.x - common.sky_1.window_left
+            sy = self.player.y - common.sky_1.window_bottom
+            return (sx - x_offset, sy - y_offset, sx + x_offset, sy + y_offset)
+        else:
+            return (self.player.x - x_offset, self.player.y - y_offset, self.player.x + x_offset, self.player.y + y_offset)
 
 class Run:
     def __init__(self, player):
@@ -327,7 +351,13 @@ class Run:
     def get_bb(self):
         x_offset = self.action[self.player.frame][2] * PLAYER_SIZE_RATE / 2
         y_offset = self.action[self.player.frame][3] * PLAYER_SIZE_RATE / 2
-        return (self.player.x - x_offset, self.player.y - y_offset, self.player.x + x_offset, self.player.y + y_offset)
+
+        if common.is_scrolling:
+            sx = self.player.x - common.sky_1.window_left
+            sy = self.player.y - common.sky_1.window_bottom
+            return (sx - x_offset, sy - y_offset, sx + x_offset, sy + y_offset)
+        else:
+            return (self.player.x - x_offset, self.player.y - y_offset, self.player.x + x_offset, self.player.y + y_offset)
 
 
 class Idle:
@@ -353,7 +383,13 @@ class Idle:
     def get_bb(self):
         x_offset = self.action[self.player.frame][2] * PLAYER_SIZE_RATE / 2
         y_offset = self.action[self.player.frame][3] * PLAYER_SIZE_RATE / 2
-        return (self.player.x - x_offset, self.player.y - y_offset, self.player.x + x_offset, self.player.y + y_offset)
+
+        if common.is_scrolling:
+            sx = self.player.x - common.sky_1.window_left
+            sy = self.player.y - common.sky_1.window_bottom
+            return (sx - x_offset, sy - y_offset, sx + x_offset, sy + y_offset)
+        else:
+            return (self.player.x - x_offset, self.player.y - y_offset, self.player.x + x_offset, self.player.y + y_offset)
 
 class Player:
     def __init__(self):
@@ -362,8 +398,8 @@ class Player:
         self.max_hp = 300
 
         # 스킬 잠금 관련 변수
-        self.is_slash_unlocked = False
-        self.is_ult_unlocked = False
+        self.is_slash_unlocked = True
+        self.is_ult_unlocked = True
 
         # 재화 관련 변수
         self.jewel = 0
