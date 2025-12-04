@@ -14,12 +14,20 @@ class PlayerAttack:
         draw_rectangle(*self.get_bb(), 0, 255, 0)
 
     def get_bb(self):
+        # face_dir에 따라 공격 범위 설정
+        if self.player.face_dir == 1:  # 오른쪽을 보고 있을 때
+            x_min = -30
+            x_max = 100
+        else:  # 왼쪽을 보고 있을 때
+            x_min = -100
+            x_max = 30
+
         if common.is_scrolling:
             sx = self.x - common.ground_1.window_left
             sy = self.y - common.ground_1.window_bottom
-            return (sx - 100, sy - 50, sx + 100, sy + 100)
+            return (sx + x_min, sy - 50, sx + x_max, sy + 100)
         else:
-            return (self.x - 100, self.y - 50, self.x + 100, self.y + 100)
+            return (self.x + x_min, self.y - 50, self.x + x_max, self.y + 100)
 
     def handle_collision(self, group, other):
         pass
