@@ -7,6 +7,7 @@ from monster_ui import MonsterUI
 from brute_attack import BruteAttack
 from damage_text import DamageText
 import game_world
+import random
 
 
 # 이벤트 체크 함수
@@ -142,8 +143,8 @@ class Run:
         self.action = ((3,255,73,63),(81,255,78,63),(166,255,73,62),(247,255,68,63))
 
     def enter(self, e):
-        self.monster.frame = 0
-        self.monster.anim_progress = 0.0
+        self.monster.frame = random.randint(0, 3)
+        self.monster.anim_progress = float(self.monster.frame)
         self.monster.current_state = 'RUN'
 
     def exit(self, e):
@@ -188,8 +189,8 @@ class Idle:
 
     def enter(self, e):
         self.monster.dir = 0
-        self.monster.frame = 0
-        self.monster.anim_progress = 0.0
+        self.monster.frame = random.randint(0, 7)
+        self.monster.anim_progress = float(self.monster.frame)
         self.monster.current_state = 'IDLE'
 
     def exit(self, e):
@@ -226,8 +227,8 @@ class Brute:
         game_world.add_object(self.monster_ui, 3)
 
         # 애니메이션 관련 변수
-        self.frame = 0
-        self.anim_progress = 0.0
+        self.frame = random.randint(0, 7)
+        self.anim_progress = float(self.frame)
         if Brute.image is None:
             Brute.image = load_image('Sprite/Brute.png')
 

@@ -6,6 +6,7 @@ from player import Player
 from monster_ui import MonsterUI
 from damage_text import DamageText
 from state_machine import StateMachine
+import random
 
 
 # 이벤트 체크 함수
@@ -102,8 +103,8 @@ class Run:
                        (148,289,26,57),(180,289,26,58),(212,289,26,59))
 
     def enter(self, e):
-        self.monster.frame = 0
-        self.monster.anim_progress = 0.0
+        self.monster.frame = random.randint(0, 7)
+        self.monster.anim_progress = float(self.monster.frame)
         self.monster.current_state = 'RUN'
 
 
@@ -144,8 +145,8 @@ class Idle:
 
     def enter(self, e):
         self.monster.dir = 0
-        self.monster.frame = 0
-        self.monster.anim_progress = 0.0
+        self.monster.frame = random.randint(0, 7)
+        self.monster.anim_progress = float(self.monster.frame)
         self.monster.current_state = 'IDLE'
 
     def exit(self, e):
@@ -182,8 +183,8 @@ class VZ2:
         game_world.add_object(self.monster_ui, 3)
 
         # 애니메이션 관련 변수
-        self.frame = 0
-        self.anim_progress = 0.0
+        self.frame = random.randint(0, 7)
+        self.anim_progress = float(self.frame)
         if VZ2.image is None:
             VZ2.image = load_image('Sprite/Variant Zombie2.png')
 

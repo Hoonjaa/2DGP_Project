@@ -124,6 +124,8 @@ class Run:
         self.action = ((164,280,47,62),(217,280,52,61),(275,280,52,58),(344,280,52,58),(416,280,53,58),(475,280,53,59))
 
     def enter(self, e):
+        self.monster.frame = random.randint(0, 5)
+        self.monster.anim_progress = float(self.monster.frame)
         self.monster.current_state = 'RUN'
 
     def exit(self, e):
@@ -170,6 +172,8 @@ class Idle:
 
     def enter(self, e):
         self.monster.dir = 0
+        self.monster.frame = random.randint(0, 5)
+        self.monster.anim_progress = float(self.monster.frame)
         self.monster.current_state = 'IDLE'
 
     def exit(self, e):

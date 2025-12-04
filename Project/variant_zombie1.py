@@ -7,6 +7,7 @@ from monster_ui import MonsterUI
 from damage_text import DamageText
 from vz2_attack import VZ2Attack
 from state_machine import StateMachine
+import random
 
 
 # 이벤트 체크 함수
@@ -215,8 +216,8 @@ class Idle:
 
     def enter(self, e):
         self.monster.dir = 0
-        self.monster.frame = 0
-        self.monster.anim_progress = 0.0
+        self.monster.frame = random.randint(0, 9)
+        self.monster.anim_progress = float(self.monster.frame)
         self.monster.current_state = 'IDLE'
 
 
@@ -254,8 +255,8 @@ class VZ1:
         game_world.add_object(self.monster_ui, 3)
 
         # 애니메이션 관련 변수
-        self.frame = 0
-        self.anim_progress = 0.0
+        self.frame = random.randint(0, 9)
+        self.anim_progress = float(self.frame)
         if VZ1.image is None:
             VZ1.image = load_image('Sprite/Variant Zombie1.png')
 
