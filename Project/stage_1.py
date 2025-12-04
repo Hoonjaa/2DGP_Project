@@ -26,6 +26,7 @@ def handle_events():
 
 def init():
     common.is_scrolling = True
+    common.total_monster = 22
 
     common.sky_1 = ScrollBlueSky()
     game_world.add_object(common.sky_1,0)
@@ -42,18 +43,39 @@ def init():
     player_ui = PlayerUI(common.player)
     game_world.add_object(player_ui,3)
 
-    for _ in range(20):
-        zombie = VZ1()
+    for _ in range(15):
+        zombie = Zombie()
         zombie.x = random.randint(500, 7000)
         game_world.add_object(zombie, 0)
-        # game_world.add_collision_pair('player:monster_attack', None, zombie)
+        game_world.add_collision_pair('player:monster_attack', None, zombie)
         game_world.add_collision_pair('monster:player_attack', zombie, None)
         game_world.add_collision_pair('monster:player_slash', zombie, None)
         game_world.add_collision_pair('monster:player_ult', zombie, None)
 
+    for _ in range(5):
+        vz2 = VZ2()
+        vz2.x = random.randint(2000, 7000)
+        game_world.add_object(vz2, 0)
+        game_world.add_collision_pair('player:monster_attack', None, vz2)
+        game_world.add_collision_pair('monster:player_attack', vz2, None)
+        game_world.add_collision_pair('monster:player_slash', vz2, None)
+        game_world.add_collision_pair('monster:player_ult', vz2, None)
+
+    for _ in range(2):
+        brute = Brute()
+        brute.x = random.randint(5000, 7000)
+        game_world.add_object(brute, 0)
+        game_world.add_collision_pair('monster:player_attack', brute, None)
+        game_world.add_collision_pair('monster:player_slash', brute, None)
+        game_world.add_collision_pair('monster:player_ult', brute, None)
+
 def update():
     game_world.update()
     game_world.handle_collisions()
+
+    if common.player.x > 7670 and common.total_monster <= 0:
+        pass
+        # game_framework.change_mode(stage_2)
 
 def draw():
     clear_canvas()

@@ -47,6 +47,7 @@ class Death:
         self.monster.frame = 0
         self.monster.anim_progress = 0.0
         self.monster.current_state = 'DEATH'
+        common.total_monster -= 1
 
     def exit(self, e):
         pass
