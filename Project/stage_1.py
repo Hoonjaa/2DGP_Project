@@ -43,7 +43,7 @@ def init():
     game_world.add_object(player_ui,3)
 
     for _ in range(20):
-        zombie = Zombie()
+        zombie = VZ2()
         zombie.x = random.randint(500, 7000)
         game_world.add_object(zombie, 0)
         game_world.add_collision_pair('player:monster_attack', None, zombie)
