@@ -2,6 +2,7 @@ import math
 from pico2d import *
 from player import Player
 import game_framework
+import common
 
 class JewelUI:
     def __init__(self, player):
@@ -64,6 +65,22 @@ class ShiftUI:
         else:
             self.image.clip_draw(18, 32, 30, 14, self.x, self.y, 90, 42)
 
+class HPTEXT:
+    font = None
+    def __init__(self):
+        self.x, self.y = 50, 660
+        self.hp = common.player.hp
+        self.max_hp = common.player.max_hp
+        if HPTEXT.font == None:
+            HPTEXT.font = load_font('ENCR10B.TTF', 20)
+
+    def update(self, hp, max_hp):
+        self.hp = common.player.hp
+        self.max_hp = common.player.max_hp
+
+    def draw(self):
+        HPTEXT.font.draw(self.x, self.y, f'{self.hp} / {self.max_hp}', (255, 0, 0))
+
 
 class PlayerUI:
     def __init__(self, player):
@@ -73,6 +90,8 @@ class PlayerUI:
         self.shake_time = 0  # 흔들림 남은 시간
         self.shake_duration = 0.3  # 흔들림 지속 시간
         self.shake_intensity = 10  # 흔들림 강도
+
+        self.hp_text = HPTEXT()
 
         # 키보드 UI 추가
         self.shift_ui = ShiftUI(player)
@@ -86,6 +105,7 @@ class PlayerUI:
             self.shake_time = self.shake_duration  # 흔들림 시작
 
         self.prev_hp = self.player.hp
+        self.hp_text.update(self.player.hp, self.player.max_hp)
 
         # 흔들림 시간 감소
         if self.shake_time > 0:
@@ -135,3 +155,6 @@ class PlayerUI:
         self.slash_ui.draw()
         # Draw ult UI
         self.ult_ui.draw()
+
+        # Draw HP text
+        self.hp_text.draw()
