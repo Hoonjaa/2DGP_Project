@@ -1,5 +1,6 @@
 from pico2d import load_image, draw_rectangle
 import game_framework
+import common
 from state_machine import StateMachine
 from player import Player
 from monster_ui import MonsterUI
@@ -264,12 +265,17 @@ class Brute:
         max_height = 80  # 첫 프레임 높이
         current_height = action[self.frame][3]
         y_offset = self.y - (max_height - current_height) * BRUTE_SIZE_RATE / 2
+
+        # 스크롤링 적용
+        screen_x = self.x - common.ground_1.window_left
+        screen_y = y_offset - common.ground_1.window_bottom
+
         if self.face_dir == 1:
-            self.image.clip_draw(*rect, self.x, y_offset,
+            self.image.clip_draw(*rect, screen_x, screen_y,
                                          action[self.frame][2] * BRUTE_SIZE_RATE,
                                          action[self.frame][3] * BRUTE_SIZE_RATE)
         else:
-            self.image.clip_composite_draw(*rect, 0, 'h', self.x, y_offset,
+            self.image.clip_composite_draw(*rect, 0, 'h', screen_x, screen_y,
                                                    action[self.frame][2] * BRUTE_SIZE_RATE,
                                                    action[self.frame][3] * BRUTE_SIZE_RATE)
 
@@ -281,8 +287,14 @@ class Brute:
         current_height = action[self.frame][3]
         adjusted_y = self.y - (max_height - current_height) * BRUTE_SIZE_RATE / 2
 
-        return (self.x - x_offset, adjusted_y - y_offset,
-              self.x + x_offset, adjusted_y + y_offset)
+        if common.is_scrolling:
+            screen_x = self.x - common.ground_1.window_left
+            screen_y = adjusted_y - common.ground_1.window_bottom
+            return (screen_x - x_offset, screen_y - y_offset,
+                    screen_x + x_offset, screen_y + y_offset)
+        else:
+            return (self.x - x_offset, adjusted_y - y_offset,
+                    self.x + x_offset, adjusted_y + y_offset)
 
     def get_bb(self):
         return self.state_machine.get_bb()
