@@ -340,6 +340,10 @@ class Player:
         self.hp = 300
         self.max_hp = 300
 
+        # 스킬 잠금 관련 변수
+        self.is_slash_unlocked = False
+        self.is_ult_unlocked = False
+
         # 재화 관련 변수
         self.jewel = 0
 
@@ -447,13 +451,13 @@ class Player:
             elif event.key == SDLK_d:
                 self.right_pressed = True
             elif event.key == SDLK_k:
-                if self.slash_cooldown > 0:
+                if not self.is_slash_unlocked or self.slash_cooldown > 0:
                     return
             elif event.key == SDLK_LSHIFT:
                 if self.dash_cooldown > 0:
                     return
             elif event.key == SDLK_l:
-                if self.ult_cooldown > 0:
+                if not self.is_ult_unlocked or self.ult_cooldown > 0:
                     return
         elif event.type == SDL_KEYUP:
             if event.key == SDLK_a:
