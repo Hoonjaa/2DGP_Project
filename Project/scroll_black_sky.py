@@ -1,7 +1,7 @@
 from pico2d import *
 import common
 
-class ScrollRedSky:
+class ScrollBlackSky:
     def __init__(self):
         self.image = load_image('Sprite/sky3.png')
         self.cw = get_canvas_width()
