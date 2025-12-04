@@ -22,10 +22,18 @@ class SlashEffect:
         self.x, self.y = x, y
         self.dir = dir
         self.frame = 0
+        self.lifetime = 0.0  # 생존 시간 추적
 
     def update(self):
         self.frame = (self.frame + 1) % 2
         self.x = self.x + self.dir * SLASH_SPEED_PPS * game_framework.frame_time
+        
+        # 생존 시간 증가
+        self.lifetime += game_framework.frame_time
+        
+        # 1초가 지나면 제거
+        if self.lifetime >= 1.0:
+            game_world.remove_object(self)
 
         # 스크롤링 여부에 따른 제거 범위 설정
         if common.is_scrolling:
