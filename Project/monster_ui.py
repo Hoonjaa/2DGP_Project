@@ -1,6 +1,7 @@
 import math
 from pico2d import *
 import game_framework
+import common
 
 class MonsterUI:
     def __init__(self, monster):
@@ -35,9 +36,9 @@ class MonsterUI:
             shake_x = math.sin(self.shake_time * 50) * self.shake_intensity
             shake_y = math.cos(self.shake_time * 40) * self.shake_intensity * 0.5
 
-        # 흔들림 적용된 위치
-        draw_x = self.x + shake_x
-        draw_y = self.y + shake_y
+        # 스크롤링 적용된 화면 좌표 계산
+        screen_x = self.x - common.ground_1.window_left + shake_x
+        screen_y = self.y - common.ground_1.window_bottom + shake_y
 
         # Draw health bar
         health_bar_width = 80
@@ -48,14 +49,14 @@ class MonsterUI:
 
         # Draw black border (outer rectangle)
         draw_rectangle(
-            draw_x - border_thickness,
-            draw_y - border_thickness,
-            draw_x + health_bar_width + border_thickness,
-            draw_y + health_bar_height + border_thickness,
+            screen_x - border_thickness,
+            screen_y - border_thickness,
+            screen_x + health_bar_width + border_thickness,
+            screen_y + health_bar_height + border_thickness,
             100, 100, 100, 0, True
         )
 
         # Draw background of health bar (red)
-        draw_rectangle(draw_x, draw_y, draw_x + health_bar_width, draw_y + health_bar_height, 255, 0, 0, 0, True)
+        draw_rectangle(screen_x, screen_y, screen_x + health_bar_width, screen_y + health_bar_height, 255, 0, 0, 0, True)
         # Draw filled part of health bar (green)
-        draw_rectangle(draw_x, draw_y, draw_x + filled_width, draw_y + health_bar_height, 0, 255, 0, 0, True)
+        draw_rectangle(screen_x, screen_y, screen_x + filled_width, screen_y + health_bar_height, 0, 255, 0, 0, True)

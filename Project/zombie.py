@@ -1,4 +1,6 @@
 from pico2d import load_image, draw_rectangle
+import random
+import common
 import game_world
 import game_framework
 from monster_ui import MonsterUI
@@ -61,13 +63,17 @@ class Death:
         frame = self.monster.frame
         size_x, size_y = self.action[self.monster.frame][2] * ZOMBIE_SIZE_RATE, self.action[self.monster.frame][3] * ZOMBIE_SIZE_RATE
         x_render = self.monster.x + (self.action[self.monster.frame][2] - 48) / 2 * ZOMBIE_SIZE_RATE * self.monster.face_dir
-        y_render = self.monster.y + (self.action[self.monster.frame][3] - 48) / 2 * ZOMBIE_SIZE_RATE
+        y_render = self.monster.y + (self.action[self.monster.frame][3] - 48) / 2 * ZOMBIE_SIZE_RATE - 10
+
+        # 스크롤링 적용
+        screen_x = x_render - common.ground_1.window_left
+        screen_y = y_render - common.ground_1.window_bottom
 
         rect = self.action[frame]
         if self.monster.face_dir == 1:
-            self.monster.image.clip_draw(*rect, x_render, y_render, size_x, size_y)
+            self.monster.image.clip_draw(*rect, screen_x, screen_y, size_x, size_y)
         else:
-            self.monster.image.clip_composite_draw(*rect, 0, 'h', x_render, y_render, size_x, size_y)
+            self.monster.image.clip_composite_draw(*rect, 0, 'h', screen_x, screen_y, size_x, size_y)
 
     def get_bb(self):
         pass
@@ -102,7 +108,13 @@ class Hit:
     def get_bb(self):
         x_offset = self.action[self.monster.frame][2] * ZOMBIE_SIZE_RATE / 2
         y_offset = self.action[self.monster.frame][3] * ZOMBIE_SIZE_RATE / 2
-        return (self.monster.x - x_offset, self.monster.y - y_offset, self.monster.x + x_offset, self.monster.y + y_offset)
+
+        if common.is_scrolling:
+            screen_x = self.monster.x - common.ground_1.window_left
+            screen_y = self.monster.y - common.ground_1.window_bottom
+            return (screen_x - x_offset, screen_y - y_offset, screen_x + x_offset, screen_y + y_offset)
+        else:
+            return (self.monster.x - x_offset, self.monster.y - y_offset, self.monster.x + x_offset, self.monster.y + y_offset)
 
 
 class Run:
@@ -111,8 +123,6 @@ class Run:
         self.action = ((164,280,47,62),(217,280,52,61),(275,280,52,58),(344,280,52,58),(416,280,53,58),(475,280,53,59))
 
     def enter(self, e):
-        self.monster.frame = 0
-        self.monster.anim_progress = 0.0
         self.monster.current_state = 'RUN'
 
     def exit(self, e):
@@ -143,7 +153,13 @@ class Run:
     def get_bb(self):
         x_offset = self.action[self.monster.frame][2] * ZOMBIE_SIZE_RATE / 2
         y_offset = self.action[self.monster.frame][3] * ZOMBIE_SIZE_RATE / 2
-        return (self.monster.x - x_offset, self.monster.y - y_offset, self.monster.x + x_offset, self.monster.y + y_offset)
+
+        if common.is_scrolling:
+            screen_x = self.monster.x - common.ground_1.window_left
+            screen_y = self.monster.y - common.ground_1.window_bottom
+            return (screen_x - x_offset, screen_y - y_offset, screen_x + x_offset, screen_y + y_offset)
+        else:
+            return (self.monster.x - x_offset, self.monster.y - y_offset, self.monster.x + x_offset, self.monster.y + y_offset)
 
 
 class Idle:
@@ -153,8 +169,6 @@ class Idle:
 
     def enter(self, e):
         self.monster.dir = 0
-        self.monster.frame = 0
-        self.monster.anim_progress = 0.0
         self.monster.current_state = 'IDLE'
 
     def exit(self, e):
@@ -173,7 +187,13 @@ class Idle:
     def get_bb(self):
         x_offset = self.action[self.monster.frame][2] * ZOMBIE_SIZE_RATE / 2
         y_offset = self.action[self.monster.frame][3] * ZOMBIE_SIZE_RATE / 2
-        return (self.monster.x - x_offset, self.monster.y - y_offset, self.monster.x + x_offset, self.monster.y + y_offset)
+
+        if common.is_scrolling:
+            screen_x = self.monster.x - common.ground_1.window_left
+            screen_y = self.monster.y - common.ground_1.window_bottom
+            return (screen_x - x_offset, screen_y - y_offset, screen_x + x_offset, screen_y + y_offset)
+        else:
+            return (self.monster.x - x_offset, self.monster.y - y_offset, self.monster.x + x_offset, self.monster.y + y_offset)
 
 
 class Zombie:
@@ -193,8 +213,8 @@ class Zombie:
         game_world.add_object(self.monster_ui, 3)
 
         # 애니메이션 관련 변수
-        self.frame = 0
-        self.anim_progress = 0.0
+        self.frame = random.randint(0, 5)
+        self.anim_progress = float(self.frame)
         if Zombie.image is None:
             Zombie.image = load_image('Sprite/Zombie.png')
 
@@ -230,10 +250,18 @@ class Zombie:
     def draw_current(self, action):
         idx = self.frame % len(action)
         rect = action[idx]
+
+        screen_x = self.x - common.ground_1.window_left
+        screen_y = self.y - common.ground_1.window_bottom
+
         if self.face_dir == 1:
-            self.image.clip_draw(*rect, self.x, self.y, action[self.frame][2] * ZOMBIE_SIZE_RATE, action[self.frame][3] * ZOMBIE_SIZE_RATE)
+            self.image.clip_draw(*rect, screen_x, screen_y,
+                                 action[self.frame][2] * ZOMBIE_SIZE_RATE,
+                                 action[self.frame][3] * ZOMBIE_SIZE_RATE)
         else:
-            self.image.clip_composite_draw(*rect, 0, 'h', self.x, self.y, action[self.frame][2] * ZOMBIE_SIZE_RATE, action[self.frame][3] * ZOMBIE_SIZE_RATE)
+            self.image.clip_composite_draw(*rect, 0, 'h', screen_x, screen_y,
+                                           action[self.frame][2] * ZOMBIE_SIZE_RATE,
+                                           action[self.frame][3] * ZOMBIE_SIZE_RATE)
 
     def move_x(self):
         self.x = self.x + self.dir * RUN_SPEED_PPS * game_framework.frame_time

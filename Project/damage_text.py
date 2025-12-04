@@ -1,6 +1,7 @@
 from pico2d import load_font
 import game_world
 import game_framework
+import common
 
 class DamageText:
     font = None
@@ -19,4 +20,7 @@ class DamageText:
             game_world.remove_object(self)
 
     def draw(self):
-        DamageText.font.draw(self.x, self.y, str(self.damage), (255, 0, 0))
+        # 스크롤링 적용된 화면 좌표 계산
+        screen_x = self.x - common.ground_1.window_left
+        screen_y = self.y - common.ground_1.window_bottom
+        DamageText.font.draw(screen_x, screen_y, str(self.damage), (255, 0, 0))
