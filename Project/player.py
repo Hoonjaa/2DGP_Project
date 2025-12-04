@@ -1,4 +1,5 @@
-from pico2d import load_image, draw_rectangle
+from pico2d import *
+import common
 import game_world
 import game_framework
 from slash_effect import SlashEffect
@@ -336,7 +337,7 @@ class Idle:
 
 class Player:
     def __init__(self):
-        self.x, self.y = 640, 90
+        self.x, self.y = 640, 85
         self.hp = 300
         self.max_hp = 300
 
@@ -409,18 +410,35 @@ class Player:
         self.frame = int(self.anim_progress) % len(action)
 
     def move_x(self):
-        self.x = max(0, min(1280, self.x + self.dir * RUN_SPEED_PPS * game_framework.frame_time))
+        if common.is_scrolling:
+            self.x = max(20, min(7480, self.x + self.dir * RUN_SPEED_PPS * game_framework.frame_time))
+        else:
+            self.x = max(20, min(1280, self.x + self.dir * RUN_SPEED_PPS * game_framework.frame_time))
 
     def draw_current(self, action):
         idx = self.frame % len(action)
         rect = action[idx]
-        if self.face_dir == 1:
-            self.image.clip_draw(*rect, self.x, self.y, action[self.frame][2] * PLAYER_SIZE_RATE, action[self.frame][3] * PLAYER_SIZE_RATE)
+
+        if common.is_scrolling:
+            sx = self.x - common.sky_1.window_left
+            sy = self.y - common.sky_1.window_bottom
+            if self.face_dir == 1:
+                self.image.clip_draw(*rect, sx, sy, action[self.frame][2] * PLAYER_SIZE_RATE, action[self.frame][3] * PLAYER_SIZE_RATE)
+            else:
+                self.image.clip_composite_draw(*rect, 0, 'h', sx, sy, action[self.frame][2] * PLAYER_SIZE_RATE, action[self.frame][3] * PLAYER_SIZE_RATE)
         else:
-            self.image.clip_composite_draw(*rect, 0, 'h', self.x, self.y, action[self.frame][2] * PLAYER_SIZE_RATE, action[self.frame][3] * PLAYER_SIZE_RATE)
+            if self.face_dir == 1:
+                self.image.clip_draw(*rect, self.x, self.y, action[self.frame][2] * PLAYER_SIZE_RATE, action[self.frame][3] * PLAYER_SIZE_RATE)
+            else:
+                self.image.clip_composite_draw(*rect, 0, 'h', self.x, self.y, action[self.frame][2] * PLAYER_SIZE_RATE, action[self.frame][3] * PLAYER_SIZE_RATE)
 
     def update(self):
         self.state_machine.update()
+
+        if common.is_scrolling:
+            self.x = clamp(20, self.x, common.sky_1.w - 10)
+            self.y = clamp(20, self.y, common.sky_1.h - 10)
+
         if self.is_hit:
             self.hit_timer += game_framework.frame_time
             if self.hit_timer >= 1.0:
