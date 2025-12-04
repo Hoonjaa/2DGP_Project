@@ -15,8 +15,8 @@ class PlayerUltAttack:
 
     def get_bb(self):
         if common.is_scrolling:
-            sx = self.x - common.sky_1.window_left
-            sy = self.y - common.sky_1.window_bottom
+            sx = self.x - common.ground_1.window_left
+            sy = self.y - common.ground_1.window_bottom
             return (sx - 200, sy - 50, sx + 200, sy + 100)
         else:
             return (self.x - 200, self.y - 50, self.x + 200, self.y + 100)

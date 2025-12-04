@@ -10,6 +10,7 @@ from variant_zombie2 import VZ2
 from variant_zombie1 import VZ1
 from boss import Boss
 from scroll_blue_sky import ScrollBlueSky
+from scroll_ground_1 import ScrollGround1
 
 
 def handle_events():
@@ -27,6 +28,9 @@ def init():
 
     common.sky_1 = ScrollBlueSky()
     game_world.add_object(common.sky_1,0)
+
+    common.ground_1 = ScrollGround1()
+    game_world.add_object(common.ground_1,0)
 
     if common.player is None:
         common.player = Player()

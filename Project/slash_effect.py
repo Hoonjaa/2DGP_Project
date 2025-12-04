@@ -37,7 +37,7 @@ class SlashEffect:
 
         # 스크롤링 여부에 따른 제거 범위 설정
         if common.is_scrolling:
-            if self.x < -64 or self.x > common.sky_1.w + 64:
+            if self.x < -64 or self.x > common.ground_1.w + 64:
                 game_world.remove_object(self)
         else:
             if self.x < -64 or self.x > 1280 + 64:
@@ -48,8 +48,8 @@ class SlashEffect:
 
         # 스크롤링 지원
         if common.is_scrolling:
-            sx = self.x - common.sky_1.window_left
-            sy = self.y - common.sky_1.window_bottom
+            sx = self.x - common.ground_1.window_left
+            sy = self.y - common.ground_1.window_bottom
         else:
             sx = self.x
             sy = self.y
@@ -64,8 +64,8 @@ class SlashEffect:
 
     def get_bb(self):
         if common.is_scrolling:
-            sx = self.x - common.sky_1.window_left
-            sy = self.y - common.sky_1.window_bottom
+            sx = self.x - common.ground_1.window_left
+            sy = self.y - common.ground_1.window_bottom
             return (sx - 50, sy - 80, sx + 50, sy + 80)
         else:
             return (self.x - 50, self.y - 80, self.x + 50, self.y + 80)

@@ -1,9 +1,9 @@
 from pico2d import *
 import common
 
-class ScrollBlueSky:
+class ScrollGround1:
     def __init__(self):
-        self.image = load_image('Sprite/sky.png')
+        self.image = load_image('Sprite/ground.png')
         self.cw = get_canvas_width()
         self.ch = get_canvas_height()
         self.tile_w = self.image.w
@@ -15,14 +15,8 @@ class ScrollBlueSky:
         self.window_bottom = 0
 
     def update(self):
-        self.window_left = clamp(0, int(common.player.x // 4) - self.cw // 2, self.w - self.cw - 1)
-        self.window_bottom = clamp(0, int(common.player.y // 4) - self.ch // 2, self.h - self.ch - 1)
-        # 시차 스크롤링: 4배 느리게 이동 (플레이어 위치의 1/4만 사용)
-        # target_x = int(common.player.x) // 4
-        # target_y = int(common.player.y) // 4
-        #
-        # self.window_left = clamp(0, target_x - self.cw // 2, self.w // 4 - self.cw - 1)
-        # self.window_bottom = clamp(0, target_y - self.ch // 2, self.h // 4 - self.ch - 1)
+        self.window_left = clamp(0, int(common.player.x) - self.cw // 2, self.w - self.cw - 1)
+        self.window_bottom = clamp(0, int(common.player.y) - self.ch // 2, self.h - self.ch - 1)
 
     def draw(self):
         start_tile = self.window_left // self.tile_w

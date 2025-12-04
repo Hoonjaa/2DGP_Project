@@ -99,8 +99,8 @@ class Ultimate:
 
         # 스크롤링 지원
         if common.is_scrolling:
-            sx = x_render - common.sky_1.window_left
-            sy = y_render - common.sky_1.window_bottom
+            sx = x_render - common.ground_1.window_left
+            sy = y_render - common.ground_1.window_bottom
         else:
             sx = x_render
             sy = y_render
@@ -118,8 +118,8 @@ class Ultimate:
         y_offset = 50 * PLAYER_SIZE_RATE / 2
 
         if common.is_scrolling:
-            sx = self.player.x - common.sky_1.window_left
-            sy = self.player.y - common.sky_1.window_bottom
+            sx = self.player.x - common.ground_1.window_left
+            sy = self.player.y - common.ground_1.window_bottom
             return (sx - x_offset + x_correct, sy - y_offset, sx + x_offset + x_correct, sy + y_offset)
         else:
             return (self.player.x - x_offset + x_correct, self.player.y - y_offset, self.player.x + x_offset + x_correct, self.player.y + y_offset)
@@ -158,8 +158,8 @@ class Slash:
         y_offset = self.action[self.player.frame][3] * PLAYER_SIZE_RATE / 2
 
         if common.is_scrolling:
-            sx = self.player.x - common.sky_1.window_left
-            sy = self.player.y - common.sky_1.window_bottom
+            sx = self.player.x - common.ground_1.window_left
+            sy = self.player.y - common.ground_1.window_bottom
             return (sx - x_offset, sy - y_offset, sx + x_offset, sy + y_offset)
         else:
             return (self.player.x - x_offset, self.player.y - y_offset, self.player.x + x_offset, self.player.y + y_offset)
@@ -206,8 +206,8 @@ class Attack:
 
         # 스크롤링 지원
         if common.is_scrolling:
-            sx = self.player.x - common.sky_1.window_left
-            sy = y_render - common.sky_1.window_bottom
+            sx = self.player.x - common.ground_1.window_left
+            sy = y_render - common.ground_1.window_bottom
         else:
             sx = self.player.x
             sy = y_render
@@ -224,8 +224,8 @@ class Attack:
         y_offset = 50 * PLAYER_SIZE_RATE / 2
 
         if common.is_scrolling:
-            sx = self.player.x - common.sky_1.window_left
-            sy = self.player.y - common.sky_1.window_bottom
+            sx = self.player.x - common.ground_1.window_left
+            sy = self.player.y - common.ground_1.window_bottom
             return (sx - x_offset, sy - y_offset, sx + x_offset, sy + y_offset)
         else:
             return (self.player.x - x_offset, self.player.y - y_offset, self.player.x + x_offset, self.player.y + y_offset)
@@ -317,8 +317,8 @@ class Jump:
         y_offset = self.action[self.player.frame][3] * PLAYER_SIZE_RATE / 2
 
         if common.is_scrolling:
-            sx = self.player.x - common.sky_1.window_left
-            sy = self.player.y - common.sky_1.window_bottom
+            sx = self.player.x - common.ground_1.window_left
+            sy = self.player.y - common.ground_1.window_bottom
             return (sx - x_offset, sy - y_offset, sx + x_offset, sy + y_offset)
         else:
             return (self.player.x - x_offset, self.player.y - y_offset, self.player.x + x_offset, self.player.y + y_offset)
@@ -353,8 +353,8 @@ class Run:
         y_offset = self.action[self.player.frame][3] * PLAYER_SIZE_RATE / 2
 
         if common.is_scrolling:
-            sx = self.player.x - common.sky_1.window_left
-            sy = self.player.y - common.sky_1.window_bottom
+            sx = self.player.x - common.ground_1.window_left
+            sy = self.player.y - common.ground_1.window_bottom
             return (sx - x_offset, sy - y_offset, sx + x_offset, sy + y_offset)
         else:
             return (self.player.x - x_offset, self.player.y - y_offset, self.player.x + x_offset, self.player.y + y_offset)
@@ -385,8 +385,8 @@ class Idle:
         y_offset = self.action[self.player.frame][3] * PLAYER_SIZE_RATE / 2
 
         if common.is_scrolling:
-            sx = self.player.x - common.sky_1.window_left
-            sy = self.player.y - common.sky_1.window_bottom
+            sx = self.player.x - common.ground_1.window_left
+            sy = self.player.y - common.ground_1.window_bottom
             return (sx - x_offset, sy - y_offset, sx + x_offset, sy + y_offset)
         else:
             return (self.player.x - x_offset, self.player.y - y_offset, self.player.x + x_offset, self.player.y + y_offset)
@@ -476,8 +476,8 @@ class Player:
         rect = action[idx]
 
         if common.is_scrolling:
-            sx = self.x - common.sky_1.window_left
-            sy = self.y - common.sky_1.window_bottom
+            sx = self.x - common.ground_1.window_left
+            sy = self.y - common.ground_1.window_bottom
             if self.face_dir == 1:
                 self.image.clip_draw(*rect, sx, sy, action[self.frame][2] * PLAYER_SIZE_RATE, action[self.frame][3] * PLAYER_SIZE_RATE)
             else:
@@ -492,8 +492,8 @@ class Player:
         self.state_machine.update()
 
         if common.is_scrolling:
-            self.x = clamp(20, self.x, common.sky_1.w - 10)
-            self.y = clamp(20, self.y, common.sky_1.h - 10)
+            self.x = clamp(20, self.x, common.ground_1.w - 10)
+            self.y = clamp(20, self.y, common.ground_1.h - 10)
 
         if self.is_hit:
             self.hit_timer += game_framework.frame_time
