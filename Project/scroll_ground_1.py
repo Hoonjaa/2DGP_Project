@@ -4,6 +4,9 @@ import common
 class ScrollGround1:
     def __init__(self):
         self.image = load_image('Sprite/ground.png')
+        self.bgm = load_music('Sound/stage.mp3')
+        self.bgm.set_volume(25)
+        self.bgm.repeat_play()
         self.cw = get_canvas_width()
         self.ch = get_canvas_height()
         self.tile_w = self.image.w
