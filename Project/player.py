@@ -252,7 +252,9 @@ class Dash:
         self.player.anim_progress = 0.0
         self.dash_dir = self.player.face_dir
         self.player.dash_cooldown = self.player.dash_cooldown_time
-        pass
+
+        self.player.dash_sound.set_volume(32)
+        self.player.dash_sound.play()
 
     def exit(self, e):
         pass
@@ -411,6 +413,7 @@ class Player:
         # 사운드
         self.attack_sound = load_wav('Sound/ult.mp3')
         self.slash_sound = load_wav('Sound/slash.mp3')
+        self.dash_sound = load_wav('Sound/dash.wav')
 
         # 스킬 잠금 관련 변수
         self.is_slash_unlocked = True
