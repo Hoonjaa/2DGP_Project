@@ -9,6 +9,7 @@ from boss_attack import BossAttack
 from boss_charge_attack import BossChargeAttack
 from boss_skill import BossSkill
 from state_machine import StateMachine
+import victory_stage
 
 
 # 이벤트 체크 함수
@@ -63,8 +64,9 @@ class Death:
         self.monster.anim_progress += 0.3 * game_framework.frame_time * len(self.action)
         self.monster.frame = int(self.monster.anim_progress) % len(self.action)
         if self.monster.frame == len(self.action) - 1:
-            game_world.remove_object(self.monster.monster_ui)
-            game_world.remove_object(self.monster)
+            game_framework.change_mode(victory_stage)
+            # game_world.remove_object(self.monster.monster_ui)
+            # game_world.remove_object(self.monster)
 
     def draw(self):
         self.monster.draw_current(self.action)
@@ -329,7 +331,7 @@ class Boss:
 
     def __init__(self):
         self.x, self.y = 300, 80
-        self.hp = 300
+        self.hp = 1
         self.max_hp = 300
 
         self.attack_damage = 20
@@ -462,8 +464,8 @@ class Boss:
                 self.state_machine.handle_event(('AVOIDANCE', None))
                 return
 
-            damage_text = DamageText(self.x, self.y + 50, other.player.base_damage)
-            game_world.add_object(damage_text, 2)
+            # damage_text = DamageText(self.x, self.y + 50, other.player.base_damage)
+            # game_world.add_object(damage_text, 2)
             self.is_hit = True
             self.hp -= other.player.base_damage
 
@@ -477,8 +479,8 @@ class Boss:
                 self.state_machine.handle_event(('AVOIDANCE', None))
                 return
 
-            damage_text = DamageText(self.x, self.y + 50, other.player.slash_damage)
-            game_world.add_object(damage_text, 2)
+            # damage_text = DamageText(self.x, self.y + 50, other.player.slash_damage)
+            # game_world.add_object(damage_text, 2)
             self.is_hit = True
             self.hp -= other.player.slash_damage
 
@@ -492,8 +494,8 @@ class Boss:
                 self.state_machine.handle_event(('AVOIDANCE', None))
                 return
 
-            damage_text = DamageText(self.x, self.y + 50, other.player.ult_damage)
-            game_world.add_object(damage_text, 2)
+            # damage_text = DamageText(self.x, self.y + 50, other.player.ult_damage)
+            # game_world.add_object(damage_text, 2)
             self.is_hit = True
             self.hp -= other.player.ult_damage
 
