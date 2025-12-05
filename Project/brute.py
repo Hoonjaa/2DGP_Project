@@ -1,4 +1,4 @@
-from pico2d import load_image, draw_rectangle
+from pico2d import load_image, draw_rectangle, load_wav
 import game_framework
 import common
 from jewel import Jewel
@@ -124,6 +124,8 @@ class Attack:
 
         if self.monster.frame == 2 and self.attack is None:
             self.attack = BruteAttack(self.monster.x, self.monster.y, self.monster.attack_damage, self.monster)
+            self.monster.attack_sound.set_volume(32)
+            self.monster.attack_sound.play()
             game_world.add_object(self.attack, 2)
             game_world.add_collision_pair('player:monster_attack', None, self.attack)
 
@@ -221,6 +223,8 @@ class Brute:
         self.x, self.y = 940, 165
         self.hp = 300
         self.max_hp = 300
+
+        self.attack_sound = load_wav('Sound/brute_attack.mp3')
 
         self.attack_damage = 20
 
