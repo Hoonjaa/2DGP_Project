@@ -1,6 +1,6 @@
 from pico2d import *
 import game_framework
-import forge_stage
+import title_stage
 
 image = None
 logo_start_time = 2.0
@@ -26,11 +26,11 @@ def update():
 
     logo_start_time -= game_framework.frame_time
     if logo_start_time <= 0.0:
-        game_framework.change_mode(forge_stage)
+        game_framework.change_mode(title_stage)
 
 def draw():
     clear_canvas()
-    image.clip_draw(0,0,800,600,640,360,1600,1200)
+    image.draw(640,360,1280,720)
     update_canvas()
 
 def handle_events():
