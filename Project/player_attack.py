@@ -11,7 +11,8 @@ class PlayerAttack:
         self.y = self.player.y
 
     def draw(self):
-        draw_rectangle(*self.get_bb(), 0, 255, 0)
+        # draw_rectangle(*self.get_bb(), 0, 255, 0)
+        pass
 
     def get_bb(self):
         # face_dir에 따라 공격 범위 설정

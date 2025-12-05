@@ -98,7 +98,7 @@ class Hit:
 
     def draw(self):
         self.monster.draw_current(self.action)
-        draw_rectangle(*self.get_bb(), 255, 0, 0)
+        # draw_rectangle(*self.get_bb(), 255, 0, 0)
 
     def get_bb(self):
         return self.monster.bb_operation(self.action)
@@ -139,7 +139,7 @@ class Run:
 
     def draw(self):
         self.monster.draw_current(self.action)
-        draw_rectangle(*self.get_bb(), 255, 0, 0)
+        # draw_rectangle(*self.get_bb(), 255, 0, 0)
 
     def get_bb(self):
         return self.monster.bb_operation(self.action)
@@ -168,7 +168,7 @@ class Idle:
 
     def draw(self):
         self.monster.draw_current(self.action)
-        draw_rectangle(*self.get_bb(), 255, 0, 0)
+        # draw_rectangle(*self.get_bb(), 255, 0, 0)
 
     def get_bb(self):
         return self.monster.bb_operation(self.action)

@@ -119,7 +119,7 @@ class Ultimate:
             self.player.image.clip_draw(*rect, sx, sy, size_x, size_y)
         else:
             self.player.image.clip_composite_draw(*rect, 0, 'h', sx, sy, size_x, size_y)
-        draw_rectangle(*self.get_bb(), 255, 0, 0)
+        # draw_rectangle(*self.get_bb(), 255, 0, 0)
 
     def get_bb(self):
         x_offset = 50 * PLAYER_SIZE_RATE / 2
@@ -163,7 +163,7 @@ class Slash:
 
     def draw(self):
         self.player.draw_current(self.action)
-        draw_rectangle(*self.get_bb(), 255, 0, 0)
+        # draw_rectangle(*self.get_bb(), 255, 0, 0)
 
     def get_bb(self):
         x_offset = self.action[self.player.frame][2] * PLAYER_SIZE_RATE / 2
@@ -238,7 +238,7 @@ class Attack:
             self.player.image.clip_draw(*rect, sx, sy, size_x, size_y)
         else:
             self.player.image.clip_composite_draw(*rect, 0, 'h', sx, sy, size_x, size_y)
-        draw_rectangle(*self.get_bb(), 255, 0, 0)
+        # draw_rectangle(*self.get_bb(), 255, 0, 0)
 
     def get_bb(self):
         x_offset = 50 * PLAYER_SIZE_RATE / 2
@@ -333,7 +333,7 @@ class Jump:
 
     def draw(self):
         self.player.draw_current(self.action)
-        draw_rectangle(*self.get_bb(), 255, 0, 0)
+        # draw_rectangle(*self.get_bb(), 255, 0, 0)
 
     def get_bb(self):
         x_offset = self.action[self.player.frame][2] * PLAYER_SIZE_RATE / 2
@@ -369,7 +369,7 @@ class Run:
 
     def draw(self):
         self.player.draw_current(self.action)
-        draw_rectangle(*self.get_bb(), 255, 0, 0)
+        # draw_rectangle(*self.get_bb(), 255, 0, 0)
 
     def get_bb(self):
         x_offset = self.action[self.player.frame][2] * PLAYER_SIZE_RATE / 2
@@ -401,7 +401,7 @@ class Idle:
 
     def draw(self):
         self.player.draw_current(self.action)
-        draw_rectangle(*self.get_bb(),255,0,0)
+        # draw_rectangle(*self.get_bb(),255,0,0)
 
     def get_bb(self):
         x_offset = self.action[self.player.frame][2] * PLAYER_SIZE_RATE / 2

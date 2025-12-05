@@ -164,7 +164,7 @@ class Charge_Attack:
 
     def draw(self):
         self.monster.draw_current(self.action)
-        draw_rectangle(*self.get_bb(), 255, 0, 0)
+        # draw_rectangle(*self.get_bb(), 255, 0, 0)
 
     def get_bb(self):
         return (self.monster.x - 60 * BOSS_SIZE_RATE, self.monster.y - 30 * BOSS_SIZE_RATE,
@@ -210,7 +210,7 @@ class Attack:
 
     def draw(self):
         self.monster.draw_current(self.action)
-        draw_rectangle(*self.get_bb(), 255, 0, 0)
+        # draw_rectangle(*self.get_bb(), 255, 0, 0)
 
     def get_bb(self):
         return (self.monster.x - 50 * BOSS_SIZE_RATE, self.monster.y - 20 * BOSS_SIZE_RATE,
@@ -293,7 +293,7 @@ class Run:
 
     def draw(self):
         self.monster.draw_current(self.action)
-        draw_rectangle(*self.get_bb(), 255, 0, 0)
+        # draw_rectangle(*self.get_bb(), 255, 0, 0)
 
     def get_bb(self):
         return (self.monster.x - 30 * BOSS_SIZE_RATE, self.monster.y - 20 * BOSS_SIZE_RATE,
@@ -323,7 +323,7 @@ class Idle:
 
     def draw(self):
         self.monster.draw_current(self.action)
-        draw_rectangle(*self.get_bb(), 255, 0, 0)
+        # draw_rectangle(*self.get_bb(), 255, 0, 0)
 
     def get_bb(self):
         return (self.monster.x - 35 * BOSS_SIZE_RATE, self.monster.y - 20 * BOSS_SIZE_RATE,

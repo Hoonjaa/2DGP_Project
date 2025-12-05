@@ -11,7 +11,8 @@ class BossChargeAttack:
         pass
 
     def draw(self):
-        draw_rectangle(*self.get_bb(), 0, 0, 255)
+        # draw_rectangle(*self.get_bb(), 0, 0, 255)
+        pass
 
     def get_bb(self):
         return (self.x - 140 + (self.dir * 40), self.y - 60, self.x + 140 + (self.dir * 40), self.y + 200)

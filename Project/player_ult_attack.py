@@ -11,7 +11,8 @@ class PlayerUltAttack:
         self.y = self.player.y
 
     def draw(self):
-        draw_rectangle(*self.get_bb(), 0, 255, 0)
+        # draw_rectangle(*self.get_bb(), 0, 255, 0)
+        pass
 
     def get_bb(self):
         if common.is_scrolling:

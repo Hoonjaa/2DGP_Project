@@ -33,7 +33,7 @@ class BossSkill:
         else:
             self.image.clip_composite_draw(0,0,2048,512, 0, 'h', self.x + self.dir * size_x / 2, self.y, size_x, size_y)
 
-        draw_rectangle(*self.get_bb(), 0, 0, 255)
+        # draw_rectangle(*self.get_bb(), 0, 0, 255)
 
     def get_bb(self):
         size_x, size_y = self.width - self.count * self.d_width, self.height - self.count * self.d_height

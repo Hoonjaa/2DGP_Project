@@ -48,8 +48,8 @@ class Jewel:
             sy = self.y - common.ground_1.window_bottom
             self.image.clip_draw(0, 0, 80, 80, sx, sy, 40, 40)
 
-        if not self.is_flying:
-            draw_rectangle(*self.get_bb(), 255, 0, 0)
+        # if not self.is_flying:
+        #     draw_rectangle(*self.get_bb(), 255, 0, 0)
 
     def get_bb(self):
         if self.is_flying:

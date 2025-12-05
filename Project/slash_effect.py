@@ -60,7 +60,7 @@ class SlashEffect:
         else:
             self.image.clip_composite_draw(self.frame * SLASH_SRC_SIZE, 0, SLASH_SRC_SIZE, SLASH_SRC_SIZE,
                                            0, 'h', sx, sy, dw, dw)
-        draw_rectangle(*self.get_bb(), 255, 120, 0)
+        # draw_rectangle(*self.get_bb(), 255, 120, 0)
 
     def get_bb(self):
         if common.is_scrolling:
