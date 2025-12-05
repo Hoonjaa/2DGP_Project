@@ -23,6 +23,7 @@ def j_down(e): return key_event(e, SDL_KEYDOWN, SDLK_j)
 def k_down(e): return key_event(e, SDL_KEYDOWN, SDLK_k)
 def l_down(e): return key_event(e, SDL_KEYDOWN, SDLK_l)
 
+def reset(e): return e[0] == 'RESET'
 def land(e): return e[0] == 'LAND'
 def move_land(e): return e[0] == 'MOVE_LAND'
 def dash_finish(e): return e[0] == 'DASH_FINISH'
@@ -394,7 +395,7 @@ class Idle:
 class Player:
     def __init__(self):
         self.x, self.y = 640, 85
-        self.hp = 300
+        self.hp = 2
         self.max_hp = 300
 
         # 스킬 잠금 관련 변수
@@ -450,7 +451,7 @@ class Player:
             self.IDLE,
             {
                 self.IDLE : {a_down : self.RUN, d_down : self.RUN, a_up : self.RUN, d_up : self.RUN, space_down : self.JUMP, shift_down : self.DASH, j_down : self.ATTACK, k_down : self.SLASH, l_down : self.ULTIMATE},
-                self.RUN : {a_down : self.IDLE, d_down : self.IDLE, a_up : self.IDLE, d_up : self.IDLE, space_down : self.JUMP, shift_down : self.DASH, j_down : self.ATTACK, k_down : self.SLASH, l_down : self.ULTIMATE},
+                self.RUN : {a_down : self.IDLE, d_down : self.IDLE, a_up : self.IDLE, d_up : self.IDLE, space_down : self.JUMP, shift_down : self.DASH, j_down : self.ATTACK, k_down : self.SLASH, l_down : self.ULTIMATE, reset : self.IDLE},
                 self.JUMP : {a_down : self.JUMP, d_down : self.JUMP, a_up : self.JUMP, d_up : self.JUMP, land : self.IDLE, move_land : self.RUN, shift_down : self.DASH, j_down : self.ATTACK, k_down : self.SLASH},
                 self.DASH : {dash_finish : self.IDLE, move_dash_finish : self.RUN, jump_dash_finish : self.JUMP},
                 self.ATTACK : {attack_finish : self.IDLE, move_attack_finish : self.RUN, jump_attack_finish : self.JUMP},

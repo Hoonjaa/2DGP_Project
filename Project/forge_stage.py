@@ -37,6 +37,8 @@ def init():
 
     if common.player is None:
         common.player = Player()
+    common.player.x = 100
+    common.player.state_machine.handle_event(('RESET', None))
     game_world.add_object(common.player,1)
 
     player_ui = PlayerUI(common.player)

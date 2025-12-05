@@ -35,6 +35,7 @@ def render():
 def clear():
     for layer in world:
         layer.clear()
+    collision_pairs.clear()  # 충돌 쌍도 함께 제거
 
 def collide(a, b):
     bb_a = a.get_bb()

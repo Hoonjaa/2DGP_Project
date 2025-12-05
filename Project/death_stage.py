@@ -1,6 +1,6 @@
 from pico2d import *
 import game_framework
-import first_stage
+import forge_stage
 
 image = None
 
@@ -12,7 +12,7 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_SPACE:
-            game_framework.change_mode(first_stage)
+            game_framework.change_mode(forge_stage)
 
 def pause():
     pass
@@ -23,7 +23,7 @@ def resume():
 def init():
     global image
 
-    image = load_image('Sprite/title_image.png')
+    image = load_image('Sprite/player_die.png')
 
 def finish():
     global image

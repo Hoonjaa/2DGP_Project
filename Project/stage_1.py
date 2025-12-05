@@ -13,6 +13,7 @@ from boss import Boss
 from scroll_blue_sky import ScrollBlueSky
 from scroll_ground_1 import ScrollGround1
 import stage_2
+import death_stage
 
 
 def handle_events():
@@ -74,6 +75,10 @@ def init():
 def update():
     game_world.update()
     game_world.handle_collisions()
+
+    if common.player.hp <= 0:
+        common.player.hp = common.player.max_hp
+        game_framework.change_mode(death_stage)
 
     if common.player.x > 7600 and common.total_monster <= 0:
         game_framework.change_mode(stage_2)
