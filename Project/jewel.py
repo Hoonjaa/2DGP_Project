@@ -8,6 +8,7 @@ class Jewel:
         self.x, self.y = x, 60
         self.price = price
         self.image = load_image('Sprite/jewel.png')
+        self.sound = load_wav('Sound/coin.mp3')
         self.is_flying = False
         self.start_x = 0
         self.start_y = 0
@@ -60,6 +61,8 @@ class Jewel:
     def handle_collision(self, group, other):
         if group == 'player:jewel' and not self.is_flying:
             # 날아가기 시작
+            self.sound.set_volume(32)
+            self.sound.play()
             self.is_flying = True
             self.start_x = self.x - common.ground_1.window_left
             self.start_y = self.y - common.ground_1.window_bottom
