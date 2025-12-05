@@ -39,6 +39,7 @@ def init():
     common.player.x = 100
     game_world.add_object(common.player,1)
     game_world.add_collision_pair('player:monster_attack', common.player, None)
+    game_world.add_collision_pair('player:jewel', common.player, None)
 
     player_ui = PlayerUI(common.player)
     game_world.add_object(player_ui,3)

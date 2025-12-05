@@ -1,5 +1,6 @@
 from pico2d import *
 import common
+import game_world
 
 class Jewel:
     def __init__(self, x = 0, y = 0, price = 0):
@@ -22,4 +23,6 @@ class Jewel:
         return (screen_x - 20, screen_y - 20, screen_x + 20, screen_y + 20)
 
     def handle_collision(self, group, other):
-        pass
+        if group == 'player:jewel':
+            common.player.jewel += self.price
+            game_world.remove_object(self)

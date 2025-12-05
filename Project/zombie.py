@@ -52,6 +52,7 @@ class Death:
 
         jewel = Jewel(self.monster.x, self.monster.y, random.randint(1,3))
         game_world.add_object(jewel, 1)
+        game_world.add_collision_pair('player:jewel', None, jewel)
 
     def exit(self, e):
         pass
