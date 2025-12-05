@@ -5,6 +5,7 @@ import game_world
 import game_framework
 from monster_ui import MonsterUI
 from player import Player
+from jewel import Jewel
 from damage_text import DamageText
 from state_machine import StateMachine
 
@@ -48,6 +49,9 @@ class Death:
         self.monster.anim_progress = 0.0
         self.monster.current_state = 'DEATH'
         common.total_monster -= 1
+
+        jewel = Jewel(self.monster.x, self.monster.y, random.randint(1,3))
+        game_world.add_object(jewel, 1)
 
     def exit(self, e):
         pass
