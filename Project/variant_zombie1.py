@@ -2,7 +2,6 @@ from pico2d import load_image, draw_rectangle
 import game_framework
 import game_world
 import common
-from jewel import Jewel
 from player import Player
 from monster_ui import MonsterUI
 from damage_text import DamageText
@@ -51,10 +50,6 @@ class Death:
         self.monster.anim_progress = 0.0
         self.monster.current_state = 'DEATH'
         common.total_monster -= 1
-
-        jewel = Jewel(self.monster.x, self.monster.y, random.randint(6, 9))
-        game_world.add_object(jewel, 1)
-        game_world.add_collision_pair('player:jewel', None, jewel)
 
 
     def exit(self, e):
