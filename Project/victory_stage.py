@@ -2,6 +2,7 @@ from pico2d import *
 import game_framework
 
 image = None
+sound = None
 
 def handle_events():
     events = get_events()
@@ -20,13 +21,18 @@ def resume():
     pass
 
 def init():
-    global image
+    global image, sound
 
     image = load_image('Sprite/victory.png')
+    sound = load_music('Sound/victory.mp3')
+    sound.set_volume(32)
+    sound.play()
 
 def finish():
-    global image
+    global image, sound
     del image
+    if sound:
+        sound.stop()
 
 def update():
     pass

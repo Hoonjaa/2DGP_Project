@@ -335,7 +335,7 @@ class Boss:
 
     def __init__(self):
         self.x, self.y = 300, 80
-        self.hp = 800
+        self.hp = 1
         self.max_hp = 800
 
         self.attack_sound = load_wav('Sound/reaper_attack.mp3')
