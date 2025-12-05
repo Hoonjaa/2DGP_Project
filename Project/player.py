@@ -84,7 +84,12 @@ class Ultimate:
         self.player.attack_sound.play(4)
 
     def exit(self, e):
-        game_world.remove_object(self.ult_attack)
+        if self.ult_attack:
+            # 월드에 존재하는지 확인
+            for layer in game_world.world:
+                if self.ult_attack in layer:
+                    game_world.remove_object(self.ult_attack)
+                    break
 
     def do(self):
         if self.player.frame == len(self.action) - 1:
@@ -194,7 +199,12 @@ class Attack:
 
 
     def exit(self, e):
-        game_world.remove_object(self.attack)
+        if self.attack:
+            # 월드에 존재하는지 확인
+            for layer in game_world.world:
+                if self.attack in layer:
+                    game_world.remove_object(self.attack)
+                    break
 
     def do(self):
         if self.player.frame == len(self.action) - 1:
@@ -407,7 +417,7 @@ class Idle:
 class Player:
     def __init__(self):
         self.x, self.y = 640, 85
-        self.hp = 300
+        self.hp = 3
         self.max_hp = 300
 
         # 사운드
