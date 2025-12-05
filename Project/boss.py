@@ -3,7 +3,7 @@ import game_framework
 import game_world
 import random
 from damage_text import DamageText
-from monster_ui import MonsterUI
+from boss_ui import BossUI
 from player import Player
 from boss_attack import BossAttack
 from boss_charge_attack import BossChargeAttack
@@ -65,8 +65,6 @@ class Death:
         self.monster.frame = int(self.monster.anim_progress) % len(self.action)
         if self.monster.frame == len(self.action) - 1:
             game_framework.change_mode(victory_stage)
-            # game_world.remove_object(self.monster.monster_ui)
-            # game_world.remove_object(self.monster)
 
     def draw(self):
         self.monster.draw_current(self.action)
@@ -331,8 +329,8 @@ class Boss:
 
     def __init__(self):
         self.x, self.y = 300, 80
-        self.hp = 1
-        self.max_hp = 300
+        self.hp = 800
+        self.max_hp = 800
 
         self.attack_damage = 20
         self.charge_attack_damage = 40
@@ -340,10 +338,8 @@ class Boss:
 
         self.current_state = 'IDLE'
 
-        # 체력 UI
-        # self.monster_ui_offset_y = 90
-        # self.monster_ui = MonsterUI(self)
-        # game_world.add_object(self.monster_ui, 3)
+        self.monster_ui = BossUI(self)
+        game_world.add_object(self.monster_ui, 3)
 
         # 애니메이션 관련 변수
         self.frame = 0
@@ -417,7 +413,7 @@ class Boss:
         player = game_world.find_object_by_type(Player)
         if player:
             distance = self.x - player.x
-            return -500 < distance < 500
+            return -2000 < distance < 2000
         return False
 
     def check_near_player_attack(self):
