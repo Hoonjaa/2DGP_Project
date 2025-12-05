@@ -417,7 +417,7 @@ class Idle:
 class Player:
     def __init__(self):
         self.x, self.y = 640, 85
-        self.hp = 3
+        self.hp = 300
         self.max_hp = 300
 
         # 사운드
