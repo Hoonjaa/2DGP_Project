@@ -89,6 +89,8 @@ def draw():
     update_canvas()
 
 def finish():
+    if common.ground_1:
+        common.ground_1.stop_bgm()
     game_world.clear()
 
 def pause():

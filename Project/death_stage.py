@@ -3,6 +3,7 @@ import game_framework
 import forge_stage
 
 image = None
+sound = None
 
 def handle_events():
     events = get_events()
@@ -19,13 +20,18 @@ def resume():
     pass
 
 def init():
-    global image
+    global image, sound
 
     image = load_image('Sprite/player_die.png')
+    sound = load_music('Sound/die.mp3')
+    sound.set_volume(32)
+    sound.play()
 
 def finish():
-    global image
+    global image, sound
     del image
+    if sound:
+        sound.stop()
 
 def update():
     pass

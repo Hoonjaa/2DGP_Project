@@ -17,6 +17,9 @@ class ScrollGround1:
         self.window_left = 0
         self.window_bottom = 0
 
+    def stop_bgm(self):
+        self.bgm.stop()
+
     def update(self):
         self.window_left = clamp(0, int(common.player.x) - self.cw // 2, self.w - self.cw - 1)
         self.window_bottom = clamp(0, int(common.player.y) - self.ch // 2, self.h - self.ch - 1)
