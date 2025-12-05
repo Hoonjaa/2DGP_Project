@@ -341,8 +341,8 @@ class Boss:
         self.attack_sound = load_wav('Sound/reaper_attack.mp3')
         self.skill_sound = load_wav('Sound/reaper_skill.mp3')
 
-        self.attack_damage = 20
-        self.charge_attack_damage = 40
+        self.attack_damage = 40
+        self.charge_attack_damage = 60
         self.skill_damage = 60
 
         self.current_state = 'IDLE'
