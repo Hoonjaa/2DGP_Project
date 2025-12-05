@@ -80,6 +80,9 @@ class Ultimate:
         game_world.add_object(self.ult_attack, 2)
         game_world.add_collision_pair('monster:player_ult', None, self.ult_attack)
 
+        self.player.attack_sound.set_volume(32)
+        self.player.attack_sound.play(4)
+
     def exit(self, e):
         game_world.remove_object(self.ult_attack)
 
@@ -136,6 +139,9 @@ class Slash:
         self.player.anim_progress = 0.0
         self.player.slash_cooldown = self.player.slash_cooldown_time
 
+        self.player.slash_sound.set_volume(32)
+        self.player.slash_sound.play()
+
     def exit(self, e):
         self.player.add_slash_effect()
 
@@ -181,6 +187,10 @@ class Attack:
         self.attack = PlayerAttack(self.player.x, self.player.y, self.player)
         game_world.add_object(self.attack, 2)
         game_world.add_collision_pair('monster:player_attack', None, self.attack)
+
+        self.player.attack_sound.set_volume(32)
+        self.player.attack_sound.play(2)
+
 
 
     def exit(self, e):
@@ -397,6 +407,10 @@ class Player:
         self.x, self.y = 640, 85
         self.hp = 300
         self.max_hp = 300
+
+        # 사운드
+        self.attack_sound = load_wav('Sound/ult.mp3')
+        self.slash_sound = load_wav('Sound/slash.mp3')
 
         # 스킬 잠금 관련 변수
         self.is_slash_unlocked = True
