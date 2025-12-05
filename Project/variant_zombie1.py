@@ -1,4 +1,4 @@
-from pico2d import load_image, draw_rectangle
+from pico2d import load_image, draw_rectangle, load_wav
 import game_framework
 import game_world
 import common
@@ -132,6 +132,8 @@ class Attack:
 
         if self.monster.frame == 2 and self.attack is None:
             self.attack = VZ2Attack(self.monster.x, self.monster.y, self.monster.attack_damage, self.monster.face_dir, self.monster)
+            self.monster.attack_sound.set_volume(32)
+            self.monster.attack_sound.play()
             game_world.add_object(self.attack, 2)
             game_world.add_collision_pair('player:monster_attack', None, self.attack)
 
@@ -249,6 +251,8 @@ class VZ1:
         self.x, self.y = 700, 105
         self.hp = 150
         self.max_hp = 150
+
+        self.attack_sound = load_wav('Sound/vz1_attack.mp3')
 
         self.attack_damage = 20
 
