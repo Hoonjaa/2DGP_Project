@@ -13,8 +13,6 @@ from boss import Boss
 from scroll_blue_sky import ScrollBlueSky
 from scroll_ground_1 import ScrollGround1
 import stage_2
-import open_stage
-import close_stage
 
 
 def handle_events():
@@ -40,7 +38,6 @@ def init():
     if common.player is None:
         common.player = Player()
     common.player.x = 100
-    common.player.state_machine.start(common.player.IDLE)
     game_world.add_object(common.player,1)
     game_world.add_collision_pair('player:monster_attack', common.player, None)
     game_world.add_collision_pair('player:jewel', common.player, None)
@@ -73,8 +70,6 @@ def init():
         game_world.add_collision_pair('monster:player_attack', brute, None)
         game_world.add_collision_pair('monster:player_slash', brute, None)
         game_world.add_collision_pair('monster:player_ult', brute, None)
-
-    game_framework.push_mode(open_stage)
 
 def update():
     game_world.update()

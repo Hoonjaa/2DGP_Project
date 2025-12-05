@@ -10,8 +10,6 @@ from forge_ground import ForgeGround
 from blue_sky import BlueSky
 from scroll_blue_sky import ScrollBlueSky
 from forge import Forge
-import open_stage
-import close_stage
 
 def handle_events():
     events = get_events()
@@ -44,15 +42,12 @@ def init():
     player_ui = PlayerUI(common.player)
     game_world.add_object(player_ui,3)
 
-    game_framework.push_mode(open_stage)
-
 def update():
     game_world.update()
     game_world.handle_collisions()
 
     if common.player.x > 1270:
-        close_stage.set_next_stage(stage_1)
-        game_framework.push_mode(close_stage)
+        game_framework.change_mode(stage_1)
 
 def draw():
     clear_canvas()
