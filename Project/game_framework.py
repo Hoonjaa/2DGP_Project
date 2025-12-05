@@ -15,6 +15,15 @@ def change_mode(mode):
     mode.init()
 
 
+def clear_and_change_mode(mode):
+    global stack
+    while len(stack) > 0:
+        stack[-1].finish()
+        stack.pop()
+    stack.append(mode)
+    mode.init()
+
+
 def push_mode(mode):
     global stack
     if (len(stack) > 0):

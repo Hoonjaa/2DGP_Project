@@ -21,3 +21,8 @@ class StateMachine:
                 self.next_state.enter(state_event) #다음 상태로 진입
                 self.current_state = self.next_state
                 return
+
+    def start(self, state):
+        self.current_state.exit(('RESET', None))
+        self.current_state = state
+        self.current_state.enter(('START', None))
