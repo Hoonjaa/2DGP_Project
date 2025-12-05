@@ -12,6 +12,7 @@ from variant_zombie1 import VZ1
 from scroll_black_sky import ScrollBlackSky
 from scroll_ground_1 import ScrollGround1
 import boss_stage
+import death_stage
 
 
 def handle_events():

@@ -416,8 +416,8 @@ class Player:
         self.dash_sound = load_wav('Sound/dash.wav')
 
         # 스킬 잠금 관련 변수
-        self.is_slash_unlocked = True
-        self.is_ult_unlocked = True
+        self.is_slash_unlocked = False
+        self.is_ult_unlocked = False
 
         # 재화 관련 변수
         self.jewel = 0

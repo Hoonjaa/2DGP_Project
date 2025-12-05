@@ -13,6 +13,7 @@ from boss import Boss
 from scroll_red_sky import ScrollRedSky
 from scroll_ground_1 import ScrollGround1
 import stage_3
+import death_stage
 
 
 def handle_events():
