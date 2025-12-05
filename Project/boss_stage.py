@@ -8,6 +8,7 @@ from player import Player
 from castle_ground import CastleGround
 from castle_background import CastleBackground
 from boss import Boss
+import death_stage
 
 def handle_events():
     events = get_events()
@@ -50,6 +51,10 @@ def init():
 def update():
     game_world.update()
     game_world.handle_collisions()
+
+    if common.player.hp <= 0:
+        common.player.hp = common.player.max_hp
+        game_framework.change_mode(death_stage)
 
 def draw():
     clear_canvas()

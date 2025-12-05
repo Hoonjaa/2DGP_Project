@@ -83,6 +83,10 @@ def update():
     game_world.update()
     game_world.handle_collisions()
 
+    if common.player.hp <= 0:
+        common.player.hp = common.player.max_hp
+        game_framework.change_mode(death_stage)
+
     if common.player.x > 7600 and common.total_monster <= 0:
         game_framework.change_mode(stage_3)
 
