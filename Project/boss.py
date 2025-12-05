@@ -1,4 +1,4 @@
-from pico2d import load_image, draw_rectangle
+from pico2d import load_image, draw_rectangle, load_wav
 import game_framework
 import game_world
 import random
@@ -108,6 +108,8 @@ class Skill:
 
         if self.monster.frame == 3 and self.skill is None:
             self.skill = BossSkill(self.monster.x, self.monster.y, self.monster.skill_damage, self.monster.face_dir, self.monster)
+            self.monster.skill_sound.set_volume(32)
+            self.monster.skill_sound.play()
             game_world.add_object(self.skill, 2)
             game_world.add_collision_pair('player:monster_attack', None, self.skill)
 
@@ -148,6 +150,8 @@ class Charge_Attack:
 
         if self.monster.frame == 6 and self.attack is None:
             self.attack = BossChargeAttack(self.monster.x, self.monster.y, self.monster.attack_damage, self.monster.face_dir, self.monster)
+            self.monster.attack_sound.set_volume(32)
+            self.monster.attack_sound.play()
             game_world.add_object(self.attack, 2)
             game_world.add_collision_pair('player:monster_attack', None, self.attack)
 
@@ -192,6 +196,8 @@ class Attack:
 
         if self.monster.frame == 3 and self.attack is None:
             self.attack = BossAttack(self.monster.x, self.monster.y, self.monster.attack_damage, self.monster.face_dir, self.monster)
+            self.monster.attack_sound.set_volume(32)
+            self.monster.attack_sound.play()
             game_world.add_object(self.attack, 2)
             game_world.add_collision_pair('player:monster_attack', None, self.attack)
 
@@ -331,6 +337,9 @@ class Boss:
         self.x, self.y = 300, 80
         self.hp = 800
         self.max_hp = 800
+
+        self.attack_sound = load_wav('Sound/reaper_attack.mp3')
+        self.skill_sound = load_wav('Sound/reaper_skill.mp3')
 
         self.attack_damage = 20
         self.charge_attack_damage = 40
