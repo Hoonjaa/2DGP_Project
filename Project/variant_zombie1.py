@@ -56,6 +56,9 @@ class Death:
         game_world.add_object(jewel, 1)
         game_world.add_collision_pair('player:jewel', None, jewel)
 
+        self.monster.death_sound.set_volume(32)
+        self.monster.death_sound.play()
+
 
     def exit(self, e):
         pass
@@ -253,6 +256,7 @@ class VZ1:
         self.max_hp = 150
 
         self.attack_sound = load_wav('Sound/vz1_attack.mp3')
+        self.death_sound = load_wav('Sound/monster_death.mp3')
 
         self.attack_damage = 20
 

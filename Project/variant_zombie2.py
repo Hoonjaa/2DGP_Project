@@ -1,4 +1,4 @@
-from pico2d import load_image, draw_rectangle
+from pico2d import load_image, draw_rectangle, load_wav
 import game_framework
 import game_world
 import common
@@ -49,6 +49,9 @@ class Death:
         jewel = Jewel(self.monster.x, self.monster.y, random.randint(2, 5))
         game_world.add_object(jewel, 1)
         game_world.add_collision_pair('player:jewel', None, jewel)
+
+        self.monster.death_sound.set_volume(32)
+        self.monster.death_sound.play()
 
 
     def exit(self, e):
@@ -177,6 +180,8 @@ class VZ2:
         self.x, self.y = 600, 115
         self.hp = 200
         self.max_hp = 200
+
+        self.death_sound = load_wav('Sound/monster_death.mp3')
 
         self.attack_damage = 15
 
