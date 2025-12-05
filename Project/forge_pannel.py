@@ -163,6 +163,7 @@ class AttackText:
 class ForgePannel:
     def __init__(self):
         self.image = load_image('Sprite/forge_ui.png')
+        self.sound = load_wav('Sound/buy.mp3')
         self.arrow_positions = ((285, 590), (718, 590), (285, 375), (718, 375)) # 임시값
         self.arrow = Arrow(*self.arrow_positions[0])
         self.current_selection = 0
@@ -206,6 +207,8 @@ class ForgePannel:
                         common.player.jewel -= 10
                         text = PurchaseText(True)
                         game_world.add_object(text,4)
+                        self.sound.set_volume(32)
+                        self.sound.play()
                     else:
                         text = PurchaseText(False)
                         game_world.add_object(text,4)
@@ -216,6 +219,8 @@ class ForgePannel:
                         common.player.jewel -= 10
                         text = PurchaseText(True)
                         game_world.add_object(text, 4)
+                        self.sound.set_volume(32)
+                        self.sound.play()
                     else:
                         text = PurchaseText(False)
                         game_world.add_object(text, 4)
@@ -226,6 +231,8 @@ class ForgePannel:
                             common.player.jewel -= 100
                             text = PurchaseText(True)
                             game_world.add_object(text, 4)
+                            self.sound.set_volume(32)
+                            self.sound.play()
                         else:
                             text = PurchaseText(False)
                             game_world.add_object(text, 4)
@@ -235,6 +242,8 @@ class ForgePannel:
                             common.player.jewel -= 30
                             text = PurchaseText(True)
                             game_world.add_object(text, 4)
+                            self.sound.set_volume(32)
+                            self.sound.play()
                         else:
                             text = PurchaseText(False)
                             game_world.add_object(text, 4)
@@ -245,6 +254,8 @@ class ForgePannel:
                             common.player.jewel -= 200
                             text = PurchaseText(True)
                             game_world.add_object(text, 4)
+                            self.sound.set_volume(32)
+                            self.sound.play()
                         else:
                             text = PurchaseText(False)
                             game_world.add_object(text, 4)
@@ -254,6 +265,8 @@ class ForgePannel:
                             common.player.jewel -= 30
                             text = PurchaseText(True)
                             game_world.add_object(text, 4)
+                            self.sound.set_volume(32)
+                            self.sound.play()
                         else:
                             text = PurchaseText(False)
                             game_world.add_object(text, 4)

@@ -1,9 +1,12 @@
-from pico2d import load_image
+from pico2d import load_image, load_music
 import game_framework
 
 class Forge:
     def __init__(self):
         self.image = load_image('Sprite/forge.png')
+        self.bgm = load_music('Sound/forge.mp3')
+        self.bgm.set_volume(25)
+        self.bgm.repeat_play()
         self.frame = 0
         self.anim_progress = 0.0
 
